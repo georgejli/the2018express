@@ -121,31 +121,8 @@ const EventPage = () => {
           </div>
         </section>
 
-        {/* Merchandise Categories Section */}
-        <section className="border-b border-border bg-secondary/30 px-4 py-16">
-          <div className="container mx-auto max-w-4xl">
-            <h2 className="mb-12 text-center font-display text-3xl text-foreground md:text-4xl">
-              What You'll Find
-            </h2>
-            <div className="grid grid-cols-2 gap-8 md:gap-12">
-              {merchandiseCategories.map((category) => (
-                <div key={category.title} className="flex flex-col items-center text-center">
-                  <h3 className="mb-4 font-display text-xl text-foreground md:text-2xl">
-                    {category.title}
-                  </h3>
-                  <img
-                    src={category.image}
-                    alt={category.title}
-                    className="h-auto w-full max-w-[320px] object-contain transition-transform hover:scale-105"
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-        
         {/* Tickets Section */}
-        <section className="px-4 py-16 md:py-24">
+        <section className="border-b border-border px-4 py-16 md:py-24">
           <div className="container mx-auto max-w-4xl">
             <h2 className="mb-2 font-display text-4xl text-foreground">Get Your Tickets</h2>
             <p className="mb-10 text-muted-foreground">
@@ -165,6 +142,29 @@ const EventPage = () => {
                 features={event.vipFeatures}
                 onSelect={() => handleTicketSelect("VIP")}
               />
+            </div>
+          </div>
+        </section>
+
+        {/* Merchandise Categories Section */}
+        <section className="border-b border-border bg-secondary/30 px-4 py-16">
+          <div className="container mx-auto max-w-4xl">
+            <h2 className="mb-12 text-center font-display text-3xl text-foreground md:text-4xl">
+              What You'll Find
+            </h2>
+            <div className="grid grid-cols-2 gap-8 md:gap-12">
+              {merchandiseCategories.map((category) => (
+                <div key={category.title} className="flex flex-col items-center text-center">
+                  <h3 className="mb-4 font-display text-xl text-foreground md:text-2xl">
+                    {category.title}
+                  </h3>
+                  <img
+                    src={category.image}
+                    alt={category.title}
+                    className="h-auto w-full max-w-[320px] object-contain transition-transform hover:scale-105"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </section>
