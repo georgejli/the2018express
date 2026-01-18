@@ -1,6 +1,8 @@
 import Header from "@/components/Header";
 import HeroBanner from "@/components/HeroBanner";
+import NextShowTicker from "@/components/NextShowTicker";
 import EventCard from "@/components/EventCard";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import Footer from "@/components/Footer";
 import { events } from "@/data/events";
 
@@ -11,6 +13,7 @@ const Index = () => {
       
       <main className="flex-1">
         <HeroBanner />
+        <NextShowTicker />
         
         {/* Events Section */}
         <section className="px-4 py-16 md:py-24" id="events">
@@ -80,6 +83,8 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        <NewsletterSignup />
       </main>
       
       <Footer />
