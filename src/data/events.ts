@@ -20,7 +20,7 @@ export const events: Event[] = [
     date: "15",
     month: "FEB",
     year: "2026",
-    dayOfWeek: "Saturday",
+    dayOfWeek: "Sunday",
     time: "10:00 AM - 6:00 PM",
     earlyBirdTime: "9:00 AM",
     venue: "The New Yorker Hotel",
