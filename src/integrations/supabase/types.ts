@@ -14,7 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      ticket_orders: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          event_date: string
+          event_id: string
+          event_name: string
+          id: string
+          qr_code: string | null
+          quantity: number
+          status: string | null
+          stripe_payment_intent: string | null
+          stripe_session_id: string | null
+          subscribe_to_updates: boolean | null
+          ticket_type: string
+          total_amount: number
+          unit_price: number
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          customer_email: string
+          customer_name: string
+          customer_phone: string
+          event_date: string
+          event_id: string
+          event_name: string
+          id?: string
+          qr_code?: string | null
+          quantity: number
+          status?: string | null
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          subscribe_to_updates?: boolean | null
+          ticket_type: string
+          total_amount: number
+          unit_price: number
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          customer_email?: string
+          customer_name?: string
+          customer_phone?: string
+          event_date?: string
+          event_id?: string
+          event_name?: string
+          id?: string
+          qr_code?: string | null
+          quantity?: number
+          status?: string | null
+          stripe_payment_intent?: string | null
+          stripe_session_id?: string | null
+          subscribe_to_updates?: boolean | null
+          ticket_type?: string
+          total_amount?: number
+          unit_price?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

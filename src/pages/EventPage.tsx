@@ -1,11 +1,12 @@
+import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { MapPin, Clock, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TicketOption from "@/components/TicketOption";
+import TicketCheckoutForm from "@/components/TicketCheckoutForm";
 import EventPoster from "@/components/EventPoster";
 import { events } from "@/data/events";
-import { toast } from "sonner";
 
 // Category images
 import sportsCardsImg from "@/assets/categories/sports-cards.png";
@@ -26,6 +27,8 @@ const merchandiseCategories = [
 const EventPage = () => {
   const { eventId } = useParams();
   const event = events.find((e) => e.id === eventId);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [selectedTicketType, setSelectedTicketType] = useState<"GA" | "VIP">("GA");
   
   if (!event) {
     return (
@@ -46,10 +49,13 @@ const EventPage = () => {
   }
 
   const handleTicketSelect = (type: "GA" | "VIP") => {
-    toast.success(`${type} ticket selection coming soon!`, {
-      description: "Ticket purchasing will be available shortly.",
-    });
+    setSelectedTicketType(type);
+    setCheckoutOpen(true);
   };
+
+  const eventDate = `${event.dayOfWeek}, ${event.month} ${event.date}, ${event.year}`;
+  const eventName = `34th St Card Show - ${event.month} ${event.year}`;
+  const selectedPrice = selectedTicketType === "VIP" ? event.vipPrice : event.gaPrice;
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -235,6 +241,16 @@ to={`/vendor-application?tier=main_ballroom&event=${event.id}`}
       </main>
       
       <Footer />
+
+      <TicketCheckoutForm
+        isOpen={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        ticketType={selectedTicketType}
+        price={selectedPrice}
+        eventId={event.id}
+        eventDate={eventDate}
+        eventName={eventName}
+      />
     </div>
   );
 };
