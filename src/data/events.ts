@@ -12,6 +12,7 @@ export interface Event {
   vipPrice: number;
   gaFeatures: string[];
   vipFeatures: string[];
+  poster?: string;
 }
 
 export const events: Event[] = [
@@ -41,6 +42,7 @@ export const events: Event[] = [
       "VIP-only deals and exclusives",
       "Commemorative event lanyard",
     ],
+    poster: "/posters/feb-15-2025.jpg",
   },
   {
     id: "mar-2026",
