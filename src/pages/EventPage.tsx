@@ -130,7 +130,7 @@ const EventPage = () => {
             <div className="grid grid-cols-2 gap-8 md:gap-12">
               {merchandiseCategories.map((category) => (
                 <div key={category.title} className="flex flex-col items-center text-center">
-                  <h3 className="mb-4 font-display text-xl text-accent md:text-2xl">
+                  <h3 className="mb-4 font-display text-xl text-foreground md:text-2xl">
                     {category.title}
                   </h3>
                   <img
