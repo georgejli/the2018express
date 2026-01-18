@@ -15,7 +15,7 @@
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 197 76% 19%;
+    --primary: 245 23% 30%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 14%;
@@ -32,7 +32,7 @@
 
     --border: 0 0% 20%;
     --input: 0 0% 20%;
-    --ring: 197 76% 19%;
+    --ring: 245 23% 30%;
 
     --radius: 0.75rem;
 
@@ -41,11 +41,11 @@
     --gold-light: 40 50% 58%;
     
     --gradient-gold: linear-gradient(135deg, hsl(40 45% 49%), hsl(40 50% 58%));
-    --gradient-blue: linear-gradient(135deg, hsl(197 76% 19%), hsl(197 70% 30%));
+    --gradient-blue: linear-gradient(135deg, hsl(245 23% 30%), hsl(245 25% 40%));
     --gradient-card: linear-gradient(180deg, hsl(0 0% 12%) 0%, hsl(0 0% 6%) 100%);
     --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(0 0% 4% / 0.8) 60%, hsl(0 0% 4%) 100%);
     
-    --shadow-glow-blue: 0 0 30px hsl(197 76% 19% / 0.3);
+    --shadow-glow-blue: 0 0 30px hsl(245 23% 30% / 0.3);
     --shadow-glow-gold: 0 0 30px hsl(40 45% 49% / 0.3);
   }
 
@@ -79,7 +79,7 @@
   
   .text-gradient-blue {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(197 76% 19%), hsl(197 70% 30%));
+    background-image: linear-gradient(135deg, hsl(245 23% 30%), hsl(245 25% 40%));
   }
   
   .card-shine {
@@ -108,7 +108,7 @@
   }
   
   .glow-blue {
-    box-shadow: 0 0 30px hsl(197 76% 19% / 0.3);
+    box-shadow: 0 0 30px hsl(245 23% 30% / 0.3);
   }
   
   .glow-gold {
