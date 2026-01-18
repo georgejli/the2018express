@@ -18,6 +18,7 @@ interface VendorApplication {
   specialRequests?: string;
   pricePerTable: number;
   totalPrice: number;
+  eventDate: string; // Format: "February 15, 2026"
 }
 
 interface ServiceAccountCredentials {
@@ -104,6 +105,102 @@ async function getAccessToken(credentials: ServiceAccountCredentials): Promise<s
   return data.access_token;
 }
 
+// Check if a sheet exists and create it if not, then add headers
+async function ensureSheetWithHeaders(
+  accessToken: string,
+  spreadsheetId: string,
+  sheetName: string
+): Promise<void> {
+  // First, get the spreadsheet to check existing sheets
+  const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`;
+  const getResponse = await fetch(getUrl, {
+    headers: {
+      "Authorization": `Bearer ${accessToken}`,
+    },
+  });
+
+  if (!getResponse.ok) {
+    const errorText = await getResponse.text();
+    console.error("Error getting spreadsheet:", errorText);
+    throw new Error("Failed to get spreadsheet info");
+  }
+
+  const spreadsheet = await getResponse.json();
+  const existingSheets = spreadsheet.sheets?.map((s: { properties: { title: string } }) => s.properties.title) || [];
+  
+  console.log("Existing sheets:", existingSheets);
+  console.log("Looking for sheet:", sheetName);
+
+  // If sheet doesn't exist, create it
+  if (!existingSheets.includes(sheetName)) {
+    console.log(`Creating new sheet: ${sheetName}`);
+    
+    const createSheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`;
+    const createResponse = await fetch(createSheetUrl, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        requests: [
+          {
+            addSheet: {
+              properties: {
+                title: sheetName,
+              },
+            },
+          },
+        ],
+      }),
+    });
+
+    if (!createResponse.ok) {
+      const errorText = await createResponse.text();
+      console.error("Error creating sheet:", errorText);
+      throw new Error("Failed to create sheet");
+    }
+
+    console.log(`Sheet "${sheetName}" created successfully`);
+
+    // Add headers to the new sheet
+    const headers = [
+      "Submitted At",
+      "Event Date",
+      "Name",
+      "Email",
+      "Phone",
+      "Table Location",
+      "# of Tables",
+      "# of Vendors",
+      "Price Per Table",
+      "Total Price",
+      "Merchandise Description",
+      "Special Requests",
+    ];
+
+    const headerUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/'${encodeURIComponent(sheetName)}'!A1:L1?valueInputOption=USER_ENTERED`;
+    const headerResponse = await fetch(headerUrl, {
+      method: "PUT",
+      headers: {
+        "Authorization": `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        values: [headers],
+      }),
+    });
+
+    if (!headerResponse.ok) {
+      const errorText = await headerResponse.text();
+      console.error("Error adding headers:", errorText);
+      // Don't throw - headers are nice to have but not critical
+    } else {
+      console.log("Headers added successfully");
+    }
+  }
+}
+
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
@@ -133,6 +230,7 @@ Deno.serve(async (req) => {
       name: application.name,
       email: application.email,
       tableTier: application.tableTierLabel,
+      eventDate: application.eventDate,
     });
 
     // Validate required fields
@@ -140,7 +238,8 @@ Deno.serve(async (req) => {
       !application.name ||
       !application.email ||
       !application.phone ||
-      !application.tableTier
+      !application.tableTier ||
+      !application.eventDate
     ) {
       return new Response(
         JSON.stringify({ error: "Missing required fields" }),
@@ -156,10 +255,26 @@ Deno.serve(async (req) => {
     const accessToken = await getAccessToken(credentials);
     console.log("Successfully obtained access token");
 
+    // Use the event date as the sheet name (e.g., "February 15, 2026")
+    const sheetName = application.eventDate;
+    
+    // Ensure the sheet exists with headers
+    await ensureSheetWithHeaders(accessToken, GOOGLE_SHEET_ID, sheetName);
+
     // Prepare the row data for Google Sheets
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toLocaleString("en-US", {
+      timeZone: "America/New_York",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+    
     const rowData = [
       timestamp,
+      application.eventDate,
       application.name,
       application.email,
       application.phone,
@@ -172,8 +287,8 @@ Deno.serve(async (req) => {
       application.specialRequests || "",
     ];
 
-    // Append data to Google Sheet using the Sheets API with OAuth2
-    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/Sheet1!A:K:append?valueInputOption=USER_ENTERED`;
+    // Append data to the event-specific sheet
+    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/'${encodeURIComponent(sheetName)}'!A:L:append?valueInputOption=USER_ENTERED`;
 
     const sheetsResponse = await fetch(appendUrl, {
       method: "POST",
