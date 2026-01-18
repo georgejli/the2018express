@@ -98,7 +98,7 @@ const EventPage = () => {
                         href={GOOGLE_MAPS_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-primary hover:underline"
+                        className="text-sm text-foreground hover:underline"
                       >
                         {VENUE_ADDRESS}
                       </a>
