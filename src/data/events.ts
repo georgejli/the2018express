@@ -51,8 +51,8 @@ export const events: Event[] = [
     year: "2026",
     dayOfWeek: "Sunday",
     time: "10:00 AM - 5:00 PM",
-    venue: "The Manhattan Center",
-    address: "311 W 34th Street, New York, NY 10001",
+    venue: "The New Yorker Hotel",
+    address: "481 8th Ave, New York, NY",
     gaPrice: 15,
     vipPrice: 45,
     gaFeatures: [
@@ -77,8 +77,8 @@ export const events: Event[] = [
     year: "2026",
     dayOfWeek: "Sunday",
     time: "10:00 AM - 5:00 PM",
-    venue: "The Manhattan Center",
-    address: "311 W 34th Street, New York, NY 10001",
+    venue: "The New Yorker Hotel",
+    address: "481 8th Ave, New York, NY",
     gaPrice: 15,
     vipPrice: 45,
     gaFeatures: [
