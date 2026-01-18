@@ -7,6 +7,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
 import VendorApplication from "./pages/VendorApplication";
+import PastEvents from "./pages/PastEvents";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/event/:eventId" element={<EventPage />} />
           <Route path="/vendor-application" element={<VendorApplication />} />
+          <Route path="/past-events" element={<PastEvents />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
