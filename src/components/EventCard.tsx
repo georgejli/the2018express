@@ -64,7 +64,6 @@ const EventCard = ({
               {month}
             </span>
             <span className="block text-xs text-muted-foreground">{year}</span>
-            <span className="block text-xs text-muted-foreground">{year}</span>
           </div>
           
           {/* Event Details */}
