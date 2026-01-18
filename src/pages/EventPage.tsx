@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { Calendar, MapPin, Clock, ArrowLeft, ExternalLink } from "lucide-react";
+import { MapPin, Clock, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TicketOption from "@/components/TicketOption";
@@ -138,36 +138,51 @@ const EventPage = () => {
             <div className="mb-10">
               <h3 className="mb-6 text-center font-display text-2xl text-foreground">6ft Vendor Tables</h3>
               <div className="grid gap-4 md:grid-cols-3">
-                <div className="rounded-xl border border-accent/30 bg-gradient-to-br from-card to-accent/5 p-6 text-center">
+                <Link
+                  to="/vendor-application?tier=main_ballroom"
+                  className="group rounded-xl border border-accent/30 bg-gradient-to-br from-card to-accent/5 p-6 text-center transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-lg"
+                >
                   <h4 className="font-display text-lg text-accent">Main Ballroom</h4>
                   <p className="mt-1 text-sm text-muted-foreground">1st Floor</p>
                   <p className="mt-4 font-display text-4xl text-foreground">$250</p>
-                </div>
+                  <p className="mt-3 text-sm text-accent opacity-0 transition-opacity group-hover:opacity-100">
+                    Click to Apply →
+                  </p>
+                </Link>
                 
-                <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-card to-primary/5 p-6 text-center">
+                <Link
+                  to="/vendor-application?tier=crystal_room"
+                  className="group rounded-xl border border-primary/30 bg-gradient-to-br from-card to-primary/5 p-6 text-center transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg"
+                >
                   <h4 className="font-display text-lg text-primary">Crystal Room</h4>
                   <p className="mt-1 text-sm text-muted-foreground">1st Floor</p>
                   <p className="mt-4 font-display text-4xl text-foreground">$200</p>
-                </div>
+                  <p className="mt-3 text-sm text-primary opacity-0 transition-opacity group-hover:opacity-100">
+                    Click to Apply →
+                  </p>
+                </Link>
                 
-                <div className="rounded-xl border border-border bg-secondary/50 p-6 text-center">
+                <Link
+                  to="/vendor-application?tier=2nd_floor"
+                  className="group rounded-xl border border-border bg-secondary/50 p-6 text-center transition-all hover:-translate-y-1 hover:border-muted-foreground/50 hover:shadow-lg"
+                >
                   <h4 className="font-display text-lg text-foreground">2nd Floor</h4>
                   <p className="mt-1 text-sm text-muted-foreground">Every Room</p>
                   <p className="mt-4 font-display text-4xl text-foreground">$150</p>
-                </div>
+                  <p className="mt-3 text-sm text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100">
+                    Click to Apply →
+                  </p>
+                </Link>
               </div>
             </div>
             
             <div className="text-center">
-              <a
-                href="https://forms.google.com"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/vendor-application"
                 className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-gold-light px-8 py-4 font-semibold text-accent-foreground transition-all hover:opacity-90 hover:glow-gold"
               >
                 Apply for a Vendor Table
-                <ExternalLink className="h-4 w-4" />
-              </a>
+              </Link>
             </div>
           </div>
         </section>
