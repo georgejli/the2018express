@@ -9,7 +9,6 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -27,11 +26,32 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { events } from "@/data/events";
+
+// Helper to format event date as "February 15, 2026"
+const formatEventDate = (month: string, date: string, year: string): string => {
+  const monthNames: Record<string, string> = {
+    JAN: "January",
+    FEB: "February",
+    MAR: "March",
+    APR: "April",
+    MAY: "May",
+    JUN: "June",
+    JUL: "July",
+    AUG: "August",
+    SEP: "September",
+    OCT: "October",
+    NOV: "November",
+    DEC: "December",
+  };
+  return `${monthNames[month] || month} ${date}, ${year}`;
+};
 
 const vendorFormSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
   phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
+  eventId: z.string().min(1, "Please select an event date"),
   tableTier: z.enum(["main_ballroom", "crystal_room", "2nd_floor"], {
     required_error: "Please select a table tier",
   }),
@@ -52,6 +72,7 @@ const tierLabels: Record<string, { name: string; price: number }> = {
 const VendorApplication = () => {
   const [searchParams] = useSearchParams();
   const preselectedTier = searchParams.get("tier") as "main_ballroom" | "crystal_room" | "2nd_floor" | null;
+  const preselectedEventId = searchParams.get("event") || (events.length > 0 ? events[0].id : "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -61,6 +82,7 @@ const VendorApplication = () => {
       name: "",
       email: "",
       phone: "",
+      eventId: preselectedEventId,
       tableTier: preselectedTier || undefined,
       tableQuantity: 1,
       vendorCount: 1,
@@ -70,18 +92,38 @@ const VendorApplication = () => {
   });
 
   const selectedTier = form.watch("tableTier");
+  const selectedEventId = form.watch("eventId");
   const tableQuantity = form.watch("tableQuantity");
   const totalPrice = selectedTier ? tierLabels[selectedTier].price * tableQuantity : 0;
 
+  // Get the selected event for the submission
+  const selectedEvent = events.find((e) => e.id === selectedEventId);
+
   const onSubmit = async (data: VendorFormValues) => {
+    const event = events.find((e) => e.id === data.eventId);
+    if (!event) {
+      toast.error("Please select a valid event");
+      return;
+    }
+
+    const eventDate = formatEventDate(event.month, event.date, event.year);
+    
     setIsSubmitting(true);
     try {
       const { error } = await supabase.functions.invoke("submit-vendor-application", {
         body: {
-          ...data,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          tableTier: data.tableTier,
           tableTierLabel: tierLabels[data.tableTier].name,
+          tableQuantity: data.tableQuantity,
+          vendorCount: data.vendorCount,
+          merchandiseDescription: data.merchandiseDescription,
+          specialRequests: data.specialRequests,
           pricePerTable: tierLabels[data.tableTier].price,
           totalPrice,
+          eventDate,
         },
       });
 
@@ -100,6 +142,7 @@ const VendorApplication = () => {
       setIsSubmitting(false);
     }
   };
+
 
   if (isSubmitted) {
     return (
@@ -152,6 +195,32 @@ const VendorApplication = () => {
           <div className="mt-8 rounded-xl border border-border bg-card p-6 md:p-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                {/* Event Selection */}
+                <FormField
+                  control={form.control}
+                  name="eventId"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Event Date</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select an event date" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {events.map((event) => (
+                            <SelectItem key={event.id} value={event.id}>
+                              {formatEventDate(event.month, event.date, event.year)} - {event.venue}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 {/* Name */}
                 <FormField
                   control={form.control}
