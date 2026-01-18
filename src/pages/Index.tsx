@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroBanner from "@/components/HeroBanner";
 import NextShowTicker from "@/components/NextShowTicker";
@@ -5,8 +7,23 @@ import EventCard from "@/components/EventCard";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import Footer from "@/components/Footer";
 import { events } from "@/data/events";
+import { getUpcomingEvents, getPastEvents } from "@/lib/eventUtils";
+import { ChevronDown, History } from "lucide-react";
+
+const INITIAL_EVENTS_COUNT = 3;
 
 const Index = () => {
+  const upcomingEvents = getUpcomingEvents(events);
+  const pastEvents = getPastEvents(events);
+  const [showAllEvents, setShowAllEvents] = useState(false);
+  
+  const displayedEvents = showAllEvents 
+    ? upcomingEvents 
+    : upcomingEvents.slice(0, INITIAL_EVENTS_COUNT);
+  
+  const hasMoreEvents = upcomingEvents.length > INITIAL_EVENTS_COUNT;
+  const hasPastEvents = pastEvents.length > 0;
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
@@ -40,7 +57,7 @@ const Index = () => {
             </div>
             
             <div className="space-y-6">
-              {events.map((event, index) => (
+              {displayedEvents.map((event, index) => (
                 <EventCard
                   key={event.id}
                   id={event.id}
@@ -55,6 +72,29 @@ const Index = () => {
                   isFeatured={index === 0}
                 />
               ))}
+            </div>
+            
+            {/* More Events / Past Events Section */}
+            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+              {hasMoreEvents && !showAllEvents && (
+                <button
+                  onClick={() => setShowAllEvents(true)}
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary hover:bg-primary/10"
+                >
+                  <ChevronDown className="h-4 w-4" />
+                  More Events ({upcomingEvents.length - INITIAL_EVENTS_COUNT} more)
+                </button>
+              )}
+              
+              {hasPastEvents && (
+                <Link
+                  to="/past-events"
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-6 py-3 text-sm font-semibold text-muted-foreground transition-all hover:border-accent hover:bg-accent/10 hover:text-accent"
+                >
+                  <History className="h-4 w-4" />
+                  Past Events
+                </Link>
+              )}
             </div>
           </div>
         </section>
