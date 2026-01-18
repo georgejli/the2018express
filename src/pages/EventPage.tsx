@@ -7,6 +7,22 @@ import EventPoster from "@/components/EventPoster";
 import { events } from "@/data/events";
 import { toast } from "sonner";
 
+// Category images
+import sportsCardsImg from "@/assets/categories/sports-cards.jpg";
+import pokemonTcgImg from "@/assets/categories/pokemon-tcg.jpg";
+import memorabiliaImg from "@/assets/categories/memorabilia.jpg";
+import autographsImg from "@/assets/categories/autographs.png";
+
+const VENUE_NAME = "The New Yorker Hotel";
+const VENUE_ADDRESS = "481 8th Ave, New York, NY";
+const GOOGLE_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=481+8th+Ave+New+York+NY";
+
+const merchandiseCategories = [
+  { title: "Sports Trading Cards", image: sportsCardsImg },
+  { title: "Pokemon & TCG", image: pokemonTcgImg },
+  { title: "Memorabilia", image: memorabiliaImg },
+  { title: "Autographs", image: autographsImg },
+];
 const EventPage = () => {
   const { eventId } = useParams();
   const event = events.find((e) => e.id === eventId);
@@ -77,8 +93,15 @@ const EventPage = () => {
                   <div className="flex items-center gap-3 text-muted-foreground">
                     <MapPin className="h-5 w-5 text-primary" />
                     <div>
-                      <span className="block font-medium text-foreground">{event.venue}</span>
-                      <span className="text-sm">{event.address}</span>
+                      <span className="block font-medium text-foreground">{VENUE_NAME}</span>
+                      <a 
+                        href={GOOGLE_MAPS_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        {VENUE_ADDRESS}
+                      </a>
                     </div>
                   </div>
                 </div>
@@ -94,6 +117,29 @@ const EventPage = () => {
                   />
                 </div>
               )}
+            </div>
+          </div>
+        </section>
+
+        {/* Merchandise Categories Section */}
+        <section className="border-b border-border bg-secondary/30 px-4 py-16">
+          <div className="container mx-auto max-w-6xl">
+            <h2 className="mb-10 text-center font-display text-3xl text-foreground md:text-4xl">
+              What You'll Find
+            </h2>
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
+              {merchandiseCategories.map((category) => (
+                <div key={category.title} className="flex flex-col items-center text-center">
+                  <h3 className="mb-4 font-display text-lg text-foreground md:text-xl">
+                    {category.title}
+                  </h3>
+                  <img
+                    src={category.image}
+                    alt={category.title}
+                    className="h-auto w-full max-w-[200px] rounded-lg object-cover shadow-lg transition-transform hover:scale-105"
+                  />
+                </div>
+              ))}
             </div>
           </div>
         </section>
