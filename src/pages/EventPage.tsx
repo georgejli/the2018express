@@ -57,7 +57,7 @@ const EventPage = () => {
                   {event.dayOfWeek}, {event.month} {event.date}, {event.year}
                 </div>
                 
-                <h1 className="font-display text-5xl tracking-wider text-foreground md:text-6xl">
+                <h1 className="font-display text-5xl tracking-tight text-foreground md:text-6xl">
                   <span className="text-gradient-gold">34TH ST</span> CARD SHOW
                 </h1>
                 
@@ -125,22 +125,50 @@ const EventPage = () => {
         
         {/* Vendor Section */}
         <section className="border-t border-border bg-card px-4 py-16 md:py-24">
-          <div className="container mx-auto max-w-4xl text-center">
-            <h2 className="mb-4 font-display text-4xl text-foreground">Interested in Vending?</h2>
-            <p className="mx-auto mb-8 max-w-2xl text-muted-foreground">
-              Showcase your collection to hundreds of passionate collectors. 
-              Limited tables available—reserve yours today.
-            </p>
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center">
+              <h2 className="mb-4 font-display text-4xl text-foreground">Interested in Vending?</h2>
+              <p className="mx-auto mb-10 max-w-2xl text-muted-foreground">
+                Showcase your collection to hundreds of passionate collectors. 
+                Limited tables available—reserve yours today.
+              </p>
+            </div>
             
-            <a
-              href="https://forms.google.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-gold-light px-8 py-4 font-semibold text-accent-foreground transition-all hover:opacity-90 hover:glow-gold"
-            >
-              Apply for a Vendor Table
-              <ExternalLink className="h-4 w-4" />
-            </a>
+            {/* Vendor Table Pricing */}
+            <div className="mb-10">
+              <h3 className="mb-6 text-center font-display text-2xl text-foreground">6ft Vendor Tables</h3>
+              <div className="grid gap-4 md:grid-cols-3">
+                <div className="rounded-xl border border-accent/30 bg-gradient-to-br from-card to-accent/5 p-6 text-center">
+                  <h4 className="font-display text-lg text-accent">Main Ballroom</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">1st Floor</p>
+                  <p className="mt-4 font-display text-4xl text-foreground">$250</p>
+                </div>
+                
+                <div className="rounded-xl border border-primary/30 bg-gradient-to-br from-card to-primary/5 p-6 text-center">
+                  <h4 className="font-display text-lg text-primary">Crystal Room</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">1st Floor</p>
+                  <p className="mt-4 font-display text-4xl text-foreground">$200</p>
+                </div>
+                
+                <div className="rounded-xl border border-border bg-secondary/50 p-6 text-center">
+                  <h4 className="font-display text-lg text-foreground">2nd Floor</h4>
+                  <p className="mt-1 text-sm text-muted-foreground">Every Room</p>
+                  <p className="mt-4 font-display text-4xl text-foreground">$150</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="text-center">
+              <a
+                href="https://forms.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-gold-light px-8 py-4 font-semibold text-accent-foreground transition-all hover:opacity-90 hover:glow-gold"
+              >
+                Apply for a Vendor Table
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
           </div>
         </section>
       </main>
