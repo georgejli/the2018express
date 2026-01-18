@@ -18,7 +18,7 @@ const VENUE_ADDRESS = "481 8th Ave, New York, NY";
 const GOOGLE_MAPS_URL = "https://www.google.com/maps/search/?api=1&query=481+8th+Ave+New+York+NY";
 
 const merchandiseCategories = [
-  { title: "Sports Trading Cards", image: sportsCardsImg },
+  { title: "Sports Cards", image: sportsCardsImg },
   { title: "Pokemon & TCG", image: pokemonTcgImg },
   { title: "Memorabilia", image: memorabiliaImg },
   { title: "Autographs", image: autographsImg },
@@ -130,6 +130,9 @@ const EventPage = () => {
             <div className="grid grid-cols-2 gap-8 md:gap-12">
               {merchandiseCategories.map((category) => (
                 <div key={category.title} className="flex flex-col items-center text-center">
+                  <h3 className="mb-4 font-display text-xl text-accent md:text-2xl">
+                    {category.title}
+                  </h3>
                   <img
                     src={category.image}
                     alt={category.title}
