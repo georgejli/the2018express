@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
+import { events } from "@/data/events";
 
 const Header = () => {
+  // Get the first upcoming event for the vendor application link
+  const firstEvent = events[0];
+  const vendorLink = firstEvent ? `/vendor-application?event=${firstEvent.id}` : "/vendor-application";
+
   return (
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -24,14 +29,12 @@ const Header = () => {
           >
             About
           </a>
-          <a 
-            href="https://forms.google.com" 
-            target="_blank" 
-            rel="noopener noreferrer"
+          <Link
+            to={vendorLink}
             className="rounded-lg bg-accent px-4 py-2 text-sm font-semibold text-accent-foreground transition-all hover:opacity-90 hover:glow-gold"
           >
             Become a Vendor
-          </a>
+          </Link>
         </nav>
       </div>
     </header>
