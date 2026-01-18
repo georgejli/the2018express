@@ -5,7 +5,7 @@ const Header = () => {
     <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2">
-          <span className="font-display text-2xl tracking-wider">
+          <span className="font-display text-2xl tracking-tight">
             <span className="text-gradient-gold">34TH ST</span>
             <span className="text-foreground"> CARD SHOW</span>
           </span>

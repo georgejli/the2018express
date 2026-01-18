@@ -19,8 +19,8 @@ const Index = () => {
         <section className="px-4 py-16 md:py-24" id="events">
           <div className="container mx-auto max-w-4xl">
             <div className="mb-10 text-center">
-              <h2 className="font-display text-4xl tracking-wider text-foreground md:text-5xl">
-                Upcoming <span className="text-gradient-blue">Events</span>
+              <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
+                UPCOMING <span className="text-gradient-blue">EVENTS</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
                 Mark your calendar and join us for the best card show in NYC
@@ -50,8 +50,8 @@ const Index = () => {
           <div className="container mx-auto max-w-4xl">
             <div className="grid gap-12 md:grid-cols-2 md:items-center">
               <div>
-                <h2 className="font-display text-4xl tracking-wider text-foreground md:text-5xl">
-                  About <span className="text-gradient-gold">The Show</span>
+                <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
+                  ABOUT <span className="text-gradient-gold">THE SHOW</span>
                 </h2>
                 <p className="mt-6 leading-relaxed text-muted-foreground">
                   The 34th St Card Show brings together the best vendors, collectors, 
