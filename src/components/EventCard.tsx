@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Calendar, MapPin, Clock, ArrowRight } from "lucide-react";
+import EventPoster from "./EventPoster";
 
 interface EventCardProps {
   id: string;
@@ -10,6 +11,7 @@ interface EventCardProps {
   time: string;
   earlyBirdTime?: string;
   venue: string;
+  poster?: string;
   isFeatured?: boolean;
 }
 
@@ -22,6 +24,7 @@ const EventCard = ({
   time,
   earlyBirdTime,
   venue,
+  poster,
   isFeatured = false,
 }: EventCardProps) => {
   return (
@@ -39,8 +42,19 @@ const EventCard = ({
         </div>
       )}
       
-      <div className="p-6 md:p-8">
-        <div className="flex items-start gap-6">
+      <div className="flex flex-col gap-6 p-6 md:flex-row md:p-8">
+        {/* Poster Thumbnail */}
+        {poster && (
+          <div className="flex-shrink-0" onClick={(e) => e.preventDefault()}>
+            <EventPoster
+              poster={poster}
+              eventName={`${month} ${date} ${year} Card Show`}
+              className="h-32 w-24 md:h-40 md:w-28"
+            />
+          </div>
+        )}
+        
+        <div className="flex flex-1 items-start gap-6">
           {/* Date Block */}
           <div className={`flex-shrink-0 rounded-lg p-4 text-center ${
             isFeatured ? "bg-accent/20" : "bg-secondary"

@@ -3,6 +3,7 @@ import { Calendar, MapPin, Clock, ArrowLeft, ExternalLink } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import TicketOption from "@/components/TicketOption";
+import EventPoster from "@/components/EventPoster";
 import { events } from "@/data/events";
 import { toast } from "sonner";
 
@@ -50,8 +51,8 @@ const EventPage = () => {
               Back to All Events
             </Link>
             
-            <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
-              <div className="animate-fade-in">
+            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
+              <div className="animate-fade-in flex-1">
                 <div className="mb-4 inline-block rounded-full bg-accent/20 px-4 py-1.5 text-sm font-medium text-accent">
                   {event.dayOfWeek}, {event.month} {event.date}, {event.year}
                 </div>
@@ -66,6 +67,13 @@ const EventPage = () => {
                     <span>{event.time}</span>
                   </div>
                   
+                  {event.earlyBirdTime && (
+                    <div className="flex items-center gap-3 text-accent">
+                      <Clock className="h-5 w-5" />
+                      <span className="font-semibold">Early Bird: {event.earlyBirdTime}</span>
+                    </div>
+                  )}
+                  
                   <div className="flex items-center gap-3 text-muted-foreground">
                     <MapPin className="h-5 w-5 text-primary" />
                     <div>
@@ -76,12 +84,16 @@ const EventPage = () => {
                 </div>
               </div>
               
-              {/* Date Block */}
-              <div className="flex-shrink-0 rounded-xl bg-card p-6 text-center shadow-lg md:p-8">
-                <span className="block font-display text-6xl text-foreground md:text-7xl">{event.date}</span>
-                <span className="block text-xl font-bold uppercase tracking-wide text-accent">{event.month}</span>
-                <span className="block text-muted-foreground">{event.year}</span>
-              </div>
+              {/* Event Poster */}
+              {event.poster && (
+                <div className="flex-shrink-0">
+                  <EventPoster
+                    poster={event.poster}
+                    eventName={`${event.month} ${event.date} ${event.year} Card Show`}
+                    className="h-64 w-48 md:h-80 md:w-56"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </section>

@@ -51,6 +51,7 @@ const Index = () => {
                   time={event.time}
                   earlyBirdTime={event.earlyBirdTime}
                   venue={event.venue}
+                  poster={event.poster}
                   isFeatured={index === 0}
                 />
               ))}
