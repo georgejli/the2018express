@@ -27,6 +27,9 @@ const HeroBanner = () => {
             The ultimate destination for collectors, traders, and sports card enthusiasts. 
             Buy, sell, and discover rare finds.
           </p>
+          <p className="mt-8 text-sm text-muted-foreground">
+            Presented by <span className="text-foreground font-medium">Laz NYC</span> & <span className="text-foreground font-medium">Mike Carbonaro</span>
+          </p>
         </div>
         
         {/* Scroll Indicator */}
