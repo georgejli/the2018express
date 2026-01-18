@@ -60,11 +60,10 @@ const EventCard = ({
             isFeatured ? "bg-accent/20" : "bg-secondary"
           }`}>
             <span className="block font-display text-4xl text-foreground">{date}</span>
-            <span className={`block text-sm font-semibold uppercase tracking-wide ${
-              isFeatured ? "text-accent" : "text-primary"
-            }`}>
+            <span className="block text-sm font-semibold uppercase tracking-wide text-accent">
               {month}
             </span>
+            <span className="block text-xs text-muted-foreground">{year}</span>
             <span className="block text-xs text-muted-foreground">{year}</span>
           </div>
           
