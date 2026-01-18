@@ -15,10 +15,10 @@ const HeroBanner = () => {
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
         <div className="animate-fade-in">
-          <p className="mb-4 text-lg font-medium uppercase tracking-[0.3em] text-accent">
+          <p className="mb-4 text-lg font-medium uppercase tracking-tight text-accent">
             New York City's Premier
           </p>
-          <h1 className="font-display text-6xl sm:text-7xl md:text-8xl lg:text-9xl tracking-wider">
+          <h1 className="font-display text-6xl tracking-tight sm:text-7xl md:text-8xl lg:text-9xl">
             <span className="text-gradient-gold">34TH ST</span>
             <br />
             <span className="text-foreground">CARD SHOW</span>
