@@ -5,6 +5,7 @@ export interface Event {
   year: string;
   dayOfWeek: string;
   time: string;
+  earlyBirdTime?: string;
   venue: string;
   address: string;
   gaPrice: number;
@@ -19,10 +20,11 @@ export const events: Event[] = [
     date: "15",
     month: "FEB",
     year: "2026",
-    dayOfWeek: "Sunday",
-    time: "10:00 AM - 5:00 PM",
-    venue: "The Manhattan Center",
-    address: "311 W 34th Street, New York, NY 10001",
+    dayOfWeek: "Saturday",
+    time: "10:00 AM - 6:00 PM",
+    earlyBirdTime: "9:00 AM",
+    venue: "The New Yorker Hotel",
+    address: "481 8th Ave, New York, NY",
     gaPrice: 15,
     vipPrice: 45,
     gaFeatures: [

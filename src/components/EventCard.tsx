@@ -8,6 +8,7 @@ interface EventCardProps {
   year: string;
   dayOfWeek: string;
   time: string;
+  earlyBirdTime?: string;
   venue: string;
   isFeatured?: boolean;
 }
@@ -19,6 +20,7 @@ const EventCard = ({
   year,
   dayOfWeek,
   time,
+  earlyBirdTime,
   venue,
   isFeatured = false,
 }: EventCardProps) => {
@@ -63,6 +65,13 @@ const EventCard = ({
               <Clock className="h-4 w-4" />
               <span className="text-sm">{time}</span>
             </div>
+            
+            {earlyBirdTime && (
+              <div className="flex items-center gap-2 text-accent">
+                <Clock className="h-4 w-4" />
+                <span className="text-sm font-semibold">Early Bird: {earlyBirdTime}</span>
+              </div>
+            )}
             
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4" />
