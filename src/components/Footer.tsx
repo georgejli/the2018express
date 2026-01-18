@@ -5,7 +5,7 @@ const Footer = () => {
     <footer className="border-t border-border bg-card">
       <div className="container mx-auto px-4 py-12">
         <div className="flex flex-col items-center gap-6 text-center">
-          <span className="font-display text-3xl tracking-wider">
+          <span className="font-display text-3xl tracking-tight">
             <span className="text-gradient-gold">34TH ST</span>
             <span className="text-foreground"> CARD SHOW</span>
           </span>
