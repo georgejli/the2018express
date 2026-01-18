@@ -25,6 +25,18 @@ const Index = () => {
               <p className="mt-4 text-muted-foreground">
                 Mark your calendar and join us for the best card show in NYC
               </p>
+              <div className="mt-6 space-y-1">
+                <p className="font-display text-xl tracking-wide text-foreground">THE NEW YORKER HOTEL</p>
+                <a 
+                  href="https://www.google.com/maps/search/?api=1&query=481+8th+Ave+New+York+NY" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
+                >
+                  481 8TH AVE, NEW YORK, NY
+                </a>
+                <p className="text-sm text-muted-foreground">ACROSS FROM MSG</p>
+              </div>
             </div>
             
             <div className="space-y-6">
@@ -37,6 +49,7 @@ const Index = () => {
                   year={event.year}
                   dayOfWeek={event.dayOfWeek}
                   time={event.time}
+                  earlyBirdTime={event.earlyBirdTime}
                   venue={event.venue}
                   isFeatured={index === 0}
                 />
