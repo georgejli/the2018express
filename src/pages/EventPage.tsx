@@ -139,7 +139,7 @@ const EventPage = () => {
               <h3 className="mb-6 text-center font-display text-2xl text-foreground">6ft Vendor Tables</h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <Link
-                  to="/vendor-application?tier=main_ballroom"
+to={`/vendor-application?tier=main_ballroom&event=${event.id}`}
                   className="group rounded-xl border border-accent/30 bg-gradient-to-br from-card to-accent/5 p-6 text-center transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-lg"
                 >
                   <h4 className="font-display text-lg text-accent">Main Ballroom</h4>
@@ -151,7 +151,7 @@ const EventPage = () => {
                 </Link>
                 
                 <Link
-                  to="/vendor-application?tier=crystal_room"
+                  to={`/vendor-application?tier=crystal_room&event=${event.id}`}
                   className="group rounded-xl border border-primary/30 bg-gradient-to-br from-card to-primary/5 p-6 text-center transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg"
                 >
                   <h4 className="font-display text-lg text-primary">Crystal Room</h4>
@@ -163,7 +163,7 @@ const EventPage = () => {
                 </Link>
                 
                 <Link
-                  to="/vendor-application?tier=2nd_floor"
+                  to={`/vendor-application?tier=2nd_floor&event=${event.id}`}
                   className="group rounded-xl border border-border bg-secondary/50 p-6 text-center transition-all hover:-translate-y-1 hover:border-muted-foreground/50 hover:shadow-lg"
                 >
                   <h4 className="font-display text-lg text-foreground">2nd Floor</h4>
@@ -178,7 +178,7 @@ const EventPage = () => {
             
             <div className="text-center">
               <Link
-                to="/vendor-application"
+                to={`/vendor-application?event=${event.id}`}
                 className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-gold-light px-8 py-4 font-semibold text-accent-foreground transition-all hover:opacity-90 hover:glow-gold"
               >
                 Apply for a Vendor Table
