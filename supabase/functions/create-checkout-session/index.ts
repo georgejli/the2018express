@@ -10,7 +10,7 @@ const corsHeaders = {
 // Stripe Price IDs for ticket types
 const STRIPE_PRICES = {
   GA: "price_1Sr7c7GXCheOPsDr5AL1aYG2",
-  VIP: "price_1Sr7cKGXCheOPsDrbxOAfUeO",
+  VIP: "price_1Sr7i5GXCheOPsDrGfEsE3fW",
 };
 
 interface CheckoutRequest {
@@ -46,7 +46,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2024-12-18.acacia" });
 
     const body: CheckoutRequest = await req.json();
     logStep("Request body", body);
