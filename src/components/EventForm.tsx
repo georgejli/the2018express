@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { format } from "date-fns";
-import { CalendarIcon, Plus, X } from "lucide-react";
+import { CalendarIcon, Plus, X, Upload, ImageIcon, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -106,6 +106,10 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
   const [vipFeatures, setVipFeatures] = useState<string[]>(DEFAULT_VIP_FEATURES);
   const [newGaFeature, setNewGaFeature] = useState("");
   const [newVipFeature, setNewVipFeature] = useState("");
+  const [posterFile, setPosterFile] = useState<File | null>(null);
+  const [posterPreview, setPosterPreview] = useState<string | null>(null);
+  const [uploadingPoster, setUploadingPoster] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const isEdit = mode === "edit";
@@ -162,12 +166,80 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
       if (isEdit && editEvent) {
         setGaFeatures(editEvent.gaFeatures || DEFAULT_GA_FEATURES);
         setVipFeatures(editEvent.vipFeatures || DEFAULT_VIP_FEATURES);
+        setPosterPreview(editEvent.poster || null);
       } else {
         setGaFeatures(defaultEvent?.gaFeatures || DEFAULT_GA_FEATURES);
         setVipFeatures(defaultEvent?.vipFeatures || DEFAULT_VIP_FEATURES);
+        setPosterPreview(null);
       }
+      setPosterFile(null);
     }
   }, [isOpen, editEvent, mode]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file.",
+          variant: "destructive",
+        });
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image under 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setPosterFile(file);
+      setPosterPreview(URL.createObjectURL(file));
+      form.setValue("poster", ""); // Clear URL input when file is selected
+    }
+  };
+
+  const uploadPoster = async (eventId: string): Promise<string | null> => {
+    if (!posterFile) return form.getValues("poster") || null;
+
+    setUploadingPoster(true);
+    try {
+      const fileExt = posterFile.name.split(".").pop();
+      const fileName = `${eventId}-${Date.now()}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("event-posters")
+        .upload(fileName, posterFile, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("event-posters")
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    } catch (error: any) {
+      toast({
+        title: "Failed to upload poster",
+        description: error.message,
+        variant: "destructive",
+      });
+      return null;
+    } finally {
+      setUploadingPoster(false);
+    }
+  };
+
+  const removePoster = () => {
+    setPosterFile(null);
+    setPosterPreview(null);
+    form.setValue("poster", "");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = async (data: EventFormData) => {
     setSaving(true);
@@ -179,6 +251,9 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
       const date = eventDate.getDate().toString();
       const dayOfWeek = DAYS_OF_WEEK[eventDate.getDay()];
       const eventId = `${month.toLowerCase()}-${year}`;
+
+      // Upload poster if a new file was selected
+      const posterUrl = await uploadPoster(eventId);
 
       // Format time as "10:00 AM - 6:00 PM"
       const formatTime = (time: string) => {
@@ -206,7 +281,7 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
         ga_features: gaFeatures,
         vip_features: vipFeatures,
         description: data.description || null,
-        poster: data.poster || null,
+        poster: posterUrl,
       };
 
       if (isEdit && editEvent?.dbId) {
@@ -393,15 +468,74 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
             />
           </div>
 
-          {/* Poster URL */}
+          {/* Poster Upload */}
           <div className="space-y-2">
-            <Label htmlFor="poster">Poster URL (Optional)</Label>
-            <Input
-              id="poster"
-              placeholder="https://example.com/poster.jpg"
-              {...form.register("poster")}
-              className="bg-secondary"
-            />
+            <Label>Event Poster (Optional)</Label>
+            <div className="space-y-3">
+              {/* Preview */}
+              {posterPreview && (
+                <div className="relative inline-block">
+                  <img
+                    src={posterPreview}
+                    alt="Poster preview"
+                    className="h-32 w-auto rounded-md border border-border object-cover"
+                  />
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="icon"
+                    className="absolute -right-2 -top-2 h-6 w-6"
+                    onClick={removePoster}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+              
+              {/* Upload Button */}
+              <div className="flex items-center gap-3">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  id="poster-upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingPoster}
+                  className="gap-2"
+                >
+                  {uploadingPoster ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : posterPreview ? (
+                    <ImageIcon className="h-4 w-4" />
+                  ) : (
+                    <Upload className="h-4 w-4" />
+                  )}
+                  {posterPreview ? "Change Image" : "Upload Image"}
+                </Button>
+                <span className="text-xs text-muted-foreground">or</span>
+              </div>
+
+              {/* URL Input */}
+              <Input
+                id="poster"
+                placeholder="Paste image URL..."
+                {...form.register("poster")}
+                className="bg-secondary"
+                onChange={(e) => {
+                  form.setValue("poster", e.target.value);
+                  if (e.target.value) {
+                    setPosterFile(null);
+                    setPosterPreview(e.target.value);
+                  }
+                }}
+              />
+            </div>
           </div>
 
           {/* GA Features */}
