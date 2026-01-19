@@ -12,9 +12,9 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { Event } from "@/data/events";
 
 const MONTHS = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
 const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -34,10 +34,12 @@ const eventSchema = z.object({
 
 type EventFormData = z.infer<typeof eventSchema>;
 
-interface AddEventFormProps {
+interface EventFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  mode: "add" | "edit";
+  editEvent?: (Event & { description?: string; dbId?: string }) | null;
   defaultEvent?: {
     venue: string;
     address: string;
@@ -63,17 +65,77 @@ const DEFAULT_VIP_FEATURES = [
   "Priority access to all vendors",
 ];
 
-export default function AddEventForm({ isOpen, onClose, onSuccess, defaultEvent }: AddEventFormProps) {
+// Parse time string like "10:00 AM - 6:00 PM" to get start/end times
+function parseTimeRange(timeRange: string): { startTime: string; endTime: string } {
+  const parts = timeRange.split(" - ");
+  if (parts.length !== 2) return { startTime: "10:00", endTime: "18:00" };
+  
+  const parseTime = (t: string): string => {
+    const match = t.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (!match) return "10:00";
+    let hours = parseInt(match[1]);
+    const minutes = match[2];
+    const period = match[3].toUpperCase();
+    if (period === "PM" && hours !== 12) hours += 12;
+    if (period === "AM" && hours === 12) hours = 0;
+    return `${hours.toString().padStart(2, "0")}:${minutes}`;
+  };
+
+  return {
+    startTime: parseTime(parts[0]),
+    endTime: parseTime(parts[1]),
+  };
+}
+
+// Parse early bird time like "9:00 AM" to 24h format
+function parseEarlyBirdTime(time: string | undefined): string {
+  if (!time) return "";
+  const match = time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!match) return "";
+  let hours = parseInt(match[1]);
+  const minutes = match[2];
+  const period = match[3].toUpperCase();
+  if (period === "PM" && hours !== 12) hours += 12;
+  if (period === "AM" && hours === 12) hours = 0;
+  return `${hours.toString().padStart(2, "0")}:${minutes}`;
+}
+
+export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent, defaultEvent }: EventFormProps) {
   const [saving, setSaving] = useState(false);
-  const [gaFeatures, setGaFeatures] = useState<string[]>(defaultEvent?.gaFeatures || DEFAULT_GA_FEATURES);
-  const [vipFeatures, setVipFeatures] = useState<string[]>(defaultEvent?.vipFeatures || DEFAULT_VIP_FEATURES);
+  const [gaFeatures, setGaFeatures] = useState<string[]>(DEFAULT_GA_FEATURES);
+  const [vipFeatures, setVipFeatures] = useState<string[]>(DEFAULT_VIP_FEATURES);
   const [newGaFeature, setNewGaFeature] = useState("");
   const [newVipFeature, setNewVipFeature] = useState("");
   const { toast } = useToast();
 
-  const form = useForm<EventFormData>({
-    resolver: zodResolver(eventSchema),
-    defaultValues: {
+  const isEdit = mode === "edit";
+
+  // Initialize form with proper defaults
+  const getDefaultValues = (): Partial<EventFormData> => {
+    if (isEdit && editEvent) {
+      const monthIndex = MONTHS.indexOf(editEvent.month.toUpperCase());
+      const eventDate = new Date(
+        parseInt(editEvent.year),
+        monthIndex,
+        parseInt(editEvent.date)
+      );
+      const { startTime, endTime } = parseTimeRange(editEvent.time);
+      
+      return {
+        date: eventDate,
+        startTime,
+        endTime,
+        earlyBirdTime: parseEarlyBirdTime(editEvent.earlyBirdTime),
+        venue: editEvent.venue,
+        address: editEvent.address,
+        gaPrice: editEvent.gaPrice,
+        vipPrice: editEvent.vipPrice,
+        description: editEvent.description || "",
+        poster: editEvent.poster || "",
+      };
+    }
+    
+    return {
       venue: defaultEvent?.venue || "The New Yorker Hotel",
       address: defaultEvent?.address || "481 8th Ave, New York, NY",
       gaPrice: defaultEvent?.gaPrice || 10,
@@ -83,8 +145,29 @@ export default function AddEventForm({ isOpen, onClose, onSuccess, defaultEvent 
       earlyBirdTime: "09:00",
       description: "",
       poster: "",
-    },
+    };
+  };
+
+  const form = useForm<EventFormData>({
+    resolver: zodResolver(eventSchema),
+    defaultValues: getDefaultValues(),
   });
+
+  // Reset form when dialog opens or editEvent changes
+  useEffect(() => {
+    if (isOpen) {
+      const defaults = getDefaultValues();
+      form.reset(defaults);
+      
+      if (isEdit && editEvent) {
+        setGaFeatures(editEvent.gaFeatures || DEFAULT_GA_FEATURES);
+        setVipFeatures(editEvent.vipFeatures || DEFAULT_VIP_FEATURES);
+      } else {
+        setGaFeatures(defaultEvent?.gaFeatures || DEFAULT_GA_FEATURES);
+        setVipFeatures(defaultEvent?.vipFeatures || DEFAULT_VIP_FEATURES);
+      }
+    }
+  }, [isOpen, editEvent, mode]);
 
   const handleSubmit = async (data: EventFormData) => {
     setSaving(true);
@@ -108,7 +191,7 @@ export default function AddEventForm({ isOpen, onClose, onSuccess, defaultEvent 
       const timeRange = `${formatTime(data.startTime)} - ${formatTime(data.endTime)}`;
       const earlyBirdDisplay = data.earlyBirdTime ? formatTime(data.earlyBirdTime) : null;
 
-      const { error } = await supabase.from("events").insert({
+      const eventData = {
         event_id: eventId,
         date,
         month,
@@ -124,21 +207,37 @@ export default function AddEventForm({ isOpen, onClose, onSuccess, defaultEvent 
         vip_features: vipFeatures,
         description: data.description || null,
         poster: data.poster || null,
-      });
+      };
 
-      if (error) throw error;
-
-      toast({
-        title: "Event created!",
-        description: `Event for ${month} ${date}, ${year} has been created.`,
-      });
+      if (isEdit && editEvent?.dbId) {
+        const { error } = await supabase
+          .from("events")
+          .update(eventData)
+          .eq("id", editEvent.dbId);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Event updated!",
+          description: `Event for ${month} ${date}, ${year} has been updated.`,
+        });
+      } else {
+        const { error } = await supabase.from("events").insert(eventData);
+        
+        if (error) throw error;
+        
+        toast({
+          title: "Event created!",
+          description: `Event for ${month} ${date}, ${year} has been created.`,
+        });
+      }
 
       onSuccess();
       onClose();
       form.reset();
     } catch (error: any) {
       toast({
-        title: "Failed to create event",
+        title: isEdit ? "Failed to update event" : "Failed to create event",
         description: error.message,
         variant: "destructive",
       });
@@ -173,9 +272,14 @@ export default function AddEventForm({ isOpen, onClose, onSuccess, defaultEvent 
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] overflow-y-auto border-border bg-card sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="text-foreground">Add New Event</DialogTitle>
+          <DialogTitle className="text-foreground">
+            {isEdit ? "Edit Event" : "Add New Event"}
+          </DialogTitle>
           <DialogDescription>
-            Create a new card show event. Fields are pre-filled with the most recent event defaults.
+            {isEdit 
+              ? "Update the event details below."
+              : "Create a new card show event. Fields are pre-filled with the most recent event defaults."
+            }
           </DialogDescription>
         </DialogHeader>
 
@@ -370,7 +474,7 @@ export default function AddEventForm({ isOpen, onClose, onSuccess, defaultEvent 
               Cancel
             </Button>
             <Button type="submit" disabled={saving}>
-              {saving ? "Creating..." : "Create Event"}
+              {saving ? (isEdit ? "Saving..." : "Creating...") : (isEdit ? "Save Changes" : "Create Event")}
             </Button>
           </div>
         </form>

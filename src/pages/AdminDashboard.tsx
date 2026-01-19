@@ -10,11 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar } from "lucide-react";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
-import AddEventForm from "@/components/AddEventForm";
+import EventForm from "@/components/EventForm";
 import { useEvents } from "@/hooks/useEvents";
+import { Event } from "@/data/events";
+
 interface TicketOrder {
   id: string;
   customer_name: string;
@@ -51,13 +53,27 @@ const AdminDashboard = () => {
   const [newAdminPassword, setNewAdminPassword] = useState("");
   const [creatingAdmin, setCreatingAdmin] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [addEventOpen, setAddEventOpen] = useState(false);
+  const [eventFormOpen, setEventFormOpen] = useState(false);
+  const [eventFormMode, setEventFormMode] = useState<"add" | "edit">("add");
+  const [editingEvent, setEditingEvent] = useState<(Event & { description?: string; dbId?: string }) | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { events: dbEvents, refetch: refetchEvents } = useEvents();
 
   // Get the most recent event for defaults
   const mostRecentEvent = dbEvents.length > 0 ? dbEvents[dbEvents.length - 1] : null;
+
+  const handleAddEvent = () => {
+    setEventFormMode("add");
+    setEditingEvent(null);
+    setEventFormOpen(true);
+  };
+
+  const handleEditEvent = (event: Event & { description?: string; dbId?: string }) => {
+    setEventFormMode("edit");
+    setEditingEvent(event);
+    setEventFormOpen(true);
+  };
 
   useEffect(() => {
     checkAuth();
@@ -246,7 +262,7 @@ const AdminDashboard = () => {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setAddEventOpen(true)}
+              onClick={handleAddEvent}
             >
               <CalendarPlus className="mr-2 h-4 w-4" />
               Add Event
@@ -334,7 +350,7 @@ const AdminDashboard = () => {
             <Button
               variant="outline"
               onClick={() => {
-                setAddEventOpen(true);
+                handleAddEvent();
                 setIsMobileMenuOpen(false);
               }}
               className="w-full justify-start"
@@ -440,6 +456,62 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Events Management */}
+        <Card className="mb-6 border-border bg-card">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between text-lg text-foreground">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-5 w-5 text-primary" />
+                Manage Events
+              </div>
+              <Button variant="outline" size="sm" onClick={handleAddEvent}>
+                <CalendarPlus className="mr-2 h-4 w-4" />
+                Add Event
+              </Button>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {dbEvents.length === 0 ? (
+              <p className="text-center text-muted-foreground">No events found. Add your first event!</p>
+            ) : (
+              <div className="space-y-3">
+                {dbEvents.map((event) => (
+                  <div
+                    key={event.dbId || event.id}
+                    className="flex items-center justify-between rounded-lg border border-border bg-secondary/50 p-4"
+                  >
+                    <div className="flex-1">
+                      <div className="font-medium text-foreground">
+                        {event.month} {event.date}, {event.year}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {event.venue} • {event.time}
+                      </div>
+                      <div className="mt-1 flex gap-2">
+                        <Badge variant="outline" className="text-xs">
+                          GA: ${event.gaPrice}
+                        </Badge>
+                        <Badge variant="outline" className="text-xs">
+                          VIP: ${event.vipPrice}
+                        </Badge>
+                      </div>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEditEvent(event)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Filters */}
         <Card className="mb-6 border-border bg-card">
           <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center">
@@ -570,13 +642,18 @@ const AdminDashboard = () => {
         </p>
       </main>
 
-      <AddEventForm
-        isOpen={addEventOpen}
-        onClose={() => setAddEventOpen(false)}
+      <EventForm
+        isOpen={eventFormOpen}
+        onClose={() => {
+          setEventFormOpen(false);
+          setEditingEvent(null);
+        }}
         onSuccess={() => {
           refetchEvents();
           fetchOrders();
         }}
+        mode={eventFormMode}
+        editEvent={editingEvent}
         defaultEvent={mostRecentEvent ? {
           venue: mostRecentEvent.venue,
           address: mostRecentEvent.address,
