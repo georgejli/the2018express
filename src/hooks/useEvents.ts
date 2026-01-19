@@ -80,11 +80,29 @@ export function useEvents() {
     }
   };
 
+  const deleteEvent = async (dbId: string): Promise<boolean> => {
+    try {
+      const { error: deleteError } = await supabase
+        .from("events")
+        .delete()
+        .eq("id", dbId);
+
+      if (deleteError) throw deleteError;
+      
+      // Refresh events after deletion
+      await fetchEvents();
+      return true;
+    } catch (err: any) {
+      setError(err.message);
+      return false;
+    }
+  };
+
   useEffect(() => {
     fetchEvents();
   }, []);
 
-  return { events, loading, error, refetch: fetchEvents };
+  return { events, loading, error, refetch: fetchEvents, deleteEvent };
 }
 
 export function useEvent(eventId: string | undefined) {

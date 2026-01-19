@@ -9,8 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 import EventForm from "@/components/EventForm";
@@ -56,9 +57,12 @@ const AdminDashboard = () => {
   const [eventFormOpen, setEventFormOpen] = useState(false);
   const [eventFormMode, setEventFormMode] = useState<"add" | "edit">("add");
   const [editingEvent, setEditingEvent] = useState<(Event & { description?: string; dbId?: string }) | null>(null);
+  const [deleteEventOpen, setDeleteEventOpen] = useState(false);
+  const [deletingEvent, setDeletingEvent] = useState<(Event & { description?: string; dbId?: string }) | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { events: dbEvents, refetch: refetchEvents } = useEvents();
+  const { events: dbEvents, refetch: refetchEvents, deleteEvent } = useEvents();
 
   // Get the most recent event for defaults
   const mostRecentEvent = dbEvents.length > 0 ? dbEvents[dbEvents.length - 1] : null;
@@ -73,6 +77,35 @@ const AdminDashboard = () => {
     setEventFormMode("edit");
     setEditingEvent(event);
     setEventFormOpen(true);
+  };
+
+  const handleDeleteClick = (event: Event & { description?: string; dbId?: string }) => {
+    setDeletingEvent(event);
+    setDeleteEventOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingEvent?.dbId) return;
+    
+    setIsDeleting(true);
+    const success = await deleteEvent(deletingEvent.dbId);
+    setIsDeleting(false);
+    
+    if (success) {
+      toast({
+        title: "Event deleted",
+        description: `${deletingEvent.month} ${deletingEvent.date}, ${deletingEvent.year} has been deleted.`,
+      });
+    } else {
+      toast({
+        title: "Failed to delete event",
+        description: "There was an error deleting the event. Please try again.",
+        variant: "destructive",
+      });
+    }
+    
+    setDeleteEventOpen(false);
+    setDeletingEvent(null);
   };
 
   useEffect(() => {
@@ -497,14 +530,24 @@ const AdminDashboard = () => {
                         </Badge>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleEditEvent(event)}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditEvent(event)}
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteClick(event)}
+                        className="text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -663,6 +706,32 @@ const AdminDashboard = () => {
           vipFeatures: mostRecentEvent.vipFeatures,
         } : undefined}
       />
+
+      {/* Delete Event Confirmation Dialog */}
+      <AlertDialog open={deleteEventOpen} onOpenChange={setDeleteEventOpen}>
+        <AlertDialogContent className="border-border bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-foreground">Delete Event</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete the event for{" "}
+              <span className="font-semibold text-foreground">
+                {deletingEvent?.month} {deletingEvent?.date}, {deletingEvent?.year}
+              </span>
+              ? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? "Deleting..." : "Delete Event"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
