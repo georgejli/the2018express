@@ -1,0 +1,333 @@
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users } from "lucide-react";
+import { format } from "date-fns";
+
+interface TicketOrder {
+  id: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  event_id: string;
+  event_name: string;
+  event_date: string;
+  ticket_type: string;
+  quantity: number;
+  total_amount: number;
+  status: string | null;
+  created_at: string | null;
+  qr_code: string | null;
+}
+
+const AdminDashboard = () => {
+  const [orders, setOrders] = useState<TicketOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [eventFilter, setEventFilter] = useState<string>("all");
+  const [resendingId, setResendingId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    checkAuth();
+    fetchOrders();
+  }, []);
+
+  const checkAuth = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      navigate("/admin/login");
+      return;
+    }
+
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    if (!roleData) {
+      await supabase.auth.signOut();
+      navigate("/admin/login");
+    }
+  };
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from("ticket_orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      toast({
+        title: "Error fetching orders",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setOrders(data || []);
+    }
+    setLoading(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate("/admin/login");
+  };
+
+  const handleResendEmail = async (orderId: string) => {
+    setResendingId(orderId);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-ticket-email", {
+        body: { orderId },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Email sent!",
+        description: "Ticket email has been resent successfully.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to resend email",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setResendingId(null);
+    }
+  };
+
+  const filteredOrders = orders.filter((order) => {
+    const matchesSearch =
+      order.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer_email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      order.customer_phone.includes(searchQuery) ||
+      order.qr_code?.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesStatus = statusFilter === "all" || order.status === statusFilter;
+    const matchesEvent = eventFilter === "all" || order.event_id === eventFilter;
+
+    return matchesSearch && matchesStatus && matchesEvent;
+  });
+
+  const uniqueEvents = [...new Set(orders.map((o) => o.event_id))];
+
+  const stats = {
+    totalOrders: orders.filter((o) => o.status === "completed").length,
+    totalRevenue: orders
+      .filter((o) => o.status === "completed")
+      .reduce((sum, o) => sum + o.total_amount, 0),
+    totalTickets: orders
+      .filter((o) => o.status === "completed")
+      .reduce((sum, o) => sum + o.quantity, 0),
+  };
+
+  const getStatusBadge = (status: string | null) => {
+    switch (status) {
+      case "completed":
+        return <Badge className="bg-green-600 text-white">Completed</Badge>;
+      case "pending":
+        return <Badge className="bg-yellow-600 text-white">Pending</Badge>;
+      case "failed":
+        return <Badge className="bg-red-600 text-white">Failed</Badge>;
+      case "refunded":
+        return <Badge className="bg-gray-600 text-white">Refunded</Badge>;
+      default:
+        return <Badge variant="outline">{status || "Unknown"}</Badge>;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-card px-4 py-4">
+        <div className="container mx-auto flex items-center justify-between">
+          <h1 className="font-display text-2xl text-foreground">
+            <span className="text-gradient-gold">Admin</span> Dashboard
+          </h1>
+          <Button variant="outline" size="sm" onClick={handleLogout}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Logout
+          </Button>
+        </div>
+      </header>
+
+      <main className="container mx-auto p-4 md:p-6">
+        {/* Stats Cards */}
+        <div className="mb-6 grid gap-4 md:grid-cols-3">
+          <Card className="border-border bg-card">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{stats.totalOrders}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-border bg-card">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-accent">${stats.totalRevenue.toFixed(2)}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-border bg-card">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Tickets Sold</CardTitle>
+              <Ticket className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{stats.totalTickets}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Filters */}
+        <Card className="mb-6 border-border bg-card">
+          <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder="Search by name, email, phone, or QR code..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-secondary pl-10"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full bg-secondary md:w-40">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+                <SelectItem value="pending">Pending</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+                <SelectItem value="refunded">Refunded</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={eventFilter} onValueChange={setEventFilter}>
+              <SelectTrigger className="w-full bg-secondary md:w-40">
+                <SelectValue placeholder="Event" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Events</SelectItem>
+                {uniqueEvents.map((eventId) => (
+                  <SelectItem key={eventId} value={eventId}>
+                    {eventId}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="icon" onClick={fetchOrders} disabled={loading}>
+              <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            </Button>
+          </CardContent>
+        </Card>
+
+        {/* Orders Table */}
+        <Card className="border-border bg-card">
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-border hover:bg-transparent">
+                    <TableHead className="text-muted-foreground">Customer</TableHead>
+                    <TableHead className="text-muted-foreground">Event</TableHead>
+                    <TableHead className="text-muted-foreground">Ticket</TableHead>
+                    <TableHead className="text-muted-foreground">Amount</TableHead>
+                    <TableHead className="text-muted-foreground">Status</TableHead>
+                    <TableHead className="text-muted-foreground">Date</TableHead>
+                    <TableHead className="text-muted-foreground">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                        Loading orders...
+                      </TableCell>
+                    </TableRow>
+                  ) : filteredOrders.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="py-8 text-center text-muted-foreground">
+                        No orders found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredOrders.map((order) => (
+                      <TableRow key={order.id} className="border-border">
+                        <TableCell>
+                          <div>
+                            <p className="font-medium text-foreground">{order.customer_name}</p>
+                            <p className="text-sm text-muted-foreground">{order.customer_email}</p>
+                            <p className="text-xs text-muted-foreground">{order.customer_phone}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <p className="text-sm text-foreground">{order.event_id}</p>
+                            <p className="text-xs text-muted-foreground">{order.event_date}</p>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <Badge variant={order.ticket_type === "VIP" ? "default" : "secondary"}>
+                              {order.ticket_type}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">×{order.quantity}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium text-accent">
+                          ${order.total_amount.toFixed(2)}
+                        </TableCell>
+                        <TableCell>{getStatusBadge(order.status)}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {order.created_at
+                            ? format(new Date(order.created_at), "MMM d, yyyy h:mm a")
+                            : "—"}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleResendEmail(order.id)}
+                            disabled={resendingId === order.id || order.status !== "completed"}
+                            title={order.status !== "completed" ? "Only completed orders can receive emails" : "Resend ticket email"}
+                          >
+                            <Mail className={`h-4 w-4 ${resendingId === order.id ? "animate-pulse" : ""}`} />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Showing {filteredOrders.length} of {orders.length} orders
+        </p>
+      </main>
+    </div>
+  );
+};
+
+export default AdminDashboard;
