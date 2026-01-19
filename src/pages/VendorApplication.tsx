@@ -176,7 +176,7 @@ const VendorApplication = () => {
       <Header />
 
       <main className="flex-1 px-4 pb-16 pt-24">
-        <div className="container mx-auto max-w-2xl">
+        <div className="container mx-auto max-w-2xl animate-fade-in">
           <Link
             to="/"
             className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
