@@ -10,8 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
+import { Progress } from "@/components/ui/progress";
 
 interface TicketOrder {
   id: string;
@@ -27,6 +28,14 @@ interface TicketOrder {
   status: string | null;
   created_at: string | null;
   qr_code: string | null;
+  checked_in: boolean | null;
+}
+
+interface EventCheckInStats {
+  eventId: string;
+  eventName: string;
+  totalTickets: number;
+  checkedIn: number;
 }
 
 const AdminDashboard = () => {
@@ -170,7 +179,27 @@ const AdminDashboard = () => {
     totalTickets: orders
       .filter((o) => o.status === "completed")
       .reduce((sum, o) => sum + o.quantity, 0),
+    totalCheckedIn: orders
+      .filter((o) => o.status === "completed" && o.checked_in)
+      .reduce((sum, o) => sum + o.quantity, 0),
   };
+
+  // Calculate check-in stats per event
+  const eventCheckInStats: EventCheckInStats[] = uniqueEvents.map((eventId) => {
+    const eventOrders = orders.filter((o) => o.event_id === eventId && o.status === "completed");
+    const eventName = eventOrders[0]?.event_name || eventId;
+    const totalTickets = eventOrders.reduce((sum, o) => sum + o.quantity, 0);
+    const checkedIn = eventOrders
+      .filter((o) => o.checked_in)
+      .reduce((sum, o) => sum + o.quantity, 0);
+    
+    return {
+      eventId,
+      eventName,
+      totalTickets,
+      checkedIn,
+    };
+  }).filter((e) => e.totalTickets > 0);
 
   const getStatusBadge = (status: string | null) => {
     switch (status) {
@@ -261,7 +290,7 @@ const AdminDashboard = () => {
 
       <main className="container mx-auto p-4 md:p-6">
         {/* Stats Cards */}
-        <div className="mb-6 grid gap-4 md:grid-cols-3">
+        <div className="mb-6 grid gap-4 md:grid-cols-4">
           <Card className="border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Orders</CardTitle>
@@ -289,8 +318,48 @@ const AdminDashboard = () => {
               <div className="text-2xl font-bold text-foreground">{stats.totalTickets}</div>
             </CardContent>
           </Card>
+          <Card className="border-border bg-card">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Checked In</CardTitle>
+              <UserCheck className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-green-500">
+                {stats.totalCheckedIn} / {stats.totalTickets}
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
+        {/* Check-In Stats Per Event */}
+        {eventCheckInStats.length > 0 && (
+          <Card className="mb-6 border-border bg-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg text-foreground">
+                <TrendingUp className="h-5 w-5 text-accent" />
+                Check-In Progress by Event
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {eventCheckInStats.map((event) => {
+                const percentage = event.totalTickets > 0 
+                  ? Math.round((event.checkedIn / event.totalTickets) * 100) 
+                  : 0;
+                return (
+                  <div key={event.eventId} className="space-y-2">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium text-foreground">{event.eventName}</span>
+                      <span className="text-muted-foreground">
+                        {event.checkedIn} / {event.totalTickets} ({percentage}%)
+                      </span>
+                    </div>
+                    <Progress value={percentage} className="h-2" />
+                  </div>
+                );
+              })}
+            </CardContent>
+          </Card>
+        )}
         {/* Filters */}
         <Card className="mb-6 border-border bg-card">
           <CardContent className="flex flex-col gap-4 p-4 md:flex-row md:items-center">
