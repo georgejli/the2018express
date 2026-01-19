@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X } from "lucide-react";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 
@@ -49,6 +49,7 @@ const AdminDashboard = () => {
   const [newAdminEmail, setNewAdminEmail] = useState("");
   const [newAdminPassword, setNewAdminPassword] = useState("");
   const [creatingAdmin, setCreatingAdmin] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -224,7 +225,9 @@ const AdminDashboard = () => {
           <h1 className="font-display text-2xl text-foreground">
             <span className="text-gradient-gold">Admin</span> Dashboard
           </h1>
-          <div className="flex items-center gap-2">
+          
+          {/* Desktop Navigation */}
+          <div className="hidden items-center gap-2 md:flex">
             <Button
               variant="default"
               size="sm"
@@ -285,6 +288,58 @@ const AdminDashboard = () => {
               Logout
             </Button>
           </div>
+
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-secondary md:hidden"
+            aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div
+          className={`overflow-hidden border-t border-border/50 transition-all duration-300 ease-in-out md:hidden ${
+            isMobileMenuOpen ? "mt-4 max-h-64 opacity-100" : "max-h-0 opacity-0"
+          }`}
+        >
+          <nav className="flex flex-col gap-2 pt-2">
+            <Button
+              variant="default"
+              onClick={() => {
+                navigate("/admin/check-in");
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full justify-start bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              <QrCode className="mr-2 h-4 w-4" />
+              Check-In Scanner
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCreateAdminOpen(true);
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full justify-start"
+            >
+              <UserPlus className="mr-2 h-4 w-4" />
+              Add Admin
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                handleLogout();
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full justify-start"
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </nav>
         </div>
       </header>
 
