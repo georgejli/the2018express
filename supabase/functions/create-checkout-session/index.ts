@@ -29,6 +29,35 @@ interface CheckoutRequest {
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE_REGEX = /^[\d\s\-\+\(\)]{10,20}$/;
 
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 300000; // 5 minutes
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 checkout attempts per 5 min
+
+const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
+
+async function checkRateLimit(clientIP: string): Promise<boolean> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(clientIP);
+  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const ipHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+  
+  const now = Date.now();
+  const entry = rateLimitMap.get(ipHash);
+  
+  if (!entry || now > entry.resetTime) {
+    rateLimitMap.set(ipHash, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
+    return true;
+  }
+  
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false;
+  }
+  
+  entry.count++;
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -36,6 +65,23 @@ serve(async (req) => {
 
   try {
     console.log("[CREATE-CHECKOUT] Function started");
+
+    // Rate limiting check
+    const clientIP = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || 
+                     req.headers.get("cf-connecting-ip") || 
+                     "unknown";
+    
+    const allowed = await checkRateLimit(clientIP);
+    if (!allowed) {
+      console.log("[CREATE-CHECKOUT] Rate limit exceeded");
+      return new Response(
+        JSON.stringify({ error: "Too many requests. Please try again later." }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "300" },
+        }
+      );
+    }
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
