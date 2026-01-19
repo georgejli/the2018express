@@ -37,21 +37,39 @@ const CheckoutSuccess = () => {
         return;
       }
 
-      try {
-        const { data, error } = await supabase
-          .from("ticket_orders")
-          .select("*")
-          .eq("stripe_session_id", sessionId)
-          .maybeSingle();
+      // Poll for order since webhook may take a moment to process
+      let attempts = 0;
+      const maxAttempts = 10;
+      const pollInterval = 1500; // 1.5 seconds
 
-        if (!error && data) {
-          setOrder(data as OrderDetails);
+      const poll = async () => {
+        try {
+          const { data, error } = await supabase
+            .from("ticket_orders")
+            .select("*")
+            .eq("stripe_session_id", sessionId)
+            .maybeSingle();
+
+          if (!error && data) {
+            setOrder(data as OrderDetails);
+            setLoading(false);
+            return;
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            setTimeout(poll, pollInterval);
+          } else {
+            // Order not found after max attempts
+            setLoading(false);
+          }
+        } catch (err) {
+          console.error("Error fetching order:", err);
+          setLoading(false);
         }
-      } catch (err) {
-        console.error("Error fetching order:", err);
-      } finally {
-        setLoading(false);
-      }
+      };
+
+      poll();
     };
 
     fetchOrder();

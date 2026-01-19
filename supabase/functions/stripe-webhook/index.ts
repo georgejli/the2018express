@@ -54,49 +54,73 @@ serve(async (req) => {
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
-      const orderId = session.metadata?.order_id;
+      const metadata = session.metadata;
       const paymentIntent = session.payment_intent as string;
 
-      logStep("Processing completed checkout", { orderId, paymentIntent });
+      logStep("Processing completed checkout", { sessionId: session.id, paymentIntent, metadata });
 
-      if (orderId) {
-        // Update order status to completed
-        const { error: updateError } = await supabase
-          .from("ticket_orders")
-          .update({
-            status: "completed",
-            stripe_payment_intent: paymentIntent,
-            completed_at: new Date().toISOString(),
-          })
-          .eq("id", orderId);
+      if (!metadata) {
+        throw new Error("No metadata found in session");
+      }
 
-        if (updateError) {
-          logStep("Failed to update order", updateError);
-          throw new Error(`Failed to update order: ${updateError.message}`);
+      // Generate QR code for the ticket
+      const qrCode = crypto.randomUUID();
+
+      // Calculate total amount
+      const quantity = parseInt(metadata.quantity || "1");
+      const unitPrice = parseInt(metadata.unit_price || "0");
+      const totalAmount = unitPrice * quantity;
+
+      // Create the order now that payment is confirmed
+      const { data: order, error: orderError } = await supabase
+        .from("ticket_orders")
+        .insert({
+          event_id: metadata.event_id,
+          event_date: metadata.event_date,
+          event_name: metadata.event_name,
+          ticket_type: metadata.ticket_type,
+          quantity,
+          unit_price: unitPrice,
+          total_amount: totalAmount,
+          customer_name: metadata.customer_name,
+          customer_email: metadata.customer_email,
+          customer_phone: metadata.customer_phone,
+          subscribe_to_updates: metadata.subscribe_to_updates === "true",
+          qr_code: qrCode,
+          status: "completed",
+          stripe_session_id: session.id,
+          stripe_payment_intent: paymentIntent,
+          completed_at: new Date().toISOString(),
+        })
+        .select()
+        .single();
+
+      if (orderError) {
+        logStep("Order creation error", orderError);
+        throw new Error(`Failed to create order: ${orderError.message}`);
+      }
+
+      logStep("Order created successfully", { orderId: order.id });
+
+      // Trigger email sending
+      try {
+        const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-ticket-email`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${supabaseServiceKey}`,
+          },
+          body: JSON.stringify({ orderId: order.id }),
+        });
+
+        if (!emailResponse.ok) {
+          const errorText = await emailResponse.text();
+          logStep("Email function failed", { status: emailResponse.status, error: errorText });
+        } else {
+          logStep("Email function triggered successfully");
         }
-
-        logStep("Order updated to completed");
-
-        // Trigger email sending
-        try {
-          const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-ticket-email`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${supabaseServiceKey}`,
-            },
-            body: JSON.stringify({ orderId }),
-          });
-
-          if (!emailResponse.ok) {
-            const errorText = await emailResponse.text();
-            logStep("Email function failed", { status: emailResponse.status, error: errorText });
-          } else {
-            logStep("Email function triggered successfully");
-          }
-        } catch (emailError) {
-          logStep("Failed to trigger email function", { error: emailError });
-        }
+      } catch (emailError) {
+        logStep("Failed to trigger email function", { error: emailError });
       }
     }
 
