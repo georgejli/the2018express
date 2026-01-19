@@ -6,13 +6,14 @@ import NextShowTicker from "@/components/NextShowTicker";
 import EventCard from "@/components/EventCard";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import Footer from "@/components/Footer";
-import { events } from "@/data/events";
+import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents, getPastEvents } from "@/lib/eventUtils";
 import { ChevronDown, History } from "lucide-react";
 
 const INITIAL_EVENTS_COUNT = 3;
 
 const Index = () => {
+  const { events } = useEvents();
   const upcomingEvents = getUpcomingEvents(events);
   const pastEvents = getPastEvents(events);
   const [showAllEvents, setShowAllEvents] = useState(false);
