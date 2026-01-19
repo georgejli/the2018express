@@ -6,11 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Camera, Keyboard, CheckCircle, XCircle, AlertTriangle, RotateCcw } from "lucide-react";
+import { LogOut, Camera, Keyboard, CheckCircle, XCircle, AlertTriangle, RotateCcw, Undo2 } from "lucide-react";
 
 interface CheckInResult {
   success: boolean;
   error?: string;
+  action?: string;
   message: string;
   order?: {
     id?: string;
@@ -30,6 +31,7 @@ const CheckInPage = () => {
   const [manualCode, setManualCode] = useState("");
   const [processing, setProcessing] = useState(false);
   const [lastResult, setLastResult] = useState<CheckInResult | null>(null);
+  const [lastQrCode, setLastQrCode] = useState<string | null>(null);
   const [showManualInput, setShowManualInput] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -63,15 +65,16 @@ const CheckInPage = () => {
     navigate("/admin/login");
   };
 
-  const processCheckIn = useCallback(async (qrCode: string) => {
+  const processCheckIn = useCallback(async (qrCode: string, action: "check-in" | "uncheck-in" = "check-in") => {
     if (processing) return;
     
     setProcessing(true);
     setScannerActive(false);
+    setLastQrCode(qrCode);
 
     try {
       const { data, error } = await supabase.functions.invoke("check-in-ticket", {
-        body: { qrCode },
+        body: { qrCode, action },
       });
 
       if (error) throw error;
@@ -79,19 +82,20 @@ const CheckInPage = () => {
       setLastResult(data as CheckInResult);
 
       if (data.success) {
+        const actionText = action === "uncheck-in" ? "unchecked" : "checked in";
         toast({
-          title: "✅ Check-in successful!",
-          description: `${data.order.customer_name} - ${data.order.ticket_type} x${data.order.quantity}`,
+          title: action === "uncheck-in" ? "↩️ Ticket unchecked!" : "✅ Check-in successful!",
+          description: `${data.order.customer_name} - ${data.order.ticket_type} x${data.order.quantity} ${actionText}`,
         });
       }
     } catch (error: any) {
       setLastResult({
         success: false,
         error: "ERROR",
-        message: error.message || "Failed to process check-in",
+        message: error.message || "Failed to process request",
       });
       toast({
-        title: "Check-in failed",
+        title: "Action failed",
         description: error.message,
         variant: "destructive",
       });
@@ -114,14 +118,23 @@ const CheckInPage = () => {
     }
   };
 
+  const handleUncheckIn = async () => {
+    if (!lastQrCode || !lastResult?.order?.id) return;
+    await processCheckIn(lastQrCode, "uncheck-in");
+  };
+
   const resetScanner = () => {
     setLastResult(null);
+    setLastQrCode(null);
     setScannerActive(true);
   };
 
   const getResultIcon = () => {
     if (!lastResult) return null;
     if (lastResult.success) {
+      if (lastResult.action === "uncheck-in") {
+        return <Undo2 className="h-16 w-16 text-blue-500" />;
+      }
       return <CheckCircle className="h-16 w-16 text-green-500" />;
     }
     if (lastResult.error === "ALREADY_CHECKED_IN") {
@@ -132,10 +145,17 @@ const CheckInPage = () => {
 
   const getResultColor = () => {
     if (!lastResult) return "border-border";
-    if (lastResult.success) return "border-green-500 bg-green-500/10";
+    if (lastResult.success) {
+      if (lastResult.action === "uncheck-in") return "border-blue-500 bg-blue-500/10";
+      return "border-green-500 bg-green-500/10";
+    }
     if (lastResult.error === "ALREADY_CHECKED_IN") return "border-yellow-500 bg-yellow-500/10";
     return "border-red-500 bg-red-500/10";
   };
+
+  // Determine if we can show the uncheck button
+  const canUncheck = lastResult?.success && lastResult?.action !== "uncheck-in" && lastResult?.order?.id;
+  const canRecheckAfterUncheck = lastResult?.success && lastResult?.action === "uncheck-in" && lastQrCode;
 
   return (
     <div className="min-h-screen bg-background">
@@ -169,7 +189,9 @@ const CheckInPage = () => {
               <div className="flex flex-col items-center py-8 text-center">
                 {getResultIcon()}
                 <h2 className="mt-4 text-xl font-bold text-foreground">
-                  {lastResult.success ? "Check-In Successful!" : lastResult.message}
+                  {lastResult.success 
+                    ? (lastResult.action === "uncheck-in" ? "Ticket Unchecked!" : "Check-In Successful!")
+                    : lastResult.message}
                 </h2>
                 
                 {lastResult.order && (
@@ -206,10 +228,52 @@ const CheckInPage = () => {
                   </div>
                 )}
 
-                <Button onClick={resetScanner} className="mt-6 w-full" size="lg">
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Scan Next Ticket
-                </Button>
+                {/* Action buttons */}
+                <div className="mt-6 flex w-full flex-col gap-2">
+                  {/* Show Undo button after successful check-in */}
+                  {canUncheck && (
+                    <Button 
+                      onClick={handleUncheckIn} 
+                      variant="outline" 
+                      className="w-full border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"
+                      disabled={processing}
+                    >
+                      <Undo2 className="mr-2 h-4 w-4" />
+                      {processing ? "Processing..." : "Undo Check-In (Mis-scan)"}
+                    </Button>
+                  )}
+
+                  {/* Show Re-check button after uncheck */}
+                  {canRecheckAfterUncheck && (
+                    <Button 
+                      onClick={() => processCheckIn(lastQrCode!, "check-in")} 
+                      variant="outline" 
+                      className="w-full border-green-500 text-green-500 hover:bg-green-500/10"
+                      disabled={processing}
+                    >
+                      <CheckCircle className="mr-2 h-4 w-4" />
+                      {processing ? "Processing..." : "Re-check In This Ticket"}
+                    </Button>
+                  )}
+
+                  {/* Show Uncheck button for already checked in tickets */}
+                  {lastResult.error === "ALREADY_CHECKED_IN" && lastQrCode && (
+                    <Button 
+                      onClick={handleUncheckIn} 
+                      variant="outline" 
+                      className="w-full border-yellow-500 text-yellow-500 hover:bg-yellow-500/10"
+                      disabled={processing}
+                    >
+                      <Undo2 className="mr-2 h-4 w-4" />
+                      {processing ? "Processing..." : "Uncheck This Ticket"}
+                    </Button>
+                  )}
+
+                  <Button onClick={resetScanner} className="w-full" size="lg">
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Scan Next Ticket
+                  </Button>
+                </div>
               </div>
             ) : (
               <div>
@@ -298,7 +362,8 @@ const CheckInPage = () => {
             <h3 className="mb-2 font-semibold text-foreground">Quick Guide</h3>
             <ul className="space-y-1 text-sm text-muted-foreground">
               <li>• Green = Successful check-in</li>
-              <li>• Yellow = Already checked in (duplicate)</li>
+              <li>• Blue = Ticket unchecked (undo)</li>
+              <li>• Yellow = Already checked in (can uncheck)</li>
               <li>• Red = Invalid or unpaid ticket</li>
             </ul>
           </CardContent>

@@ -50,7 +50,7 @@ serve(async (req) => {
       throw new Error("Only admins can check in tickets");
     }
 
-    const { qrCode } = await req.json();
+    const { qrCode, action = "check-in" } = await req.json();
     
     if (!qrCode) {
       throw new Error("QR code is required");
@@ -58,7 +58,7 @@ serve(async (req) => {
 
     // Clean and normalize the QR code (trim whitespace, handle URL-encoded values)
     const cleanedQrCode = decodeURIComponent(qrCode.toString().trim());
-    console.log("[CHECK-IN-TICKET] Processing check-in request");
+    console.log("[CHECK-IN-TICKET] Processing request:", action);
 
     // Find the ticket order by QR code
     const { data: order, error: orderError } = await supabaseAdmin
@@ -101,6 +101,63 @@ serve(async (req) => {
       );
     }
 
+    // Handle uncheck-in action
+    if (action === "uncheck-in") {
+      if (!order.checked_in) {
+        return new Response(
+          JSON.stringify({ 
+            success: false, 
+            error: "NOT_CHECKED_IN",
+            message: "This ticket is not checked in",
+            order: {
+              id: order.id,
+              customer_name: order.customer_name,
+              ticket_type: order.ticket_type,
+              quantity: order.quantity,
+              event_name: order.event_name,
+              event_date: order.event_date
+            }
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Uncheck the ticket
+      const { error: updateError } = await supabaseAdmin
+        .from("ticket_orders")
+        .update({
+          checked_in: false,
+          checked_in_at: null,
+          checked_in_by: null
+        })
+        .eq("id", order.id);
+
+      if (updateError) {
+        console.log("[CHECK-IN-TICKET] Error updating order");
+        throw new Error("Failed to uncheck ticket");
+      }
+
+      console.log("[CHECK-IN-TICKET] Uncheck-in successful");
+
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          action: "uncheck-in",
+          message: "Ticket unchecked successfully!",
+          order: {
+            id: order.id,
+            customer_name: order.customer_name,
+            ticket_type: order.ticket_type,
+            quantity: order.quantity,
+            event_name: order.event_name,
+            event_date: order.event_date
+          }
+        }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+
+    // Handle check-in action (default)
     // Check if already checked in
     if (order.checked_in) {
       return new Response(
@@ -109,6 +166,7 @@ serve(async (req) => {
           error: "ALREADY_CHECKED_IN",
           message: "This ticket has already been used",
           order: {
+            id: order.id,
             customer_name: order.customer_name,
             ticket_type: order.ticket_type,
             quantity: order.quantity,
@@ -141,6 +199,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         success: true, 
+        action: "check-in",
         message: "Check-in successful!",
         order: {
           id: order.id,
