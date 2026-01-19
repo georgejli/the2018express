@@ -104,14 +104,76 @@ serve(async (req) => {
   try {
     console.log("[SEND-TICKET-EMAIL] Function started");
 
+    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+    
+    // Create admin client for database operations
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    // Check authorization
+    const authHeader = req.headers.get("Authorization");
+    let isAuthorized = false;
+    
+    // Check if this is an internal service role call (from stripe-webhook)
+    if (authHeader?.includes(supabaseServiceKey)) {
+      console.log("[SEND-TICKET-EMAIL] Internal service role call - authorized");
+      isAuthorized = true;
+    } else if (authHeader?.startsWith("Bearer ")) {
+      // External call - verify admin user
+      console.log("[SEND-TICKET-EMAIL] External call - verifying admin auth");
+      
+      const supabaseClient = createClient(
+        supabaseUrl,
+        supabaseAnonKey,
+        { global: { headers: { Authorization: authHeader } } }
+      );
+      
+      const token = authHeader.replace("Bearer ", "");
+      const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+      
+      if (claimsError || !claimsData?.claims?.sub) {
+        console.log("[SEND-TICKET-EMAIL] Invalid token");
+        return new Response(JSON.stringify({ error: "Unauthorized - invalid token" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      const userId = claimsData.claims.sub;
+      
+      // Check if user has admin role
+      const { data: roleData, error: roleError } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+      
+      if (roleError || !roleData) {
+        console.log("[SEND-TICKET-EMAIL] User is not an admin");
+        return new Response(JSON.stringify({ error: "Forbidden - admin access required" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      
+      console.log("[SEND-TICKET-EMAIL] Admin user verified");
+      isAuthorized = true;
+    }
+    
+    if (!isAuthorized) {
+      console.log("[SEND-TICKET-EMAIL] No authorization provided");
+      return new Response(JSON.stringify({ error: "Unauthorized - authentication required" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const resendApiKey = Deno.env.get("RESEND_API_KEY");
     if (!resendApiKey) throw new Error("RESEND_API_KEY is not set");
 
     const resend = new Resend(resendApiKey);
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { orderId } = await req.json();
     console.log("[SEND-TICKET-EMAIL] Processing order");
@@ -121,7 +183,7 @@ serve(async (req) => {
     }
 
     // Fetch order details
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await supabaseAdmin
       .from("ticket_orders")
       .select("*")
       .eq("id", orderId)
