@@ -1,5 +1,7 @@
 /// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
@@ -10,6 +12,7 @@ interface VendorApplication {
   name: string;
   email: string;
   phone: string;
+  eventId: string;
   tableTier: string;
   tableTierLabel: string;
   tableQuantity: number;
@@ -18,12 +21,7 @@ interface VendorApplication {
   specialRequests?: string;
   pricePerTable: number;
   totalPrice: number;
-  eventDate: string; // Format: "February 15, 2026"
-}
-
-interface ServiceAccountCredentials {
-  client_email: string;
-  private_key: string;
+  eventDate: string;
 }
 
 // Rate limiting configuration
@@ -32,13 +30,13 @@ const RATE_LIMIT_MAX_REQUESTS = 5; // 5 submissions per hour per IP
 
 // Input validation patterns
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_REGEX = /^[\d\s\-\+\(\)]{10,20}$/;
+const PHONE_REGEX = /^[\d]{10}$/;
 
 // Validation function for vendor application
 function validateApplication(application: VendorApplication): { valid: boolean; error?: string } {
   // Required fields check
   if (!application.name || !application.email || !application.phone || 
-      !application.tableTier || !application.eventDate) {
+      !application.tableTier || !application.eventDate || !application.eventId) {
     return { valid: false, error: "Missing required fields" };
   }
 
@@ -62,7 +60,7 @@ function validateApplication(application: VendorApplication): { valid: boolean; 
   }
 
   // Table tier validation
-  const validTiers = ["tier1", "tier2", "tier3"];
+  const validTiers = ["main_ballroom", "crystal_room", "2nd_floor"];
   if (!validTiers.includes(application.tableTier)) {
     return { valid: false, error: "Invalid table tier" };
   }
@@ -120,185 +118,16 @@ async function checkRateLimit(clientIP: string): Promise<boolean> {
   const entry = rateLimitMap.get(ipHash);
   
   if (!entry || now > entry.resetTime) {
-    rateLimitMap.set(ipHash, { count: 1, resetTime: now + 3600000 });
+    rateLimitMap.set(ipHash, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
     return true;
   }
   
-  if (entry.count >= 5) {
+  if (entry.count >= RATE_LIMIT_MAX_REQUESTS) {
     return false;
   }
   
   entry.count++;
   return true;
-}
-
-// Create JWT for Google API authentication
-async function createJWT(credentials: ServiceAccountCredentials): Promise<string> {
-  const header = {
-    alg: "RS256",
-    typ: "JWT",
-  };
-
-  const now = Math.floor(Date.now() / 1000);
-  const payload = {
-    iss: credentials.client_email,
-    scope: "https://www.googleapis.com/auth/spreadsheets",
-    aud: "https://oauth2.googleapis.com/token",
-    exp: now + 3600,
-    iat: now,
-  };
-
-  const encoder = new TextEncoder();
-  const headerB64 = btoa(JSON.stringify(header)).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-  const payloadB64 = btoa(JSON.stringify(payload)).replace(/=/g, "").replace(/\+/g, "-").replace(/\//g, "_");
-  const unsignedToken = `${headerB64}.${payloadB64}`;
-
-  // Import the private key
-  const pemContents = credentials.private_key
-    .replace(/-----BEGIN PRIVATE KEY-----/, "")
-    .replace(/-----END PRIVATE KEY-----/, "")
-    .replace(/\n/g, "");
-  
-  const binaryKey = Uint8Array.from(atob(pemContents), (c) => c.charCodeAt(0));
-  
-  const cryptoKey = await crypto.subtle.importKey(
-    "pkcs8",
-    binaryKey,
-    {
-      name: "RSASSA-PKCS1-v1_5",
-      hash: "SHA-256",
-    },
-    false,
-    ["sign"]
-  );
-
-  const signature = await crypto.subtle.sign(
-    "RSASSA-PKCS1-v1_5",
-    cryptoKey,
-    encoder.encode(unsignedToken)
-  );
-
-  const signatureB64 = btoa(String.fromCharCode(...new Uint8Array(signature)))
-    .replace(/=/g, "")
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_");
-
-  return `${unsignedToken}.${signatureB64}`;
-}
-
-// Get OAuth2 access token using service account
-async function getAccessToken(credentials: ServiceAccountCredentials): Promise<string> {
-  const jwt = await createJWT(credentials);
-  
-  const response = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
-      assertion: jwt,
-    }),
-  });
-
-  if (!response.ok) {
-    console.error("[VENDOR-APPLICATION] OAuth token error");
-    throw new Error("Failed to get OAuth access token");
-  }
-
-  const data = await response.json();
-  return data.access_token;
-}
-
-// Check if a sheet exists and create it if not, then add headers
-async function ensureSheetWithHeaders(
-  accessToken: string,
-  spreadsheetId: string,
-  sheetName: string
-): Promise<void> {
-  // First, get the spreadsheet to check existing sheets
-  const getUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}`;
-  const getResponse = await fetch(getUrl, {
-    headers: {
-      "Authorization": `Bearer ${accessToken}`,
-    },
-  });
-
-  if (!getResponse.ok) {
-    console.error("[VENDOR-APPLICATION] Error getting spreadsheet");
-    throw new Error("Failed to get spreadsheet info");
-  }
-
-  const spreadsheet = await getResponse.json();
-  const existingSheets = spreadsheet.sheets?.map((s: { properties: { title: string } }) => s.properties.title) || [];
-  
-  console.log("[VENDOR-APPLICATION] Checking sheet existence");
-
-  // If sheet doesn't exist, create it
-  if (!existingSheets.includes(sheetName)) {
-    console.log("[VENDOR-APPLICATION] Creating new sheet");
-    
-    const createSheetUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}:batchUpdate`;
-    const createResponse = await fetch(createSheetUrl, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        requests: [
-          {
-            addSheet: {
-              properties: {
-                title: sheetName,
-              },
-            },
-          },
-        ],
-      }),
-    });
-
-    if (!createResponse.ok) {
-      console.error("[VENDOR-APPLICATION] Error creating sheet");
-      throw new Error("Failed to create sheet");
-    }
-
-    console.log("[VENDOR-APPLICATION] Sheet created successfully");
-
-    // Add headers to the new sheet
-    const headers = [
-      "Submitted At",
-      "Event Date",
-      "Name",
-      "Email",
-      "Phone",
-      "Table Location",
-      "# of Tables",
-      "# of Vendors",
-      "Price Per Table",
-      "Total Price",
-      "Merchandise Description",
-      "Special Requests",
-    ];
-
-    const headerUrl = `https://sheets.googleapis.com/v4/spreadsheets/${spreadsheetId}/values/'${encodeURIComponent(sheetName)}'!A1:L1?valueInputOption=USER_ENTERED`;
-    const headerResponse = await fetch(headerUrl, {
-      method: "PUT",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        values: [headers],
-      }),
-    });
-
-    if (!headerResponse.ok) {
-      console.error("[VENDOR-APPLICATION] Error adding headers");
-    } else {
-      console.log("[VENDOR-APPLICATION] Headers added successfully");
-    }
-  }
 }
 
 Deno.serve(async (req) => {
@@ -330,23 +159,6 @@ Deno.serve(async (req) => {
       );
     }
 
-    const GOOGLE_SERVICE_ACCOUNT_JSON = Deno.env.get("GOOGLE_SERVICE_ACCOUNT_JSON");
-    const GOOGLE_SHEET_ID = Deno.env.get("GOOGLE_SHEET_ID");
-
-    if (!GOOGLE_SERVICE_ACCOUNT_JSON || !GOOGLE_SHEET_ID) {
-      console.error("[VENDOR-APPLICATION] Missing Google Sheets configuration");
-      throw new Error("Server configuration error");
-    }
-
-    // Parse service account credentials
-    let credentials: ServiceAccountCredentials;
-    try {
-      credentials = JSON.parse(GOOGLE_SERVICE_ACCOUNT_JSON);
-    } catch {
-      console.error("[VENDOR-APPLICATION] Invalid service account JSON");
-      throw new Error("Invalid service account configuration");
-    }
-
     const application: VendorApplication = await req.json();
     
     // Log only non-sensitive info
@@ -364,68 +176,46 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get OAuth2 access token
-    console.log("[VENDOR-APPLICATION] Getting OAuth access token");
-    const accessToken = await getAccessToken(credentials);
-    console.log("[VENDOR-APPLICATION] Successfully obtained access token");
-
-    // Use the event date as the sheet name (e.g., "February 15, 2026")
-    const sheetName = application.eventDate;
+    // Initialize Supabase client with service role for insert
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     
-    // Ensure the sheet exists with headers
-    await ensureSheetWithHeaders(accessToken, GOOGLE_SHEET_ID, sheetName);
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Prepare the row data for Google Sheets (sanitize inputs)
-    const timestamp = new Date().toLocaleString("en-US", {
-      timeZone: "America/New_York",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-    
-    const rowData = [
-      timestamp,
-      application.eventDate.trim(),
-      application.name.trim(),
-      application.email.trim().toLowerCase(),
-      application.phone.trim(),
-      application.tableTierLabel.trim(),
-      application.tableQuantity.toString(),
-      application.vendorCount.toString(),
-      `$${application.pricePerTable}`,
-      `$${application.totalPrice}`,
-      application.merchandiseDescription.trim(),
-      (application.specialRequests || "").trim(),
-    ];
+    // Insert into vendor_applications table
+    const { data: insertedApplication, error: insertError } = await supabase
+      .from("vendor_applications")
+      .insert({
+        event_id: application.eventId,
+        event_date: application.eventDate,
+        name: application.name.trim(),
+        email: application.email.trim().toLowerCase(),
+        phone: application.phone.trim(),
+        table_tier: application.tableTier,
+        table_tier_label: application.tableTierLabel,
+        table_quantity: application.tableQuantity,
+        vendor_count: application.vendorCount,
+        price_per_table: application.pricePerTable,
+        total_price: application.totalPrice,
+        merchandise_description: application.merchandiseDescription.trim(),
+        special_requests: application.specialRequests?.trim() || null,
+        status: "pending",
+      })
+      .select()
+      .single();
 
-    // Append data to the event-specific sheet
-    const appendUrl = `https://sheets.googleapis.com/v4/spreadsheets/${GOOGLE_SHEET_ID}/values/'${encodeURIComponent(sheetName)}'!A:L:append?valueInputOption=USER_ENTERED`;
-
-    const sheetsResponse = await fetch(appendUrl, {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        values: [rowData],
-      }),
-    });
-
-    if (!sheetsResponse.ok) {
-      console.error("[VENDOR-APPLICATION] Google Sheets API error");
-      throw new Error("Failed to save to Google Sheets");
+    if (insertError) {
+      console.error("[VENDOR-APPLICATION] Error inserting to database:", insertError.message);
+      throw new Error("Failed to save application");
     }
 
-    console.log("[VENDOR-APPLICATION] Successfully appended to Google Sheets");
+    console.log("[VENDOR-APPLICATION] Successfully saved to database");
 
     return new Response(
       JSON.stringify({
         success: true,
         message: "Application submitted successfully",
+        id: insertedApplication.id,
       }),
       {
         status: 200,
@@ -434,7 +224,7 @@ Deno.serve(async (req) => {
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error("[VENDOR-APPLICATION] Error processing application");
+    console.error("[VENDOR-APPLICATION] Error processing application:", errorMessage);
     return new Response(
       JSON.stringify({
         error: "Failed to submit application",
