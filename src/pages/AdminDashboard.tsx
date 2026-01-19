@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 
 interface TicketOrder {
@@ -34,6 +36,10 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [eventFilter, setEventFilter] = useState<string>("all");
   const [resendingId, setResendingId] = useState<string | null>(null);
+  const [createAdminOpen, setCreateAdminOpen] = useState(false);
+  const [newAdminEmail, setNewAdminEmail] = useState("");
+  const [newAdminPassword, setNewAdminPassword] = useState("");
+  const [creatingAdmin, setCreatingAdmin] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -110,6 +116,37 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreatingAdmin(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("create-admin-user", {
+        body: { email: newAdminEmail, password: newAdminPassword },
+      });
+
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      toast({
+        title: "Admin created!",
+        description: `Admin account for ${newAdminEmail} has been created.`,
+      });
+
+      setNewAdminEmail("");
+      setNewAdminPassword("");
+      setCreateAdminOpen(false);
+    } catch (error: any) {
+      toast({
+        title: "Failed to create admin",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setCreatingAdmin(false);
+    }
+  };
+
   const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       order.customer_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -158,10 +195,58 @@ const AdminDashboard = () => {
           <h1 className="font-display text-2xl text-foreground">
             <span className="text-gradient-gold">Admin</span> Dashboard
           </h1>
-          <Button variant="outline" size="sm" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Logout
-          </Button>
+          <div className="flex items-center gap-2">
+            <Dialog open={createAdminOpen} onOpenChange={setCreateAdminOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="sm">
+                  <UserPlus className="mr-2 h-4 w-4" />
+                  Add Admin
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="border-border bg-card">
+                <DialogHeader>
+                  <DialogTitle className="text-foreground">Create Admin Account</DialogTitle>
+                  <DialogDescription>
+                    Create a new admin user who can access this dashboard.
+                  </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleCreateAdmin} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-email">Email</Label>
+                    <Input
+                      id="admin-email"
+                      type="email"
+                      placeholder="admin@example.com"
+                      value={newAdminEmail}
+                      onChange={(e) => setNewAdminEmail(e.target.value)}
+                      required
+                      className="bg-secondary"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="admin-password">Password</Label>
+                    <Input
+                      id="admin-password"
+                      type="password"
+                      placeholder="Minimum 6 characters"
+                      value={newAdminPassword}
+                      onChange={(e) => setNewAdminPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="bg-secondary"
+                    />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={creatingAdmin}>
+                    {creatingAdmin ? "Creating..." : "Create Admin"}
+                  </Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+            <Button variant="outline" size="sm" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Button>
+          </div>
         </div>
       </header>
 
