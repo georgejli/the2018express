@@ -7,6 +7,12 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Stripe Price IDs for ticket types
+const STRIPE_PRICES = {
+  GA: "price_1Sr7c7GXCheOPsDr5AL1aYG2",
+  VIP: "price_1Sr7cKGXCheOPsDrbxOAfUeO",
+};
+
 interface CheckoutRequest {
   eventId: string;
   eventDate: string;
@@ -63,6 +69,11 @@ serve(async (req) => {
       throw new Error("Missing required fields");
     }
 
+    // Validate ticket type
+    if (!STRIPE_PRICES[ticketType]) {
+      throw new Error(`Invalid ticket type: ${ticketType}`);
+    }
+
     const totalAmount = unitPrice * quantity;
     const qrCode = crypto.randomUUID();
 
@@ -108,20 +119,13 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, "") || "https://id-preview--dd3d4a70-8a1e-472a-90eb-6def21091e9c.lovable.app";
     logStep("Using origin", { origin });
 
-    // Create Stripe Checkout session
+    // Create Stripe Checkout session using actual price ID
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : customerEmail,
       line_items: [
         {
-          price_data: {
-            currency: "usd",
-            product_data: {
-              name: `${ticketType === "VIP" ? "VIP" : "General Admission"} Ticket - ${eventName}`,
-              description: `${quantity} ticket(s) for ${eventDate}`,
-            },
-            unit_amount: unitPrice * 100, // Convert to cents
-          },
+          price: STRIPE_PRICES[ticketType],
           quantity,
         },
       ],
@@ -131,7 +135,11 @@ serve(async (req) => {
       metadata: {
         order_id: order.id,
         event_id: eventId,
+        event_name: eventName,
+        event_date: eventDate,
         qr_code: qrCode,
+        ticket_type: ticketType,
+        quantity: quantity.toString(),
       },
     });
 
