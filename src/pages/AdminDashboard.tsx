@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode } from "lucide-react";
 import { format } from "date-fns";
 
 interface TicketOrder {
@@ -196,6 +196,15 @@ const AdminDashboard = () => {
             <span className="text-gradient-gold">Admin</span> Dashboard
           </h1>
           <div className="flex items-center gap-2">
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => navigate("/admin/check-in")}
+              className="bg-accent text-accent-foreground hover:bg-accent/90"
+            >
+              <QrCode className="mr-2 h-4 w-4" />
+              Check-In
+            </Button>
             <Dialog open={createAdminOpen} onOpenChange={setCreateAdminOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">

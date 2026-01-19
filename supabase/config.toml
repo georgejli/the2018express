@@ -8,3 +8,12 @@ verify_jwt = false
 
 [functions.send-ticket-email]
 verify_jwt = false
+
+[functions.bootstrap-admin]
+verify_jwt = false
+
+[functions.create-admin-user]
+verify_jwt = false
+
+[functions.check-in-ticket]
+verify_jwt = false
