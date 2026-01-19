@@ -170,6 +170,78 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_applications: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          email: string
+          event_date: string
+          event_id: string
+          has_paid: boolean
+          id: string
+          merchandise_description: string
+          name: string
+          payment_notes: string | null
+          phone: string
+          price_per_table: number
+          special_requests: string | null
+          status: string
+          synced_to_sheets_at: string | null
+          table_quantity: number
+          table_tier: string
+          table_tier_label: string
+          total_price: number
+          updated_at: string
+          vendor_count: number
+        }
+        Insert: {
+          amount_paid?: number
+          created_at?: string
+          email: string
+          event_date: string
+          event_id: string
+          has_paid?: boolean
+          id?: string
+          merchandise_description: string
+          name: string
+          payment_notes?: string | null
+          phone: string
+          price_per_table: number
+          special_requests?: string | null
+          status?: string
+          synced_to_sheets_at?: string | null
+          table_quantity?: number
+          table_tier: string
+          table_tier_label: string
+          total_price: number
+          updated_at?: string
+          vendor_count?: number
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          email?: string
+          event_date?: string
+          event_id?: string
+          has_paid?: boolean
+          id?: string
+          merchandise_description?: string
+          name?: string
+          payment_notes?: string | null
+          phone?: string
+          price_per_table?: number
+          special_requests?: string | null
+          status?: string
+          synced_to_sheets_at?: string | null
+          table_quantity?: number
+          table_tier?: string
+          table_tier_label?: string
+          total_price?: number
+          updated_at?: string
+          vendor_count?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
