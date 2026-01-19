@@ -6,10 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CREATE-ADMIN] ${step}${detailsStr}`);
-};
+// Input validation patterns
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_MAX_LENGTH = 128;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -17,7 +17,7 @@ serve(async (req) => {
   }
 
   try {
-    logStep("Function started");
+    console.log("[CREATE-ADMIN] Function started");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -53,29 +53,45 @@ serve(async (req) => {
     }
 
     const { email, password } = await req.json();
-    logStep("Creating admin user", { email });
+    console.log("[CREATE-ADMIN] Creating admin user");
 
-    if (!email || !password) {
-      throw new Error("Email and password are required");
+    // Validate email
+    if (!email || typeof email !== "string") {
+      throw new Error("Email is required");
+    }
+    
+    const trimmedEmail = email.trim().toLowerCase();
+    if (!EMAIL_REGEX.test(trimmedEmail)) {
+      throw new Error("Invalid email format");
+    }
+    if (trimmedEmail.length > 255) {
+      throw new Error("Email must be less than 255 characters");
     }
 
-    if (password.length < 6) {
-      throw new Error("Password must be at least 6 characters");
+    // Validate password
+    if (!password || typeof password !== "string") {
+      throw new Error("Password is required");
+    }
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      throw new Error(`Password must be at least ${PASSWORD_MIN_LENGTH} characters`);
+    }
+    if (password.length > PASSWORD_MAX_LENGTH) {
+      throw new Error(`Password must be less than ${PASSWORD_MAX_LENGTH} characters`);
     }
 
     // Create the user using admin API
     const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-      email,
+      email: trimmedEmail,
       password,
       email_confirm: true,
     });
 
     if (createError) {
-      logStep("Error creating user", createError);
+      console.log("[CREATE-ADMIN] Error creating user");
       throw new Error(createError.message);
     }
 
-    logStep("User created", { userId: newUser.user.id });
+    console.log("[CREATE-ADMIN] User created successfully");
 
     // Add admin role
     const { error: roleError } = await supabaseAdmin
@@ -86,19 +102,18 @@ serve(async (req) => {
       });
 
     if (roleError) {
-      logStep("Error adding role", roleError);
+      console.log("[CREATE-ADMIN] Error adding role - cleaning up user");
       // Try to clean up the user if role assignment fails
       await supabaseAdmin.auth.admin.deleteUser(newUser.user.id);
-      throw new Error(`Failed to assign admin role: ${roleError.message}`);
+      throw new Error("Failed to assign admin role");
     }
 
-    logStep("Admin role assigned successfully");
+    console.log("[CREATE-ADMIN] Admin role assigned successfully");
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         userId: newUser.user.id,
-        email: newUser.user.email 
       }),
       {
         status: 200,
@@ -107,7 +122,7 @@ serve(async (req) => {
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
+    console.log("[CREATE-ADMIN] ERROR occurred");
     return new Response(
       JSON.stringify({ error: errorMessage }),
       {

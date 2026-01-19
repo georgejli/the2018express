@@ -7,18 +7,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[STRIPE-WEBHOOK] ${step}${detailsStr}`);
-};
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    logStep("Webhook received");
+    console.log("[STRIPE-WEBHOOK] Webhook received");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
@@ -43,21 +38,21 @@ serve(async (req) => {
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err) {
-      logStep("Webhook signature verification failed", { error: err });
+      console.log("[STRIPE-WEBHOOK] Webhook signature verification failed");
       return new Response(JSON.stringify({ error: "Invalid signature" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    logStep("Event verified", { type: event.type });
+    console.log("[STRIPE-WEBHOOK] Event verified:", event.type);
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
       const metadata = session.metadata;
       const paymentIntent = session.payment_intent as string;
 
-      logStep("Processing completed checkout", { sessionId: session.id, paymentIntent, metadata });
+      console.log("[STRIPE-WEBHOOK] Processing completed checkout");
 
       if (!metadata) {
         throw new Error("No metadata found in session");
@@ -96,11 +91,11 @@ serve(async (req) => {
         .single();
 
       if (orderError) {
-        logStep("Order creation error", orderError);
-        throw new Error(`Failed to create order: ${orderError.message}`);
+        console.log("[STRIPE-WEBHOOK] Order creation error");
+        throw new Error("Failed to create order");
       }
 
-      logStep("Order created successfully", { orderId: order.id });
+      console.log("[STRIPE-WEBHOOK] Order created successfully");
 
       // Trigger email sending
       try {
@@ -114,13 +109,12 @@ serve(async (req) => {
         });
 
         if (!emailResponse.ok) {
-          const errorText = await emailResponse.text();
-          logStep("Email function failed", { status: emailResponse.status, error: errorText });
+          console.log("[STRIPE-WEBHOOK] Email function failed");
         } else {
-          logStep("Email function triggered successfully");
+          console.log("[STRIPE-WEBHOOK] Email function triggered successfully");
         }
       } catch (emailError) {
-        logStep("Failed to trigger email function", { error: emailError });
+        console.log("[STRIPE-WEBHOOK] Failed to trigger email function");
       }
     }
 
@@ -130,7 +124,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
+    console.log("[STRIPE-WEBHOOK] ERROR occurred");
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
