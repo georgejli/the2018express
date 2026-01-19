@@ -43,64 +43,66 @@ const EventCard = ({
       )}
       
       <div className="p-4 md:p-6">
-        {/* Mobile Layout: Poster + Date side by side, details below */}
+        {/* Mobile Layout: Poster left, Date+Arrow right, details below */}
         {/* Desktop Layout: All in a row */}
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-6">
-          {/* Top row on mobile: Poster + Date Block */}
-          <div className="flex items-start gap-4">
-            {/* Poster Thumbnail */}
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
+          {/* Top row on mobile: Poster | Date + Arrow */}
+          <div className="flex items-center gap-3">
+            {/* Poster Thumbnail - smaller on mobile */}
             {poster && (
               <div className="flex-shrink-0" onClick={(e) => e.preventDefault()}>
                 <EventPoster
                   poster={poster}
                   eventName={`${month} ${date} ${year} Card Show`}
-                  className="h-24 w-18 md:h-32 md:w-24"
+                  className="h-16 w-12 md:h-32 md:w-24"
                 />
               </div>
             )}
             
-            {/* Date Block */}
-            <div className={`flex-shrink-0 rounded-lg px-4 py-3 text-center ${
-              isFeatured ? "bg-accent/20" : "bg-secondary"
-            }`}>
-              <span className="block font-display text-3xl md:text-4xl text-foreground">{date}</span>
-              <span className="block text-xs md:text-sm font-semibold uppercase tracking-wide text-accent">
-                {month}
-              </span>
-              <span className="block text-xs text-muted-foreground">{year}</span>
-            </div>
+            {/* Date Block + Arrow container */}
+            <div className="flex flex-1 items-center justify-between md:flex-initial md:justify-start">
+              <div className={`flex-shrink-0 rounded-lg px-3 py-2 text-center md:px-4 md:py-3 ${
+                isFeatured ? "bg-accent/20" : "bg-secondary"
+              }`}>
+                <span className="block font-display text-2xl md:text-4xl text-foreground">{date}</span>
+                <span className="block text-xs font-semibold uppercase tracking-wide text-accent">
+                  {month}
+                </span>
+                <span className="block text-[10px] md:text-xs text-muted-foreground">{year}</span>
+              </div>
 
-            {/* Arrow - visible on mobile only, positioned here */}
-            <div className={`ml-auto flex h-10 w-10 md:hidden flex-shrink-0 items-center justify-center rounded-full ${
-              isFeatured 
-                ? "bg-accent text-accent-foreground" 
-                : "bg-primary text-primary-foreground"
-            }`}>
-              <ArrowRight className="h-4 w-4" />
+              {/* Arrow - visible on mobile only */}
+              <div className={`flex h-9 w-9 md:hidden flex-shrink-0 items-center justify-center rounded-full ${
+                isFeatured 
+                  ? "bg-accent text-accent-foreground" 
+                  : "bg-primary text-primary-foreground"
+              }`}>
+                <ArrowRight className="h-4 w-4" />
+              </div>
             </div>
           </div>
           
-          {/* Event Details - stacked on mobile, inline on desktop */}
-          <div className="flex-1 space-y-1 md:space-y-2">
+          {/* Event Details - stacked */}
+          <div className="flex-1 space-y-0.5 md:space-y-2">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="h-4 w-4 flex-shrink-0" />
-              <span className="text-xs md:text-sm whitespace-nowrap">{dayOfWeek}</span>
+              <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="text-xs md:text-sm">{dayOfWeek}</span>
             </div>
             
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="h-4 w-4 flex-shrink-0" />
-              <span className="text-xs md:text-sm whitespace-nowrap">{time}</span>
+              <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0" />
+              <span className="text-xs md:text-sm">{time}</span>
             </div>
             
             {earlyBirdTime && (
               <div className="flex items-center gap-2 text-accent">
-                <Clock className="h-4 w-4 flex-shrink-0" />
-                <span className="text-xs md:text-sm font-semibold whitespace-nowrap">Early Bird: {earlyBirdTime}</span>
+                <Clock className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0" />
+                <span className="text-xs md:text-sm font-semibold">Early Bird: {earlyBirdTime}</span>
               </div>
             )}
             
             <div className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="h-4 w-4 flex-shrink-0" />
+              <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 flex-shrink-0" />
               <span className="text-xs md:text-sm">{venue}</span>
             </div>
           </div>
