@@ -158,11 +158,11 @@ const VendorApplication = () => {
               Thank you for your interest. We'll review your application and get back to you soon.
             </p>
             <Link
-              to="/"
+              to={preselectedEventId ? `/event/${preselectedEventId}` : "/"}
               className="mt-8 inline-flex items-center gap-2 text-primary hover:underline"
             >
               <ArrowLeft className="h-4 w-4" />
-              Back to Home
+              {preselectedEventId ? "Back to Event" : "Back to Home"}
             </Link>
           </div>
         </main>
