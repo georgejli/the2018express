@@ -36,29 +36,7 @@ const CheckInPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/admin/login");
-      return;
-    }
-
-    const { data: roleData } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", session.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-
-    if (!roleData) {
-      await supabase.auth.signOut();
-      navigate("/admin/login");
-    }
-  };
+  // Auth is now handled by AdminAuthGuard in App.tsx
 
   const handleLogout = async () => {
     await supabase.auth.signOut();

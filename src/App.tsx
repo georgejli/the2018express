@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
+import AdminAuthGuard from "./components/AdminAuthGuard";
 import Index from "./pages/Index";
 import EventPage from "./pages/EventPage";
 import VendorApplication from "./pages/VendorApplication";
@@ -32,8 +33,22 @@ const App = () => (
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
           <Route path="/checkout/cancel" element={<CheckoutCancel />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin" element={<AdminDashboard />} />
-          <Route path="/admin/check-in" element={<CheckInPage />} />
+          <Route 
+            path="/admin" 
+            element={
+              <AdminAuthGuard>
+                <AdminDashboard />
+              </AdminAuthGuard>
+            } 
+          />
+          <Route 
+            path="/admin/check-in" 
+            element={
+              <AdminAuthGuard>
+                <CheckInPage />
+              </AdminAuthGuard>
+            } 
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
