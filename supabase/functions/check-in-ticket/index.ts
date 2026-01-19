@@ -6,18 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CHECK-IN-TICKET] ${step}${detailsStr}`);
-};
-
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    logStep("Function started");
+    console.log("[CHECK-IN-TICKET] Function started");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -63,7 +58,7 @@ serve(async (req) => {
 
     // Clean and normalize the QR code (trim whitespace, handle URL-encoded values)
     const cleanedQrCode = decodeURIComponent(qrCode.toString().trim());
-    logStep("Processing check-in", { originalQrCode: qrCode, cleanedQrCode });
+    console.log("[CHECK-IN-TICKET] Processing check-in request");
 
     // Find the ticket order by QR code
     const { data: order, error: orderError } = await supabaseAdmin
@@ -73,7 +68,7 @@ serve(async (req) => {
       .maybeSingle();
 
     if (orderError) {
-      logStep("Error finding order", orderError);
+      console.log("[CHECK-IN-TICKET] Error finding order");
       throw new Error("Failed to find ticket");
     }
 
@@ -115,7 +110,6 @@ serve(async (req) => {
           message: "This ticket has already been used",
           order: {
             customer_name: order.customer_name,
-            customer_email: order.customer_email,
             ticket_type: order.ticket_type,
             quantity: order.quantity,
             event_name: order.event_name,
@@ -138,11 +132,11 @@ serve(async (req) => {
       .eq("id", order.id);
 
     if (updateError) {
-      logStep("Error updating order", updateError);
+      console.log("[CHECK-IN-TICKET] Error updating order");
       throw new Error("Failed to check in ticket");
     }
 
-    logStep("Check-in successful", { orderId: order.id, customer: order.customer_name });
+    console.log("[CHECK-IN-TICKET] Check-in successful");
 
     return new Response(
       JSON.stringify({ 
@@ -151,7 +145,6 @@ serve(async (req) => {
         order: {
           id: order.id,
           customer_name: order.customer_name,
-          customer_email: order.customer_email,
           ticket_type: order.ticket_type,
           quantity: order.quantity,
           event_name: order.event_name,
@@ -162,7 +155,7 @@ serve(async (req) => {
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
+    console.log("[CHECK-IN-TICKET] ERROR occurred");
     return new Response(
       JSON.stringify({ error: errorMessage }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -25,10 +25,9 @@ interface CheckoutRequest {
   subscribeToUpdates: boolean;
 }
 
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[CREATE-CHECKOUT] ${step}${detailsStr}`);
-};
+// Input validation patterns
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^[\d\s\-\+\(\)]{10,20}$/;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -36,7 +35,7 @@ serve(async (req) => {
   }
 
   try {
-    logStep("Function started");
+    console.log("[CREATE-CHECKOUT] Function started");
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
@@ -44,7 +43,7 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     const body: CheckoutRequest = await req.json();
-    logStep("Request body", body);
+    console.log("[CREATE-CHECKOUT] Processing checkout request");
 
     const {
       eventId,
@@ -66,25 +65,62 @@ serve(async (req) => {
 
     // Validate ticket type
     if (!STRIPE_PRICES[ticketType]) {
-      throw new Error(`Invalid ticket type: ${ticketType}`);
+      throw new Error("Invalid ticket type");
+    }
+
+    // Validate quantity
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
+      throw new Error("Quantity must be between 1 and 10");
+    }
+
+    // Validate customer name
+    const trimmedName = customerName.trim();
+    if (trimmedName.length < 2 || trimmedName.length > 100) {
+      throw new Error("Name must be between 2 and 100 characters");
+    }
+
+    // Validate email format
+    const trimmedEmail = customerEmail.trim().toLowerCase();
+    if (!EMAIL_REGEX.test(trimmedEmail)) {
+      throw new Error("Invalid email format");
+    }
+    if (trimmedEmail.length > 255) {
+      throw new Error("Email must be less than 255 characters");
+    }
+
+    // Validate phone format
+    const trimmedPhone = customerPhone.trim();
+    if (!PHONE_REGEX.test(trimmedPhone)) {
+      throw new Error("Invalid phone number format");
+    }
+
+    // Validate event data
+    if (!eventId || eventId.length > 100) {
+      throw new Error("Invalid event ID");
+    }
+    if (!eventName || eventName.length > 200) {
+      throw new Error("Invalid event name");
+    }
+    if (!eventDate || eventDate.length > 50) {
+      throw new Error("Invalid event date");
     }
 
     // Check if customer exists in Stripe
-    const customers = await stripe.customers.list({ email: customerEmail, limit: 1 });
+    const customers = await stripe.customers.list({ email: trimmedEmail, limit: 1 });
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
-      logStep("Found existing Stripe customer", { customerId });
+      console.log("[CREATE-CHECKOUT] Found existing Stripe customer");
     }
 
     // Get origin with fallback
     const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, "") || "https://id-preview--dd3d4a70-8a1e-472a-90eb-6def21091e9c.lovable.app";
-    logStep("Using origin", { origin });
+    console.log("[CREATE-CHECKOUT] Using origin for redirects");
 
     // Create Stripe Checkout session - order will be created by webhook after payment
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      customer_email: customerId ? undefined : customerEmail,
+      customer_email: customerId ? undefined : trimmedEmail,
       line_items: [
         {
           price: STRIPE_PRICES[ticketType],
@@ -101,14 +137,14 @@ serve(async (req) => {
         ticket_type: ticketType,
         quantity: quantity.toString(),
         unit_price: unitPrice.toString(),
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
+        customer_name: trimmedName,
+        customer_email: trimmedEmail,
+        customer_phone: trimmedPhone,
         subscribe_to_updates: subscribeToUpdates.toString(),
       },
     });
 
-    logStep("Stripe session created", { sessionId: session.id });
+    console.log("[CREATE-CHECKOUT] Stripe session created successfully");
 
     return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -116,7 +152,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
+    console.log("[CREATE-CHECKOUT] ERROR occurred");
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
