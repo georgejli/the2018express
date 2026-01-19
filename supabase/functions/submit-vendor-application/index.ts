@@ -301,29 +301,6 @@ async function ensureSheetWithHeaders(
   }
 }
 
-// Check rate limit using Supabase
-async function checkRateLimit(supabase: ReturnType<typeof createClient>, clientIP: string): Promise<{ allowed: boolean; remaining: number }> {
-  const now = new Date();
-  const windowStart = new Date(now.getTime() - RATE_LIMIT_WINDOW_MS);
-  
-  // Create a hash of the IP for privacy
-  const encoder = new TextEncoder();
-  const data = encoder.encode(clientIP);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const ipHash = hashArray.map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
-  
-  // Check existing rate limit entries (using a simple in-memory approach via KV-like pattern)
-  // For edge functions, we'll use a simpler timestamp-based approach in the request metadata
-  // Since we can't use persistent storage easily, we'll implement a basic check
-  
-  // For production, you'd want to use Supabase table for rate limiting
-  // This is a simplified version that provides some protection
-  console.log(`[VENDOR-APPLICATION] Rate limit check for IP hash: ${ipHash}`);
-  
-  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1 };
-}
-
 Deno.serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
