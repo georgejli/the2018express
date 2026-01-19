@@ -46,14 +46,11 @@ serve(async (req) => {
 
     let event: Stripe.Event;
     try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      // Use async version for Deno/Edge Functions (SubtleCrypto requires async)
+      event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : String(err);
       console.log("[STRIPE-WEBHOOK] Signature verification failed:", errorMessage);
-      console.log("[STRIPE-WEBHOOK] This usually means:");
-      console.log("  1. Wrong webhook secret (check Stripe Dashboard > Webhooks > your endpoint > Signing secret)");
-      console.log("  2. Using test mode secret with live mode webhook or vice versa");
-      console.log("  3. Webhook endpoint URL mismatch");
       return new Response(JSON.stringify({ error: "Invalid signature", details: errorMessage }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
