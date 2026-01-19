@@ -11,10 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2, Copy, Home } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2, Copy, Home, Store } from "lucide-react";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EventForm from "@/components/EventForm";
+import VendorApplicationsManager from "@/components/VendorApplicationsManager";
 import { useEvents } from "@/hooks/useEvents";
 import { Event } from "@/data/events";
 
@@ -43,6 +45,7 @@ interface EventCheckInStats {
 }
 
 const AdminDashboard = () => {
+  const [activeTab, setActiveTab] = useState<string>("tickets");
   const [orders, setOrders] = useState<TicketOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -425,6 +428,20 @@ const AdminDashboard = () => {
       </header>
 
       <main className="container mx-auto p-4 md:p-6">
+        {/* Tab Navigation */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+          <TabsList className="grid w-full grid-cols-2 md:w-auto md:grid-cols-none md:inline-flex">
+            <TabsTrigger value="tickets" className="flex items-center gap-2">
+              <Ticket className="h-4 w-4" />
+              Tickets
+            </TabsTrigger>
+            <TabsTrigger value="vendors" className="flex items-center gap-2">
+              <Store className="h-4 w-4" />
+              Vendors
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="tickets" className="mt-6">
         {/* Stats Cards */}
         <div className="mb-6 grid gap-4 md:grid-cols-4">
           <Card className="border-border bg-card">
@@ -700,6 +717,12 @@ const AdminDashboard = () => {
         <p className="mt-4 text-center text-sm text-muted-foreground">
           Showing {filteredOrders.length} of {orders.length} orders
         </p>
+          </TabsContent>
+
+          <TabsContent value="vendors" className="mt-6">
+            <VendorApplicationsManager />
+          </TabsContent>
+        </Tabs>
       </main>
 
       <EventForm

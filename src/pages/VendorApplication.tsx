@@ -115,6 +115,7 @@ const VendorApplication = () => {
           name: data.name,
           email: data.email,
           phone: data.phone,
+          eventId: data.eventId,
           tableTier: data.tableTier,
           tableTierLabel: tierLabels[data.tableTier].name,
           tableQuantity: data.tableQuantity,
