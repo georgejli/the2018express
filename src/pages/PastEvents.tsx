@@ -1,12 +1,13 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
-import { events } from "@/data/events";
+import { useEvents } from "@/hooks/useEvents";
 import { getPastEvents } from "@/lib/eventUtils";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Calendar } from "lucide-react";
 
 const PastEvents = () => {
+  const { events } = useEvents();
   const pastEvents = getPastEvents(events);
 
   return (
