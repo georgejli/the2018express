@@ -24,9 +24,10 @@ export interface DbEvent {
 }
 
 // Convert DB event to frontend Event format
-function dbEventToEvent(dbEvent: DbEvent): Event & { description?: string } {
+function dbEventToEvent(dbEvent: DbEvent): Event & { description?: string; dbId?: string } {
   return {
     id: dbEvent.event_id,
+    dbId: dbEvent.id,
     date: dbEvent.date,
     month: dbEvent.month,
     year: dbEvent.year,
@@ -45,7 +46,7 @@ function dbEventToEvent(dbEvent: DbEvent): Event & { description?: string } {
 }
 
 export function useEvents() {
-  const [events, setEvents] = useState<(Event & { description?: string })[]>(staticEvents);
+  const [events, setEvents] = useState<(Event & { description?: string; dbId?: string })[]>(staticEvents);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
