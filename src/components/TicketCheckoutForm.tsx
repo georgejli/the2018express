@@ -68,7 +68,7 @@ const TicketCheckoutForm = ({
       customerEmail: "",
       customerPhone: "",
       quantity: 1,
-      subscribeToUpdates: false,
+      subscribeToUpdates: true,
     },
   });
 
