@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
 serve(async (req) => {
@@ -14,12 +14,17 @@ serve(async (req) => {
 
   try {
     console.log("[STRIPE-WEBHOOK] Webhook received");
+    console.log("[STRIPE-WEBHOOK] Method:", req.method);
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
+    const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET")?.trim(); // Trim whitespace
     
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
     if (!webhookSecret) throw new Error("STRIPE_WEBHOOK_SECRET is not set");
+    
+    // Debug: Log webhook secret prefix to verify it's correct format
+    console.log("[STRIPE-WEBHOOK] Webhook secret starts with:", webhookSecret.substring(0, 10));
+    console.log("[STRIPE-WEBHOOK] Webhook secret length:", webhookSecret.length);
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     
@@ -27,8 +32,13 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // CRITICAL: Get the raw body as text BEFORE any parsing
     const body = await req.text();
     const signature = req.headers.get("stripe-signature");
+
+    console.log("[STRIPE-WEBHOOK] Body length:", body.length);
+    console.log("[STRIPE-WEBHOOK] Signature present:", !!signature);
+    console.log("[STRIPE-WEBHOOK] Signature preview:", signature?.substring(0, 50));
 
     if (!signature) {
       throw new Error("No Stripe signature found");
@@ -38,14 +48,19 @@ serve(async (req) => {
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
     } catch (err) {
-      console.log("[STRIPE-WEBHOOK] Webhook signature verification failed");
-      return new Response(JSON.stringify({ error: "Invalid signature" }), {
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.log("[STRIPE-WEBHOOK] Signature verification failed:", errorMessage);
+      console.log("[STRIPE-WEBHOOK] This usually means:");
+      console.log("  1. Wrong webhook secret (check Stripe Dashboard > Webhooks > your endpoint > Signing secret)");
+      console.log("  2. Using test mode secret with live mode webhook or vice versa");
+      console.log("  3. Webhook endpoint URL mismatch");
+      return new Response(JSON.stringify({ error: "Invalid signature", details: errorMessage }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("[STRIPE-WEBHOOK] Event verified:", event.type);
+    console.log("[STRIPE-WEBHOOK] Event verified successfully:", event.type);
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
@@ -124,7 +139,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.log("[STRIPE-WEBHOOK] ERROR occurred");
+    console.log("[STRIPE-WEBHOOK] ERROR occurred:", errorMessage);
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
