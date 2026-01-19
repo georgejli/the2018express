@@ -12,7 +12,7 @@ import { events } from "@/data/events";
 import sportsCardsImg from "@/assets/categories/sports-cards.png";
 import pokemonTcgImg from "@/assets/categories/pokemon-tcg.png";
 import memorabiliaImg from "@/assets/categories/memorabilia.png";
-import autographsImg from "@/assets/categories/autographs-new.png";
+import autographsImg from "@/assets/categories/autographs.png";
 
 const VENUE_NAME = "The New Yorker Hotel";
 const VENUE_ADDRESS = "481 8th Ave, New York, NY";
@@ -167,7 +167,7 @@ const EventPage = () => {
                   <img
                     src={category.image}
                     alt={category.title}
-                    className="h-auto w-full max-w-[320px] object-contain transition-transform hover:scale-105"
+                    className="h-auto w-full max-w-[208px] object-contain transition-transform hover:scale-105"
                   />
                 </div>
               ))}
