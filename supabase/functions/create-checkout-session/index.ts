@@ -6,12 +6,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// Stripe Price IDs for ticket types
-const STRIPE_PRICES = {
-  GA: "price_1Sr7c7GXCheOPsDr5AL1aYG2",
-  VIP: "price_1Sr7i5GXCheOPsDrGfEsE3fW",
-};
-
 interface CheckoutRequest {
   eventId: string;
   eventDate: string;
@@ -56,6 +50,73 @@ async function checkRateLimit(clientIP: string): Promise<boolean> {
   
   entry.count++;
   return true;
+}
+
+// Get or create a Stripe product and price for a specific event + ticket type
+async function getOrCreateEventPrice(
+  stripe: Stripe,
+  eventDate: string,
+  ticketType: "GA" | "VIP",
+  unitPrice: number
+): Promise<string> {
+  const ticketName = ticketType === "GA" ? "GA Ticket" : "VIP Ticket";
+  const productName = `${eventDate} ${ticketName}`;
+  
+  console.log(`[CREATE-CHECKOUT] Looking for product: ${productName}`);
+  
+  // Search for existing product by name
+  const products = await stripe.products.search({
+    query: `name:'${productName}'`,
+    limit: 1,
+  });
+  
+  let productId: string;
+  
+  if (products.data.length > 0) {
+    productId = products.data[0].id;
+    console.log(`[CREATE-CHECKOUT] Found existing product: ${productId}`);
+  } else {
+    // Create new product
+    const product = await stripe.products.create({
+      name: productName,
+      description: `${ticketType === "GA" ? "General Admission" : "VIP"} ticket for The 34th St Card Show on ${eventDate}`,
+      metadata: {
+        event_date: eventDate,
+        ticket_type: ticketType,
+      },
+    });
+    productId = product.id;
+    console.log(`[CREATE-CHECKOUT] Created new product: ${productId}`);
+  }
+  
+  // Check for existing active price with correct amount
+  const prices = await stripe.prices.list({
+    product: productId,
+    active: true,
+    limit: 10,
+  });
+  
+  const priceInCents = unitPrice * 100;
+  const existingPrice = prices.data.find((p: Stripe.Price) => p.unit_amount === priceInCents);
+  
+  if (existingPrice) {
+    console.log(`[CREATE-CHECKOUT] Found existing price: ${existingPrice.id}`);
+    return existingPrice.id;
+  }
+  
+  // Create new price
+  const price = await stripe.prices.create({
+    product: productId,
+    unit_amount: priceInCents,
+    currency: "usd",
+    metadata: {
+      event_date: eventDate,
+      ticket_type: ticketType,
+    },
+  });
+  
+  console.log(`[CREATE-CHECKOUT] Created new price: ${price.id}`);
+  return price.id;
 }
 
 serve(async (req) => {
@@ -110,7 +171,7 @@ serve(async (req) => {
     }
 
     // Validate ticket type
-    if (!STRIPE_PRICES[ticketType]) {
+    if (ticketType !== "GA" && ticketType !== "VIP") {
       throw new Error("Invalid ticket type");
     }
 
@@ -151,6 +212,9 @@ serve(async (req) => {
       throw new Error("Invalid event date");
     }
 
+    // Get or create event-specific product and price
+    const priceId = await getOrCreateEventPrice(stripe, eventDate, ticketType, unitPrice);
+
     // Check if customer exists in Stripe
     const customers = await stripe.customers.list({ email: trimmedEmail, limit: 1 });
     let customerId: string | undefined;
@@ -169,7 +233,7 @@ serve(async (req) => {
       customer_email: customerId ? undefined : trimmedEmail,
       line_items: [
         {
-          price: STRIPE_PRICES[ticketType],
+          price: priceId,
           quantity,
         },
       ],
@@ -198,7 +262,7 @@ serve(async (req) => {
     });
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    console.log("[CREATE-CHECKOUT] ERROR occurred");
+    console.log("[CREATE-CHECKOUT] ERROR occurred:", errorMessage);
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
