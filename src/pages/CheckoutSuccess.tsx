@@ -37,6 +37,13 @@ const CheckoutSuccess = () => {
         return;
       }
 
+      // Basic validation - Stripe session IDs start with cs_
+      if (!sessionId.startsWith("cs_")) {
+        console.error("Invalid session ID format");
+        setLoading(false);
+        return;
+      }
+
       // Poll for order since webhook may take a moment to process
       let attempts = 0;
       const maxAttempts = 10;
@@ -44,14 +51,13 @@ const CheckoutSuccess = () => {
 
       const poll = async () => {
         try {
-          const { data, error } = await supabase
-            .from("ticket_orders")
-            .select("*")
-            .eq("stripe_session_id", sessionId)
-            .maybeSingle();
+          // Use secure edge function instead of direct database access
+          const { data, error } = await supabase.functions.invoke("get-order-by-session", {
+            body: { sessionId },
+          });
 
-          if (!error && data) {
-            setOrder(data as OrderDetails);
+          if (!error && data?.order) {
+            setOrder(data.order as OrderDetails);
             setLoading(false);
             return;
           }
