@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
-import { CheckCircle, Mail, ArrowLeft, Loader2, MapPin, Calendar, Ticket } from "lucide-react";
+import { CheckCircle, Mail, ArrowLeft, Loader2, MapPin, Calendar, Ticket, Download } from "lucide-react";
+import html2canvas from "html2canvas";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface OrderDetails {
   id: string;
@@ -24,6 +27,8 @@ const CheckoutSuccess = () => {
   const sessionId = searchParams.get("session_id");
   const [order, setOrder] = useState<OrderDetails | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const ticketRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchOrder = async () => {
@@ -57,6 +62,31 @@ const CheckoutSuccess = () => {
     ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(order.qr_code)}`
     : null;
 
+  const handleDownloadTicket = async () => {
+    if (!ticketRef.current || !order) return;
+    
+    setIsDownloading(true);
+    try {
+      const canvas = await html2canvas(ticketRef.current, {
+        backgroundColor: "#1a1a2e",
+        scale: 2,
+        useCORS: true,
+      });
+      
+      const link = document.createElement("a");
+      link.download = `ticket-${order.qr_code}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+      
+      toast.success("Ticket downloaded successfully!");
+    } catch (err) {
+      console.error("Error downloading ticket:", err);
+      toast.error("Failed to download ticket. Please try again.");
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
@@ -89,8 +119,8 @@ const CheckoutSuccess = () => {
 
               {order && (
                 <>
-                  {/* Ticket Card */}
-                  <div className="mb-6 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card to-card/80">
+                  {/* Ticket Card - Capturable for download */}
+                  <div ref={ticketRef} className="mb-6 overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-card to-card/80">
                     {/* Ticket Header */}
                     <div className="border-b border-border bg-muted/30 p-4 text-center">
                       <span className={`inline-block rounded-full px-4 py-1.5 text-sm font-bold ${
@@ -144,6 +174,7 @@ const CheckoutSuccess = () => {
                             src={qrCodeUrl} 
                             alt="Ticket QR Code" 
                             className="h-48 w-48"
+                            crossOrigin="anonymous"
                           />
                           <p className="mt-3 text-sm font-medium text-gray-700">Scan at entry</p>
                           <p className="mt-1 font-mono text-xs text-gray-500">
@@ -152,6 +183,28 @@ const CheckoutSuccess = () => {
                         </div>
                       )}
                     </div>
+                  </div>
+
+                  {/* Download Button */}
+                  <div className="mb-6">
+                    <Button
+                      onClick={handleDownloadTicket}
+                      disabled={isDownloading}
+                      className="w-full bg-gradient-to-r from-accent to-gold-light text-accent-foreground hover:opacity-90"
+                      size="lg"
+                    >
+                      {isDownloading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Download className="mr-2 h-4 w-4" />
+                          Download Ticket
+                        </>
+                      )}
+                    </Button>
                   </div>
 
                   {/* Order Summary */}
