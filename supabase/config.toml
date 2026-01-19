@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.check-in-ticket]
 verify_jwt = false
+
+[functions.get-order-by-session]
+verify_jwt = false
