@@ -67,27 +67,30 @@ const EventCard = ({
           </div>
           
           {/* Event Details */}
-          <div className="flex-1 space-y-3">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="h-4 w-4" />
-              <span className="text-sm">{dayOfWeek}</span>
-            </div>
-            
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="h-4 w-4" />
-              <span className="text-sm">{time}</span>
-            </div>
-            
-            {earlyBirdTime && (
-              <div className="flex items-center gap-2 text-accent">
-                <Clock className="h-4 w-4" />
-                <span className="text-sm font-semibold">Early Bird: {earlyBirdTime}</span>
+          <div className="flex-1">
+            {/* Mobile: inline layout / Desktop: stacked */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 md:flex-col md:items-start md:gap-y-3">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Calendar className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm">{dayOfWeek}</span>
               </div>
-            )}
-            
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="h-4 w-4" />
-              <span className="text-sm">{venue}</span>
+              
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Clock className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm">{time}</span>
+              </div>
+              
+              {earlyBirdTime && (
+                <div className="flex items-center gap-1.5 text-accent">
+                  <Clock className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-sm font-semibold">Early Bird: {earlyBirdTime}</span>
+                </div>
+              )}
+              
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <MapPin className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm">{venue}</span>
+              </div>
             </div>
           </div>
           
