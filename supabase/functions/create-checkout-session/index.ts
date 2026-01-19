@@ -104,6 +104,10 @@ serve(async (req) => {
       logStep("Found existing Stripe customer", { customerId });
     }
 
+    // Get origin with fallback
+    const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, "") || "https://id-preview--dd3d4a70-8a1e-472a-90eb-6def21091e9c.lovable.app";
+    logStep("Using origin", { origin });
+
     // Create Stripe Checkout session
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
@@ -122,8 +126,8 @@ serve(async (req) => {
         },
       ],
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/checkout/cancel?order_id=${order.id}`,
+      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/checkout/cancel?order_id=${order.id}`,
       metadata: {
         order_id: order.id,
         event_id: eventId,
