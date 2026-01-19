@@ -109,7 +109,9 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
   const [posterFile, setPosterFile] = useState<File | null>(null);
   const [posterPreview, setPosterPreview] = useState<string | null>(null);
   const [uploadingPoster, setUploadingPoster] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dropZoneRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
   const isEdit = mode === "edit";
@@ -176,28 +178,63 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
     }
   }, [isOpen, editEvent, mode]);
 
+  const processFile = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file.",
+        variant: "destructive",
+      });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image under 5MB.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setPosterFile(file);
+    setPosterPreview(URL.createObjectURL(file));
+    form.setValue("poster", ""); // Clear URL input when file is selected
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith("image/")) {
-        toast({
-          title: "Invalid file type",
-          description: "Please select an image file.",
-          variant: "destructive",
-        });
-        return;
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Please select an image under 5MB.",
-          variant: "destructive",
-        });
-        return;
-      }
-      setPosterFile(file);
-      setPosterPreview(URL.createObjectURL(file));
-      form.setValue("poster", ""); // Clear URL input when file is selected
+      processFile(file);
+    }
+  };
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Only set dragging to false if we're leaving the drop zone entirely
+    if (dropZoneRef.current && !dropZoneRef.current.contains(e.relatedTarget as Node)) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      processFile(file);
     }
   };
 
@@ -471,70 +508,101 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
           {/* Poster Upload */}
           <div className="space-y-2">
             <Label>Event Poster (Optional)</Label>
-            <div className="space-y-3">
-              {/* Preview */}
-              {posterPreview && (
-                <div className="relative inline-block">
-                  <img
-                    src={posterPreview}
-                    alt="Poster preview"
-                    className="h-32 w-auto rounded-md border border-border object-cover"
-                  />
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="icon"
-                    className="absolute -right-2 -top-2 h-6 w-6"
-                    onClick={removePoster}
-                  >
-                    <X className="h-3 w-3" />
-                  </Button>
+            <div
+              ref={dropZoneRef}
+              onDragEnter={handleDragEnter}
+              onDragLeave={handleDragLeave}
+              onDragOver={handleDragOver}
+              onDrop={handleDrop}
+              className={cn(
+                "relative rounded-lg border-2 border-dashed p-4 transition-colors",
+                isDragging
+                  ? "border-primary bg-primary/5"
+                  : "border-border hover:border-muted-foreground/50"
+              )}
+            >
+              {isDragging && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-primary/10">
+                  <div className="flex flex-col items-center gap-2 text-primary">
+                    <Upload className="h-8 w-8" />
+                    <span className="text-sm font-medium">Drop image here</span>
+                  </div>
                 </div>
               )}
               
-              {/* Upload Button */}
-              <div className="flex items-center gap-3">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileSelect}
-                  className="hidden"
-                  id="poster-upload"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingPoster}
-                  className="gap-2"
-                >
-                  {uploadingPoster ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : posterPreview ? (
-                    <ImageIcon className="h-4 w-4" />
-                  ) : (
-                    <Upload className="h-4 w-4" />
-                  )}
-                  {posterPreview ? "Change Image" : "Upload Image"}
-                </Button>
-                <span className="text-xs text-muted-foreground">or</span>
-              </div>
+              <div className="space-y-3">
+                {/* Preview */}
+                {posterPreview && (
+                  <div className="relative inline-block">
+                    <img
+                      src={posterPreview}
+                      alt="Poster preview"
+                      className="h-32 w-auto rounded-md border border-border object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute -right-2 -top-2 h-6 w-6"
+                      onClick={removePoster}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+                
+                {/* Upload Area */}
+                {!posterPreview && (
+                  <div className="flex flex-col items-center gap-2 py-4 text-muted-foreground">
+                    <ImageIcon className="h-10 w-10" />
+                    <p className="text-sm">Drag and drop an image here</p>
+                  </div>
+                )}
 
-              {/* URL Input */}
-              <Input
-                id="poster"
-                placeholder="Paste image URL..."
-                {...form.register("poster")}
-                className="bg-secondary"
-                onChange={(e) => {
-                  form.setValue("poster", e.target.value);
-                  if (e.target.value) {
-                    setPosterFile(null);
-                    setPosterPreview(e.target.value);
-                  }
-                }}
-              />
+                {/* Upload Button */}
+                <div className="flex items-center gap-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="hidden"
+                    id="poster-upload"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingPoster}
+                    className="gap-2"
+                  >
+                    {uploadingPoster ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : posterPreview ? (
+                      <ImageIcon className="h-4 w-4" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+                    {posterPreview ? "Change Image" : "Browse Files"}
+                  </Button>
+                  <span className="text-xs text-muted-foreground">or paste URL below</span>
+                </div>
+
+                {/* URL Input */}
+                <Input
+                  id="poster"
+                  placeholder="Paste image URL..."
+                  {...form.register("poster")}
+                  className="bg-secondary"
+                  onChange={(e) => {
+                    form.setValue("poster", e.target.value);
+                    if (e.target.value) {
+                      setPosterFile(null);
+                      setPosterPreview(e.target.value);
+                    }
+                  }}
+                />
+              </div>
             </div>
           </div>
 
