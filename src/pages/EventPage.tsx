@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import TicketOption from "@/components/TicketOption";
 import TicketCheckoutForm from "@/components/TicketCheckoutForm";
 import EventPoster from "@/components/EventPoster";
-import { events } from "@/data/events";
+import { useEvent } from "@/hooks/useEvents";
 
 // Category images
 import sportsCardsImg from "@/assets/categories/sports-cards.png";
@@ -26,9 +26,21 @@ const merchandiseCategories = [
 ];
 const EventPage = () => {
   const { eventId } = useParams();
-  const event = events.find((e) => e.id === eventId);
+  const { event, loading } = useEvent(eventId);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [selectedTicketType, setSelectedTicketType] = useState<"GA" | "VIP">("GA");
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <Header />
+        <main className="flex flex-1 items-center justify-center">
+          <div className="animate-pulse text-muted-foreground">Loading event...</div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
   
   if (!event) {
     return (
@@ -110,6 +122,13 @@ const EventPage = () => {
                       </a>
                     </div>
                   </div>
+
+                  {/* Event Description */}
+                  {event.description && (
+                    <p className="mt-6 text-muted-foreground">
+                      {event.description}
+                    </p>
+                  )}
                 </div>
               </div>
               

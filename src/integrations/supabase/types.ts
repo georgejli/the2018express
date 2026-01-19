@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      events: {
+        Row: {
+          address: string
+          created_at: string | null
+          date: string
+          day_of_week: string
+          description: string | null
+          early_bird_time: string | null
+          event_id: string
+          ga_features: string[]
+          ga_price: number
+          id: string
+          month: string
+          poster: string | null
+          time: string
+          updated_at: string | null
+          venue: string
+          vip_features: string[]
+          vip_price: number
+          year: string
+        }
+        Insert: {
+          address: string
+          created_at?: string | null
+          date: string
+          day_of_week: string
+          description?: string | null
+          early_bird_time?: string | null
+          event_id: string
+          ga_features?: string[]
+          ga_price?: number
+          id?: string
+          month: string
+          poster?: string | null
+          time: string
+          updated_at?: string | null
+          venue: string
+          vip_features?: string[]
+          vip_price?: number
+          year: string
+        }
+        Update: {
+          address?: string
+          created_at?: string | null
+          date?: string
+          day_of_week?: string
+          description?: string | null
+          early_bird_time?: string | null
+          event_id?: string
+          ga_features?: string[]
+          ga_price?: number
+          id?: string
+          month?: string
+          poster?: string | null
+          time?: string
+          updated_at?: string | null
+          venue?: string
+          vip_features?: string[]
+          vip_price?: number
+          year?: string
+        }
+        Relationships: []
+      }
       ticket_orders: {
         Row: {
           checked_in: boolean | null

@@ -10,10 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus } from "lucide-react";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
-
+import AddEventForm from "@/components/AddEventForm";
+import { useEvents } from "@/hooks/useEvents";
 interface TicketOrder {
   id: string;
   customer_name: string;
@@ -50,8 +51,13 @@ const AdminDashboard = () => {
   const [newAdminPassword, setNewAdminPassword] = useState("");
   const [creatingAdmin, setCreatingAdmin] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [addEventOpen, setAddEventOpen] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { events: dbEvents, refetch: refetchEvents } = useEvents();
+
+  // Get the most recent event for defaults
+  const mostRecentEvent = dbEvents.length > 0 ? dbEvents[dbEvents.length - 1] : null;
 
   useEffect(() => {
     checkAuth();
@@ -237,6 +243,14 @@ const AdminDashboard = () => {
               <QrCode className="mr-2 h-4 w-4" />
               Check-In
             </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setAddEventOpen(true)}
+            >
+              <CalendarPlus className="mr-2 h-4 w-4" />
+              Add Event
+            </Button>
             <Dialog open={createAdminOpen} onOpenChange={setCreateAdminOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
@@ -316,6 +330,17 @@ const AdminDashboard = () => {
             >
               <QrCode className="mr-2 h-4 w-4" />
               Check-In Scanner
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAddEventOpen(true);
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full justify-start"
+            >
+              <CalendarPlus className="mr-2 h-4 w-4" />
+              Add Event
             </Button>
             <Button
               variant="outline"
@@ -544,6 +569,23 @@ const AdminDashboard = () => {
           Showing {filteredOrders.length} of {orders.length} orders
         </p>
       </main>
+
+      <AddEventForm
+        isOpen={addEventOpen}
+        onClose={() => setAddEventOpen(false)}
+        onSuccess={() => {
+          refetchEvents();
+          fetchOrders();
+        }}
+        defaultEvent={mostRecentEvent ? {
+          venue: mostRecentEvent.venue,
+          address: mostRecentEvent.address,
+          gaPrice: mostRecentEvent.gaPrice,
+          vipPrice: mostRecentEvent.vipPrice,
+          gaFeatures: mostRecentEvent.gaFeatures,
+          vipFeatures: mostRecentEvent.vipFeatures,
+        } : undefined}
+      />
     </div>
   );
 };
