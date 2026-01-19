@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -42,11 +41,7 @@ serve(async (req) => {
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    const stripe = new Stripe(stripeKey, { apiVersion: "2024-12-18.acacia" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     const body: CheckoutRequest = await req.json();
     logStep("Request body", body);
@@ -74,39 +69,6 @@ serve(async (req) => {
       throw new Error(`Invalid ticket type: ${ticketType}`);
     }
 
-    const totalAmount = unitPrice * quantity;
-    const qrCode = crypto.randomUUID();
-
-    logStep("Creating order in database");
-
-    // Create pending order in database
-    const { data: order, error: orderError } = await supabase
-      .from("ticket_orders")
-      .insert({
-        event_id: eventId,
-        event_date: eventDate,
-        event_name: eventName,
-        ticket_type: ticketType,
-        quantity,
-        unit_price: unitPrice,
-        total_amount: totalAmount,
-        customer_name: customerName,
-        customer_email: customerEmail,
-        customer_phone: customerPhone,
-        subscribe_to_updates: subscribeToUpdates,
-        qr_code: qrCode,
-        status: "pending",
-      })
-      .select()
-      .single();
-
-    if (orderError) {
-      logStep("Order creation error", orderError);
-      throw new Error(`Failed to create order: ${orderError.message}`);
-    }
-
-    logStep("Order created", { orderId: order.id });
-
     // Check if customer exists in Stripe
     const customers = await stripe.customers.list({ email: customerEmail, limit: 1 });
     let customerId: string | undefined;
@@ -119,7 +81,7 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || req.headers.get("referer")?.replace(/\/$/, "") || "https://id-preview--dd3d4a70-8a1e-472a-90eb-6def21091e9c.lovable.app";
     logStep("Using origin", { origin });
 
-    // Create Stripe Checkout session using actual price ID
+    // Create Stripe Checkout session - order will be created by webhook after payment
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : customerEmail,
@@ -131,31 +93,24 @@ serve(async (req) => {
       ],
       mode: "payment",
       success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/checkout/cancel?order_id=${order.id}`,
+      cancel_url: `${origin}/checkout/cancel`,
       metadata: {
-        order_id: order.id,
         event_id: eventId,
         event_name: eventName,
         event_date: eventDate,
-        qr_code: qrCode,
         ticket_type: ticketType,
         quantity: quantity.toString(),
+        unit_price: unitPrice.toString(),
+        customer_name: customerName,
+        customer_email: customerEmail,
+        customer_phone: customerPhone,
+        subscribe_to_updates: subscribeToUpdates.toString(),
       },
     });
 
     logStep("Stripe session created", { sessionId: session.id });
 
-    // Update order with Stripe session ID
-    const { error: updateError } = await supabase
-      .from("ticket_orders")
-      .update({ stripe_session_id: session.id })
-      .eq("id", order.id);
-
-    if (updateError) {
-      logStep("Failed to update order with session ID", updateError);
-    }
-
-    return new Response(JSON.stringify({ url: session.url, orderId: order.id }), {
+    return new Response(JSON.stringify({ url: session.url }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
     });
