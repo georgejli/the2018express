@@ -56,17 +56,20 @@ serve(async (req) => {
     }
 
     const { qrCode } = await req.json();
-    logStep("Processing check-in", { qrCode });
-
+    
     if (!qrCode) {
       throw new Error("QR code is required");
     }
+
+    // Clean and normalize the QR code (trim whitespace, handle URL-encoded values)
+    const cleanedQrCode = decodeURIComponent(qrCode.toString().trim());
+    logStep("Processing check-in", { originalQrCode: qrCode, cleanedQrCode });
 
     // Find the ticket order by QR code
     const { data: order, error: orderError } = await supabaseAdmin
       .from("ticket_orders")
       .select("*")
-      .eq("qr_code", qrCode)
+      .eq("qr_code", cleanedQrCode)
       .maybeSingle();
 
     if (orderError) {
