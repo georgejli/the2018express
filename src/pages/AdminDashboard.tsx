@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2 } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2, Copy } from "lucide-react";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 import EventForm from "@/components/EventForm";
@@ -106,6 +106,14 @@ const AdminDashboard = () => {
     
     setDeleteEventOpen(false);
     setDeletingEvent(null);
+  };
+
+  const handleDuplicateEvent = (event: Event & { description?: string; dbId?: string }) => {
+    // Create a copy without the dbId so it creates a new event
+    const duplicatedEvent = { ...event, dbId: undefined };
+    setEventFormMode("add");
+    setEditingEvent(duplicatedEvent);
+    setEventFormOpen(true);
   };
 
   useEffect(() => {
@@ -542,8 +550,18 @@ const AdminDashboard = () => {
                       <Button
                         variant="ghost"
                         size="sm"
+                        onClick={() => handleDuplicateEvent(event)}
+                        className="text-muted-foreground hover:text-foreground"
+                        title="Duplicate event"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleDeleteClick(event)}
                         className="text-muted-foreground hover:text-destructive"
+                        title="Delete event"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

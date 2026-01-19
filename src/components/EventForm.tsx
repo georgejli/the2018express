@@ -115,10 +115,12 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
   const { toast } = useToast();
 
   const isEdit = mode === "edit";
+  const isDuplicate = mode === "add" && editEvent && !editEvent.dbId;
 
   // Initialize form with proper defaults
   const getDefaultValues = (): Partial<EventFormData> => {
-    if (isEdit && editEvent) {
+    // For edit mode or duplicate mode, use editEvent data
+    if (editEvent && (isEdit || isDuplicate)) {
       const monthIndex = MONTHS.indexOf(editEvent.month.toUpperCase());
       const eventDate = new Date(
         parseInt(editEvent.year),
@@ -128,7 +130,7 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
       const { startTime, endTime } = parseTimeRange(editEvent.time);
       
       return {
-        date: eventDate,
+        date: isDuplicate ? undefined : eventDate, // Clear date for duplicates so user picks a new one
         startTime,
         endTime,
         earlyBirdTime: parseEarlyBirdTime(editEvent.earlyBirdTime),
@@ -137,7 +139,7 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
         gaPrice: editEvent.gaPrice,
         vipPrice: editEvent.vipPrice,
         description: editEvent.description || "",
-        poster: editEvent.poster || "",
+        poster: isDuplicate ? "" : (editEvent.poster || ""), // Clear poster for duplicates
       };
     }
     
@@ -165,10 +167,10 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
       const defaults = getDefaultValues();
       form.reset(defaults);
       
-      if (isEdit && editEvent) {
+      if (editEvent && (isEdit || isDuplicate)) {
         setGaFeatures(editEvent.gaFeatures || DEFAULT_GA_FEATURES);
         setVipFeatures(editEvent.vipFeatures || DEFAULT_VIP_FEATURES);
-        setPosterPreview(editEvent.poster || null);
+        setPosterPreview(isEdit ? (editEvent.poster || null) : null);
       } else {
         setGaFeatures(defaultEvent?.gaFeatures || DEFAULT_GA_FEATURES);
         setVipFeatures(defaultEvent?.vipFeatures || DEFAULT_VIP_FEATURES);
@@ -385,11 +387,13 @@ export default function EventForm({ isOpen, onClose, onSuccess, mode, editEvent,
       <DialogContent className="max-h-[90vh] overflow-y-auto border-border bg-card sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="text-foreground">
-            {isEdit ? "Edit Event" : "Add New Event"}
+            {isEdit ? "Edit Event" : isDuplicate ? "Duplicate Event" : "Add New Event"}
           </DialogTitle>
           <DialogDescription>
             {isEdit 
               ? "Update the event details below."
+              : isDuplicate
+              ? "Create a new event based on the selected one. Pick a new date to continue."
               : "Create a new card show event. Fields are pre-filled with the most recent event defaults."
             }
           </DialogDescription>
