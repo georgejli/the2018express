@@ -178,11 +178,11 @@ const VendorApplication = () => {
       <main className="flex-1 px-4 pb-16 pt-24">
         <div className="container mx-auto max-w-2xl animate-fade-in">
           <Link
-            to="/"
+            to={preselectedEventId ? `/event/${preselectedEventId}` : "/"}
             className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Home
+            {preselectedEventId ? "Back to Event" : "Back to Home"}
           </Link>
 
           <h1 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
