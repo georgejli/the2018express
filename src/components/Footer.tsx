@@ -1,4 +1,5 @@
 import { Instagram, Twitter, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -39,8 +40,14 @@ const Footer = () => {
             </a>
           </div>
           
-          <div className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} 34th St Card Show. All rights reserved.
+          <div className="flex flex-col items-center gap-2 text-xs text-muted-foreground">
+            <span>© {new Date().getFullYear()} 34th St Card Show. All rights reserved.</span>
+            <Link 
+              to="/admin/login" 
+              className="text-muted-foreground/50 transition-colors hover:text-muted-foreground"
+            >
+              Admin
+            </Link>
           </div>
         </div>
       </div>

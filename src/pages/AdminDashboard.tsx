@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2, Copy } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2, Copy, Home } from "lucide-react";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 import EventForm from "@/components/EventForm";
@@ -272,6 +272,14 @@ const AdminDashboard = () => {
           {/* Desktop Navigation */}
           <div className="hidden items-center gap-2 md:flex">
             <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/")}
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Home
+            </Button>
+            <Button
               variant="default"
               size="sm"
               onClick={() => navigate("/admin/check-in")}
@@ -357,6 +365,17 @@ const AdminDashboard = () => {
           }`}
         >
           <nav className="flex flex-col gap-2 pt-2">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                navigate("/");
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full justify-start"
+            >
+              <Home className="mr-2 h-4 w-4" />
+              Back to Home
+            </Button>
             <Button
               variant="default"
               onClick={() => {
