@@ -16,6 +16,9 @@ export type Database = {
     Tables: {
       ticket_orders: {
         Row: {
+          checked_in: boolean | null
+          checked_in_at: string | null
+          checked_in_by: string | null
           completed_at: string | null
           created_at: string | null
           customer_email: string
@@ -36,6 +39,9 @@ export type Database = {
           unit_price: number
         }
         Insert: {
+          checked_in?: boolean | null
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           completed_at?: string | null
           created_at?: string | null
           customer_email: string
@@ -56,6 +62,9 @@ export type Database = {
           unit_price: number
         }
         Update: {
+          checked_in?: boolean | null
+          checked_in_at?: string | null
+          checked_in_by?: string | null
           completed_at?: string | null
           created_at?: string | null
           customer_email?: string
