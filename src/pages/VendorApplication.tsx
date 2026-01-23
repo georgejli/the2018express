@@ -99,6 +99,29 @@ const VendorApplication = () => {
   // Get the selected event for the submission
   const selectedEvent = events.find((e) => e.id === selectedEventId);
 
+  // Map server error messages to form field names
+  const mapErrorToField = (errorMessage: string): keyof VendorFormValues | null => {
+    const errorFieldMap: Record<string, keyof VendorFormValues> = {
+      "Name must be": "name",
+      "Invalid email": "email",
+      "Email must be": "email",
+      "Invalid phone": "phone",
+      "Invalid table tier": "tableTier",
+      "Table quantity": "tableQuantity",
+      "Vendor count": "vendorCount",
+      "Merchandise description": "merchandiseDescription",
+      "Please describe": "merchandiseDescription",
+      "Special requests": "specialRequests",
+    };
+    
+    for (const [pattern, field] of Object.entries(errorFieldMap)) {
+      if (errorMessage.toLowerCase().includes(pattern.toLowerCase())) {
+        return field;
+      }
+    }
+    return null;
+  };
+
   const onSubmit = async (data: VendorFormValues) => {
     const event = events.find((e) => e.id === data.eventId);
     if (!event) {
@@ -110,7 +133,7 @@ const VendorApplication = () => {
     
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.functions.invoke("submit-vendor-application", {
+      const { data: responseData, error } = await supabase.functions.invoke("submit-vendor-application", {
         body: {
           name: data.name,
           email: data.email,
@@ -128,7 +151,31 @@ const VendorApplication = () => {
         },
       });
 
-      if (error) throw error;
+      // Handle edge function errors (network issues, etc.)
+      if (error) {
+        throw new Error(error.message || "Failed to submit application");
+      }
+
+      // Handle validation errors returned from the server
+      if (responseData?.error) {
+        const serverError = responseData.error;
+        const fieldName = mapErrorToField(serverError);
+        
+        if (fieldName) {
+          form.setError(fieldName, { 
+            type: "server", 
+            message: serverError 
+          });
+          toast.error("Please fix the highlighted field", {
+            description: serverError,
+          });
+        } else {
+          toast.error("Submission failed", {
+            description: serverError,
+          });
+        }
+        return;
+      }
 
       setIsSubmitted(true);
       toast.success("Application submitted successfully!", {
@@ -136,8 +183,11 @@ const VendorApplication = () => {
       });
     } catch (error) {
       console.error("Error submitting application:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       toast.error("Failed to submit application", {
-        description: "Please try again or contact us directly.",
+        description: errorMessage.includes("Too many") 
+          ? errorMessage 
+          : "Please try again or contact us directly.",
       });
     } finally {
       setIsSubmitting(false);
