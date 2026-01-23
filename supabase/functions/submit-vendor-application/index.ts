@@ -26,7 +26,7 @@ interface VendorApplication {
 
 // Rate limiting configuration
 const RATE_LIMIT_WINDOW_MS = 3600000; // 1 hour
-const RATE_LIMIT_MAX_REQUESTS = 5; // 5 submissions per hour per IP
+const RATE_LIMIT_MAX_REQUESTS = 10; // 10 submissions per hour per IP
 
 // Input validation patterns
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
