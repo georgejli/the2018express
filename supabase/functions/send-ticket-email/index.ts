@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "https://esm.sh/resend@2.0.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
+import QRCode from "https://esm.sh/qrcode@1.5.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,77 +24,24 @@ interface OrderData {
   created_at: string;
 }
 
-// Generate QR code as SVG data URI (self-hosted, no external API)
-function generateQRCodeSVG(data: string, size: number = 200): string {
-  // Simple QR code generation using a basic pattern
-  // For production, you'd use a proper QR library, but this avoids external API calls
-  // We'll use a simple encoding that creates a visual representation
-  
-  const modules = 25; // QR code module count
-  const moduleSize = size / modules;
-  
-  // Create a deterministic pattern from the data
-  const hash = simpleHash(data);
-  
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">`;
-  svg += `<rect width="${size}" height="${size}" fill="white"/>`;
-  
-  // Add finder patterns (corner squares)
-  svg += generateFinderPattern(0, 0, moduleSize);
-  svg += generateFinderPattern((modules - 7) * moduleSize, 0, moduleSize);
-  svg += generateFinderPattern(0, (modules - 7) * moduleSize, moduleSize);
-  
-  // Generate data pattern
-  for (let row = 0; row < modules; row++) {
-    for (let col = 0; col < modules; col++) {
-      // Skip finder pattern areas
-      if ((row < 8 && col < 8) || (row < 8 && col >= modules - 8) || (row >= modules - 8 && col < 8)) {
-        continue;
+// Generate QR code as base64 PNG data URI (self-hosted, no external API)
+async function generateQRCodeDataUri(data: string): Promise<string> {
+  try {
+    // Generate QR code as data URL (base64 PNG)
+    const dataUri = await QRCode.toDataURL(data, {
+      width: 200,
+      margin: 2,
+      errorCorrectionLevel: 'M',
+      color: {
+        dark: '#000000',
+        light: '#ffffff'
       }
-      
-      // Determine if this module should be filled based on hash
-      const index = row * modules + col;
-      if (shouldFill(hash, index)) {
-        svg += `<rect x="${col * moduleSize}" y="${row * moduleSize}" width="${moduleSize}" height="${moduleSize}" fill="black"/>`;
-      }
-    }
+    });
+    return dataUri;
+  } catch (error) {
+    console.error("[SEND-TICKET-EMAIL] QR code generation failed:", error);
+    throw new Error("Failed to generate QR code");
   }
-  
-  svg += '</svg>';
-  
-  // Convert to data URI
-  const encoded = btoa(svg);
-  return `data:image/svg+xml;base64,${encoded}`;
-}
-
-function generateFinderPattern(x: number, y: number, moduleSize: number): string {
-  const size7 = moduleSize * 7;
-  const size5 = moduleSize * 5;
-  const size3 = moduleSize * 3;
-  
-  return `
-    <rect x="${x}" y="${y}" width="${size7}" height="${size7}" fill="black"/>
-    <rect x="${x + moduleSize}" y="${y + moduleSize}" width="${size5}" height="${size5}" fill="white"/>
-    <rect x="${x + moduleSize * 2}" y="${y + moduleSize * 2}" width="${size3}" height="${size3}" fill="black"/>
-  `;
-}
-
-function simpleHash(str: string): number[] {
-  const result: number[] = [];
-  for (let i = 0; i < str.length; i++) {
-    result.push(str.charCodeAt(i));
-  }
-  // Extend to 625 values (25x25)
-  while (result.length < 625) {
-    const prev = result[result.length - 1];
-    const prev2 = result[result.length - 2] || 0;
-    result.push((prev * 31 + prev2) % 256);
-  }
-  return result;
-}
-
-function shouldFill(hash: number[], index: number): boolean {
-  return hash[index % hash.length] % 2 === 0;
 }
 
 serve(async (req) => {
@@ -197,10 +145,10 @@ serve(async (req) => {
     const orderData = order as OrderData;
     console.log("[SEND-TICKET-EMAIL] Order fetched successfully");
 
-    // Generate QR code as data URI (self-hosted, no external API)
-    // For email compatibility, we still use the external API as many email clients
-    // don't support data URIs well. The checkout success page uses client-side generation.
-    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(orderData.qr_code)}`;
+    // Generate QR code as base64 data URI (self-hosted, no external API exposure)
+    const qrCodeDataUri = await generateQRCodeDataUri(orderData.qr_code);
+    console.log("[SEND-TICKET-EMAIL] QR code generated successfully");
+    // Note: Using embedded base64 PNG. Most modern email clients support this.
 
     // Create email HTML
     const emailHtml = `
@@ -247,9 +195,9 @@ serve(async (req) => {
         </div>
       </div>
 
-      <!-- QR Code -->
+      <!-- QR Code - Self-hosted base64 PNG, no external API -->
       <div style="text-align: center; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px;">
-        <img src="${qrCodeUrl}" alt="Ticket QR Code" style="width: 200px; height: 200px;" />
+        <img src="${qrCodeDataUri}" alt="Ticket QR Code" style="width: 200px; height: 200px;" />
         <p style="margin: 10px 0 0; color: #333; font-size: 12px;">Scan at entry</p>
       </div>
     </div>

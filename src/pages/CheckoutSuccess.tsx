@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { CheckCircle, Mail, ArrowLeft, Loader2, MapPin, Calendar, Ticket, Download } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import html2canvas from "html2canvas";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -81,10 +82,8 @@ const CheckoutSuccess = () => {
     fetchOrder();
   }, [sessionId]);
 
-  // Generate QR code URL using the same API as the email
-  const qrCodeUrl = order?.qr_code 
-    ? `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(order.qr_code)}`
-    : null;
+  // QR code is now generated client-side using qrcode.react library
+  // This eliminates the security risk of sending ticket IDs to external APIs
 
   const handleDownloadTicket = async () => {
     if (!ticketRef.current || !order) return;
@@ -191,14 +190,14 @@ const CheckoutSuccess = () => {
                         </div>
                       </div>
 
-                      {/* QR Code Section */}
-                      {qrCodeUrl && (
+                      {/* QR Code Section - Generated client-side for security */}
+                      {order.qr_code && (
                         <div className="flex flex-col items-center rounded-xl bg-white p-6">
-                          <img 
-                            src={qrCodeUrl} 
-                            alt="Ticket QR Code" 
-                            className="h-48 w-48"
-                            crossOrigin="anonymous"
+                          <QRCodeSVG 
+                            value={order.qr_code} 
+                            size={192}
+                            level="M"
+                            includeMargin={true}
                           />
                           <p className="mt-3 text-sm font-medium text-gray-700">Scan at entry</p>
                           <p className="mt-1 font-mono text-xs text-gray-500">
