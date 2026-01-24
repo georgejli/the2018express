@@ -18,6 +18,14 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Set page title
+  useEffect(() => {
+    document.title = "Admin Login - 34th St Card Show";
+    return () => {
+      document.title = "34th St Card Show";
+    };
+  }, []);
+
   // Check if already logged in as admin
   useEffect(() => {
     const checkExistingSession = async () => {

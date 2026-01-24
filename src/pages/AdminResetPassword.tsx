@@ -18,6 +18,14 @@ const AdminResetPassword = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Set page title
+  useEffect(() => {
+    document.title = "Reset Password - 34th St Card Show";
+    return () => {
+      document.title = "34th St Card Show";
+    };
+  }, []);
+
   useEffect(() => {
     const checkSession = async () => {
       try {
