@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.get-order-by-session]
 verify_jwt = false
+
+[functions.send-vendor-confirmation]
+verify_jwt = false

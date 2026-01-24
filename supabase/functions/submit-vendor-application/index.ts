@@ -211,6 +211,36 @@ Deno.serve(async (req) => {
 
     console.log("[VENDOR-APPLICATION] Successfully saved to database");
 
+    // Send confirmation email (fire and forget - don't block the response)
+    const supabaseFunctionsUrl = Deno.env.get("SUPABASE_URL")!.replace('.supabase.co', '.functions.supabase.co');
+    fetch(`${supabaseFunctionsUrl}/send-vendor-confirmation`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+      },
+      body: JSON.stringify({
+        name: application.name.trim(),
+        email: application.email.trim().toLowerCase(),
+        eventDate: application.eventDate,
+        tableTier: application.tableTier,
+        tableTierLabel: application.tableTierLabel,
+        tableQuantity: application.tableQuantity,
+        vendorCount: application.vendorCount,
+        totalPrice: application.totalPrice,
+        merchandiseDescription: application.merchandiseDescription.trim(),
+        specialRequests: application.specialRequests?.trim() || null,
+      }),
+    }).then((res) => {
+      if (!res.ok) {
+        console.error("[VENDOR-APPLICATION] Failed to send confirmation email");
+      } else {
+        console.log("[VENDOR-APPLICATION] Confirmation email triggered");
+      }
+    }).catch((err) => {
+      console.error("[VENDOR-APPLICATION] Error triggering confirmation email:", err.message);
+    });
+
     return new Response(
       JSON.stringify({
         success: true,
