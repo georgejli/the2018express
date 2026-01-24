@@ -109,6 +109,30 @@ serve(async (req) => {
 
       console.log("[STRIPE-WEBHOOK] Order created successfully");
 
+      // Sync newsletter subscription if opted in (no extra email - they get the ticket email)
+      if (metadata.subscribe_to_updates === "true" && metadata.customer_email) {
+        try {
+          const { error: newsletterError } = await supabase
+            .from("newsletter_subscribers")
+            .upsert(
+              {
+                email: metadata.customer_email.toLowerCase().trim(),
+                source: "checkout",
+                is_active: true,
+              },
+              { onConflict: "email", ignoreDuplicates: true }
+            );
+
+          if (newsletterError) {
+            console.log("[STRIPE-WEBHOOK] Newsletter sync error:", newsletterError.message);
+          } else {
+            console.log("[STRIPE-WEBHOOK] Newsletter subscription synced");
+          }
+        } catch (newsletterErr) {
+          console.log("[STRIPE-WEBHOOK] Failed to sync newsletter subscription");
+        }
+      }
+
       // Trigger email sending
       try {
         const emailResponse = await fetch(`${supabaseUrl}/functions/v1/send-ticket-email`, {
