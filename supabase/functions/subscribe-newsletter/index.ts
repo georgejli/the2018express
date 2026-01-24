@@ -163,6 +163,7 @@ async function sendWelcomeEmail(email: string, isResubscribe: boolean): Promise<
   }
 
   const resend = new Resend(resendApiKey);
+  const unsubscribeUrl = `https://the34thcardshow.lovable.app/unsubscribe?email=${encodeURIComponent(email)}`;
 
   try {
     await resend.emails.send({
@@ -231,6 +232,9 @@ async function sendWelcomeEmail(email: string, isResubscribe: boolean): Promise<
                       <p style="color: #666680; font-size: 12px; margin: 0; text-align: center; line-height: 1.6;">
                         34th St Card Show • The New Yorker Hotel • 481 8th Ave, New York, NY<br>
                         <a href="https://the34thcardshow.lovable.app" style="color: #d4af37; text-decoration: none;">the34thcardshow.lovable.app</a>
+                      </p>
+                      <p style="color: #555570; font-size: 11px; margin: 15px 0 0 0; text-align: center;">
+                        Don't want to receive these emails? <a href="${unsubscribeUrl}" style="color: #888899; text-decoration: underline;">Unsubscribe</a>
                       </p>
                     </td>
                   </tr>
