@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { MapPin, Clock, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
@@ -29,6 +29,18 @@ const EventPage = () => {
   const { event, loading } = useEvent(eventId);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [selectedTicketType, setSelectedTicketType] = useState<"GA" | "VIP">("GA");
+
+  // Set page title based on event
+  useEffect(() => {
+    if (event) {
+      document.title = `${event.month} ${event.date}, ${event.year} Show - 34th St Card Show`;
+    } else {
+      document.title = "Event - 34th St Card Show";
+    }
+    return () => {
+      document.title = "34th St Card Show";
+    };
+  }, [event]);
 
   if (loading) {
     return (

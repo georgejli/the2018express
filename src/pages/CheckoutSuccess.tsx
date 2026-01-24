@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useSearchParams, Link } from "react-router-dom";
+
 import { CheckCircle, Mail, ArrowLeft, Loader2, MapPin, Calendar, Ticket, Download } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import html2canvas from "html2canvas";
@@ -30,6 +31,14 @@ const CheckoutSuccess = () => {
   const [loading, setLoading] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const ticketRef = useRef<HTMLDivElement>(null);
+
+  // Set page title
+  useEffect(() => {
+    document.title = "Order Confirmation - 34th St Card Show";
+    return () => {
+      document.title = "34th St Card Show";
+    };
+  }, []);
 
   useEffect(() => {
     const fetchOrder = async () => {
