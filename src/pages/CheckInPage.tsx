@@ -36,6 +36,14 @@ const CheckInPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Set page title
+  useEffect(() => {
+    document.title = "Check-In Scanner - 34th St Card Show";
+    return () => {
+      document.title = "34th St Card Show";
+    };
+  }, []);
+
   // Auth is now handled by AdminAuthGuard in App.tsx
 
   const handleLogout = async () => {

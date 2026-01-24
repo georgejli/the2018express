@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import EventCard from "@/components/EventCard";
@@ -9,6 +10,14 @@ import { ArrowLeft, Calendar } from "lucide-react";
 const PastEvents = () => {
   const { events } = useEvents();
   const pastEvents = getPastEvents(events);
+
+  // Set page title
+  useEffect(() => {
+    document.title = "Past Events - 34th St Card Show";
+    return () => {
+      document.title = "34th St Card Show";
+    };
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-background">

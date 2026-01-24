@@ -5,7 +5,11 @@ const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
+    document.title = "Page Not Found - 34th St Card Show";
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    return () => {
+      document.title = "34th St Card Show";
+    };
   }, [location.pathname]);
 
   return (
