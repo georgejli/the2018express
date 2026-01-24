@@ -2,15 +2,44 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const NewsletterSignup = () => {
   const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      toast.success("Thanks for subscribing!");
+    
+    if (!email) return;
+
+    setIsSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("subscribe-newsletter", {
+        body: { email, source: "website" },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      if (data?.alreadySubscribed) {
+        toast.success(data.message || "You're already subscribed!");
+      } else {
+        toast.success(data.message || "Thanks for subscribing!");
+      }
+      
       setEmail("");
+    } catch (error) {
+      console.error("Newsletter subscription error:", error);
+      toast.error("Failed to subscribe. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -32,12 +61,21 @@ const NewsletterSignup = () => {
             onChange={(e) => setEmail(e.target.value)}
             className="h-12 bg-secondary text-foreground placeholder:text-muted-foreground sm:w-80"
             required
+            disabled={isSubmitting}
           />
           <Button 
             type="submit" 
+            disabled={isSubmitting}
             className="h-12 bg-accent px-8 font-display text-lg tracking-tight text-accent-foreground hover:bg-accent/90"
           >
-            SIGN UP
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                SIGNING UP...
+              </>
+            ) : (
+              "SIGN UP"
+            )}
           </Button>
         </form>
       </div>
