@@ -48,6 +48,14 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState<string>("tickets");
   const [orders, setOrders] = useState<TicketOrder[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Set document title for admin dashboard
+  useEffect(() => {
+    document.title = "Admin Dashboard - 34th St Card Show";
+    return () => {
+      document.title = "34th St Card Show";
+    };
+  }, []);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [eventFilter, setEventFilter] = useState<string>("all");
