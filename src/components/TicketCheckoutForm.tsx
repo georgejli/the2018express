@@ -2,13 +2,13 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Ticket, X } from "lucide-react";
+import { Loader2, Ticket } from "lucide-react";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+} from "@/components/ui/responsive-dialog";
 import {
   Form,
   FormControl,
@@ -109,14 +109,14 @@ const TicketCheckoutForm = ({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-md border-border bg-card sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 font-display text-2xl">
+    <ResponsiveDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <ResponsiveDialogContent className="max-w-md border-border bg-card sm:max-w-lg">
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle className="flex items-center gap-2 font-display text-2xl">
             <Ticket className={ticketType === "VIP" ? "text-accent" : "text-primary"} />
             {ticketType === "VIP" ? "VIP Access" : "General Admission"}
-          </DialogTitle>
-        </DialogHeader>
+          </ResponsiveDialogTitle>
+        </ResponsiveDialogHeader>
 
         <div className="mb-4 rounded-lg bg-secondary/50 p-4">
           <p className="text-sm text-muted-foreground">{eventName}</p>
@@ -252,8 +252,8 @@ const TicketCheckoutForm = ({
             </Button>
           </form>
         </Form>
-      </DialogContent>
-    </Dialog>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 };
 
