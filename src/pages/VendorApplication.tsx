@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { ArrowLeft, Send, Loader2 } from "lucide-react";
 import { z } from "zod";
@@ -75,6 +75,14 @@ const VendorApplication = () => {
   const preselectedEventId = searchParams.get("event") || (events.length > 0 ? events[0].id : "");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  // Set page title
+  useEffect(() => {
+    document.title = "Vendor Application - 34th St Card Show";
+    return () => {
+      document.title = "34th St Card Show";
+    };
+  }, []);
 
   const form = useForm<VendorFormValues>({
     resolver: zodResolver(vendorFormSchema),
