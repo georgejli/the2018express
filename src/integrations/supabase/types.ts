@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      event_celebrities: {
+        Row: {
+          bio: string
+          created_at: string
+          display_order: number | null
+          event_id: string
+          id: string
+          name: string
+          photo_url: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          bio: string
+          created_at?: string
+          display_order?: number | null
+          event_id: string
+          id?: string
+          name: string
+          photo_url?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          bio?: string
+          created_at?: string
+          display_order?: number | null
+          event_id?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      event_sponsors: {
+        Row: {
+          bio: string
+          created_at: string
+          display_order: number | null
+          event_id: string
+          id: string
+          name: string
+          photo_url: string | null
+          updated_at: string
+          website: string
+        }
+        Insert: {
+          bio: string
+          created_at?: string
+          display_order?: number | null
+          event_id: string
+          id?: string
+          name: string
+          photo_url?: string | null
+          updated_at?: string
+          website: string
+        }
+        Update: {
+          bio?: string
+          created_at?: string
+          display_order?: number | null
+          event_id?: string
+          id?: string
+          name?: string
+          photo_url?: string | null
+          updated_at?: string
+          website?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           address: string

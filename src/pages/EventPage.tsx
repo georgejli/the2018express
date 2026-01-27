@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import TicketOption from "@/components/TicketOption";
 import TicketCheckoutForm from "@/components/TicketCheckoutForm";
 import EventPoster from "@/components/EventPoster";
+import EventGuestsSection from "@/components/EventGuestsSection";
 import { useEvent } from "@/hooks/useEvents";
 
 // Category images
@@ -182,6 +183,9 @@ const EventPage = () => {
             </div>
           </div>
         </section>
+
+        {/* Celebrities & Sponsors */}
+        <EventGuestsSection eventId={event.id} />
 
         {/* Merchandise Categories Section */}
         <section className="border-b border-border bg-secondary/30 px-4 py-16">
