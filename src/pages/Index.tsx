@@ -41,9 +41,6 @@ const Index = () => {
               <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
                 UPCOMING <span className="text-gradient-blue">EVENTS</span>
               </h2>
-              <p className="mt-4 text-muted-foreground">
-                Mark your calendar and join us for the best card show in NYC
-              </p>
               <div className="mt-6 space-y-1">
                 <p className="font-display text-xl tracking-wide text-foreground">THE NEW YORKER HOTEL</p>
                 <a 
