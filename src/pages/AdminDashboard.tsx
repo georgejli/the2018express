@@ -19,6 +19,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import EventForm from "@/components/EventForm";
 import VendorApplicationsManager from "@/components/VendorApplicationsManager";
 import EventGuestsManager from "@/components/admin/EventGuestsManager";
+import FeaturedCelebritiesManager from "@/components/admin/FeaturedCelebritiesManager";
 import { useEvents } from "@/hooks/useEvents";
 import { Event } from "@/data/events";
 
@@ -450,14 +451,18 @@ const AdminDashboard = () => {
       <main className="container mx-auto p-4 md:p-6">
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="grid w-full grid-cols-2 md:w-auto md:grid-cols-none md:inline-flex">
+          <TabsList className="grid w-full grid-cols-3 md:w-auto md:grid-cols-none md:inline-flex">
             <TabsTrigger value="tickets" className="flex items-center gap-2">
               <Ticket className="h-4 w-4" />
-              Tickets
+              <span className="hidden sm:inline">Tickets</span>
             </TabsTrigger>
             <TabsTrigger value="vendors" className="flex items-center gap-2">
               <Store className="h-4 w-4" />
-              Vendors
+              <span className="hidden sm:inline">Vendors</span>
+            </TabsTrigger>
+            <TabsTrigger value="celebrities" className="flex items-center gap-2">
+              <Star className="h-4 w-4" />
+              <span className="hidden sm:inline">Celebrities</span>
             </TabsTrigger>
           </TabsList>
 
@@ -773,6 +778,20 @@ const AdminDashboard = () => {
 
           <TabsContent value="vendors" className="mt-6">
             <VendorApplicationsManager />
+          </TabsContent>
+
+          <TabsContent value="celebrities" className="mt-6">
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg text-foreground">
+                  <Star className="h-5 w-5 text-accent" />
+                  Featured Celebrities
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FeaturedCelebritiesManager />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </main>

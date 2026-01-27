@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import HeroBanner from "@/components/HeroBanner";
 import NextShowTicker from "@/components/NextShowTicker";
 import EventCard from "@/components/EventCard";
+import PastGuestsSection from "@/components/PastGuestsSection";
 import NewsletterSignup from "@/components/NewsletterSignup";
 import Footer from "@/components/Footer";
 import { useEvents } from "@/hooks/useEvents";
@@ -138,6 +139,8 @@ const Index = () => {
             </div>
           </div>
         </section>
+
+        <PastGuestsSection />
 
         <NewsletterSignup />
       </main>
