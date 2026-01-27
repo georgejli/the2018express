@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Calendar, MapPin, Clock, ArrowRight } from "lucide-react";
+import { Calendar, MapPin, Clock, ArrowRight, Ticket } from "lucide-react";
 import EventPoster from "./EventPoster";
 
 interface EventCardProps {
@@ -13,6 +13,7 @@ interface EventCardProps {
   venue: string;
   poster?: string;
   isFeatured?: boolean;
+  isSingleEvent?: boolean;
 }
 
 const EventCard = ({
@@ -26,7 +27,91 @@ const EventCard = ({
   venue,
   poster,
   isFeatured = false,
+  isSingleEvent = false,
 }: EventCardProps) => {
+  // Single event: large hero-style card
+  if (isSingleEvent) {
+    return (
+      <Link
+        to={`/event/${id}`}
+        className="group relative block overflow-hidden rounded-2xl border-2 border-accent/50 bg-gradient-to-br from-card via-card to-accent/10 transition-all duration-300 hover:-translate-y-1 card-shine"
+      >
+        <div className="absolute right-0 top-0 z-10 bg-gradient-to-r from-accent to-gold-light px-6 py-2 text-sm font-bold uppercase tracking-wider text-accent-foreground">
+          Next Show
+        </div>
+
+        {/* Large Poster */}
+        {poster && (
+          <div 
+            className="relative aspect-[16/9] w-full overflow-hidden bg-secondary"
+            onClick={(e) => e.preventDefault()}
+          >
+            <img
+              src={poster}
+              alt={`${month} ${date} ${year} Card Show`}
+              className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
+          </div>
+        )}
+
+        {/* Event Details Below Poster */}
+        <div className="relative p-6 md:p-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            {/* Left: Date Block + Details */}
+            <div className="flex items-start gap-6">
+              {/* Large Date Block */}
+              <div className="flex-shrink-0 rounded-xl bg-accent/20 px-6 py-4 text-center">
+                <span className="block font-display text-5xl md:text-6xl text-foreground">{date}</span>
+                <span className="block text-lg font-semibold uppercase tracking-wide text-accent">
+                  {month}
+                </span>
+                <span className="block text-sm text-muted-foreground">{year}</span>
+              </div>
+
+              {/* Event Info */}
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center gap-3 text-foreground">
+                  <Calendar className="h-5 w-5 flex-shrink-0 text-accent" />
+                  <span className="text-lg font-medium">{dayOfWeek}</span>
+                </div>
+
+                <div className="flex items-center gap-3 text-foreground">
+                  <Clock className="h-5 w-5 flex-shrink-0 text-accent" />
+                  <span className="text-lg">{time}</span>
+                </div>
+
+                {earlyBirdTime && (
+                  <div className="flex items-center gap-3 text-accent">
+                    <Clock className="h-5 w-5 flex-shrink-0" />
+                    <span className="text-lg font-semibold">Early Bird: {earlyBirdTime}</span>
+                  </div>
+                )}
+
+                <div className="flex items-center gap-3 text-foreground">
+                  <MapPin className="h-5 w-5 flex-shrink-0 text-accent" />
+                  <span className="text-lg">{venue}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: CTA Button */}
+            <div className="flex items-center gap-4">
+              <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground transition-all duration-300 group-hover:scale-110 group-hover:glow-gold">
+                <Ticket className="h-6 w-6" />
+              </div>
+              <div className="hidden md:block">
+                <p className="font-display text-lg text-foreground">Get Tickets</p>
+                <p className="text-sm text-muted-foreground">Click for details</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  }
+
+  // Default: regular event card
   return (
     <Link
       to={`/event/${id}`}
