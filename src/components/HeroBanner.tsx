@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { Ticket } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents } from "@/lib/eventUtils";
+import heroBackdrop from "@/assets/hero-backdrop.avif";
 
 const HeroBanner = () => {
   const { events } = useEvents();
@@ -10,6 +11,15 @@ const HeroBanner = () => {
 
   return (
     <section className="relative min-h-[85vh] bg-background overflow-hidden">
+      {/* Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-30"
+        style={{ backgroundImage: `url(${heroBackdrop})` }}
+      />
+      
+      {/* Dark Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/70 to-background" />
+      
       {/* Content */}
       <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-32 md:pt-40 pb-16 text-center">
         <div className="max-w-4xl">
