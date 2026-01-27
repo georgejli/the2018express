@@ -13,12 +13,12 @@ const Header = () => {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-md">
+    <header className="fixed left-0 right-0 top-0 z-50 border-b border-primary/30 bg-primary/95 backdrop-blur-md">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
           <span className="font-display text-2xl tracking-tight">
-            <span className="text-gradient-gold">34TH ST</span>
-            <span className="text-foreground"> CARD SHOW</span>
+            <span className="text-accent">34TH ST</span>
+            <span className="text-primary-foreground"> CARD SHOW</span>
           </span>
         </Link>
         
@@ -26,13 +26,13 @@ const Header = () => {
         <nav className="hidden items-center gap-8 md:flex">
           <Link 
             to="/" 
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground"
           >
             Events
           </Link>
           <a 
             href="#about" 
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="text-sm font-medium text-primary-foreground/80 transition-colors hover:text-primary-foreground"
           >
             About
           </a>
@@ -47,7 +47,7 @@ const Header = () => {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-secondary md:hidden"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-primary-foreground transition-colors hover:bg-primary-foreground/10 md:hidden"
           aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
         >
           {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -56,7 +56,7 @@ const Header = () => {
 
       {/* Mobile Navigation */}
       <div
-        className={`overflow-hidden border-t border-border/50 bg-background transition-all duration-300 ease-in-out md:hidden ${
+        className={`overflow-hidden border-t border-primary/30 bg-primary transition-all duration-300 ease-in-out md:hidden ${
           isMobileMenuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
@@ -64,14 +64,14 @@ const Header = () => {
           <Link 
             to="/" 
             onClick={closeMobileMenu}
-            className="rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="rounded-lg px-4 py-3 text-sm font-medium text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
           >
             Events
           </Link>
           <a 
             href="#about" 
             onClick={closeMobileMenu}
-            className="rounded-lg px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+            className="rounded-lg px-4 py-3 text-sm font-medium text-primary-foreground/80 transition-colors hover:bg-primary-foreground/10 hover:text-primary-foreground"
           >
             About
           </a>
