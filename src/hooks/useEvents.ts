@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { events as staticEvents, Event } from "@/data/events";
+import { Event } from "@/data/events";
 
 export interface DbEvent {
   id: string;
@@ -46,7 +46,7 @@ function dbEventToEvent(dbEvent: DbEvent): Event & { description?: string; dbId?
 }
 
 export function useEvents() {
-  const [events, setEvents] = useState<(Event & { description?: string; dbId?: string })[]>(staticEvents);
+  const [events, setEvents] = useState<(Event & { description?: string; dbId?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,17 +64,11 @@ export function useEvents() {
 
       if (fetchError) throw fetchError;
 
-      if (data && data.length > 0) {
-        // Use database events
-        setEvents(data.map(dbEventToEvent));
-      } else {
-        // Fall back to static events if DB is empty
-        setEvents(staticEvents);
-      }
+      // Use database events only - no static fallback
+      setEvents(data ? data.map(dbEventToEvent) : []);
     } catch (err: any) {
       setError(err.message);
-      // Fall back to static events on error
-      setEvents(staticEvents);
+      setEvents([]);
     } finally {
       setLoading(false);
     }
