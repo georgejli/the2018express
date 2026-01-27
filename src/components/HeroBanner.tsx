@@ -1,7 +1,4 @@
-import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Ticket } from "lucide-react";
-import nycSkyline from "@/assets/nyc-skyline.avif";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents } from "@/lib/eventUtils";
 
@@ -9,60 +6,52 @@ const HeroBanner = () => {
   const { events } = useEvents();
   const upcomingEvents = getUpcomingEvents(events);
   const nextEvent = upcomingEvents[0];
-  const [scrollY, setScrollY] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
 
   return (
-    <section className="relative h-[85vh] min-h-[600px] overflow-hidden">
-      {/* Background Image with Blur and Parallax */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-[2px] scale-110"
-        style={{ 
-          backgroundImage: `url(${nycSkyline})`,
-          transform: `scale(1.1) translateY(${scrollY * 0.3}px)`
-        }}
-      />
-      
-      {/* Dark Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/80 to-background" />
-      
+    <section className="relative min-h-[85vh] bg-background overflow-hidden">
       {/* Content */}
-      <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
-        <div>
-          <p className="mb-4 text-lg font-medium uppercase tracking-tight text-accent opacity-0 animate-fade-in" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
-            New York City's Premier
-          </p>
-          <h1 className="font-display text-6xl tracking-tight sm:text-7xl md:text-8xl lg:text-9xl">
-            <span className="text-gradient-gold opacity-0 animate-fade-in inline-block" style={{ animationDelay: "0.3s", animationFillMode: "forwards" }}>34TH ST</span>
-            <br />
-            <span className="text-foreground opacity-0 animate-fade-in inline-block" style={{ animationDelay: "0.5s", animationFillMode: "forwards" }}>CARD SHOW</span>
+      <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 py-16 text-center">
+        <div className="max-w-4xl">
+          {/* Main Heading - Brutalist Style */}
+          <h1 className="font-display brutalist-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
+            <span className="text-foreground opacity-0 animate-fade-in block" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
+              NEW YORK CITY'S
+            </span>
+            <span className="text-accent opacity-0 animate-fade-in block" style={{ animationDelay: "0.3s", animationFillMode: "forwards" }}>
+              ULTIMATE
+            </span>
+            <span className="text-foreground opacity-0 animate-fade-in block" style={{ animationDelay: "0.5s", animationFillMode: "forwards" }}>
+              CARD SHOW
+            </span>
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-muted-foreground md:text-xl opacity-0 animate-fade-in" style={{ animationDelay: "0.7s", animationFillMode: "forwards" }}>
-            The ultimate destination for collectors, traders, and sports card enthusiasts. 
-            Buy, sell, and discover rare finds.
+          
+          {/* Description */}
+          <p className="mt-10 md:mt-12 max-w-xl mx-auto text-base md:text-lg font-semibold text-foreground opacity-0 animate-fade-in leading-relaxed" style={{ animationDelay: "0.7s", animationFillMode: "forwards" }}>
+            The premier destination in<br className="hidden sm:block" />
+            Midtown NYC for collectors to<br className="hidden sm:block" />
+            buy, sell, and discover rare finds.
           </p>
           
-          <p className="mt-6 text-sm text-muted-foreground opacity-0 animate-fade-in" style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}>
-            Presented by <span className="text-foreground font-medium">Laz NYC</span> & <span className="text-foreground font-medium">Mike Carbonaro</span> & <span className="text-foreground font-medium">Cory Zilla</span>
-          </p>
+          {/* Presented By */}
+          <div className="mt-10 md:mt-12 opacity-0 animate-fade-in" style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}>
+            <p className="text-sm tracking-widest text-muted-foreground uppercase mb-2">
+              Presented By
+            </p>
+            <div className="font-display text-lg md:text-xl tracking-tight text-foreground leading-tight">
+              <span className="block">LAZ NYC</span>
+              <span className="block">MIKE CARBONARO</span>
+              <span className="block">CORY ZILLA</span>
+            </div>
+          </div>
           
           {/* CTA Button */}
           {nextEvent && (
             <Link
               to={`/event/${nextEvent.id}`}
-              className="mt-6 md:mt-8 inline-flex items-center gap-3 rounded-full bg-accent px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-semibold text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold opacity-0 animate-fade-in"
+              className="mt-10 md:mt-12 inline-flex items-center justify-center rounded-full bg-accent px-10 py-4 md:px-12 md:py-5 text-lg md:text-xl font-display tracking-tight text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold opacity-0 animate-fade-in"
               style={{ animationDelay: "1.1s", animationFillMode: "forwards" }}
             >
-              <Ticket className="h-5 w-5" />
-              Get Tickets Now
+              GET TICKETS NOW
             </Link>
           )}
         </div>

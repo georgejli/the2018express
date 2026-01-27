@@ -82,6 +82,25 @@
     background-image: linear-gradient(135deg, hsl(204 100% 36%), hsl(204 100% 46%));
   }
   
+  /* Hollow/Outline Text Style */
+  .text-hollow {
+    color: transparent;
+    -webkit-text-stroke: 2px hsl(var(--foreground));
+    text-stroke: 2px hsl(var(--foreground));
+  }
+  
+  .text-hollow-accent {
+    color: transparent;
+    -webkit-text-stroke: 2px hsl(var(--accent));
+    text-stroke: 2px hsl(var(--accent));
+  }
+  
+  /* Brutalist tight typography */
+  .brutalist-heading {
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+  }
+  
   .card-shine {
     position: relative;
     overflow: hidden;
