@@ -123,7 +123,7 @@ const Index = () => {
               
               <div className="space-y-6">
                 <div className="rounded-xl border border-border bg-secondary/50 p-6">
-                  <div className="font-display text-4xl text-primary">50+</div>
+                  <div className="font-display text-4xl text-primary">200+</div>
                   <div className="text-sm text-muted-foreground">Vendors Each Show</div>
                 </div>
                 <div className="rounded-xl border border-border bg-secondary/50 p-6">
