@@ -56,38 +56,33 @@ const EventCard = ({
         )}
 
         {/* Event Details Below Poster */}
-        <div className="relative p-6 md:p-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-            {/* Left: Date Block + Details */}
+        <div className="relative p-4 md:p-8">
+          {/* Desktop Layout */}
+          <div className="hidden md:flex md:items-center md:justify-between">
             <div className="flex items-start gap-6">
-              {/* Large Date Block */}
               <div className="flex-shrink-0 rounded-xl bg-accent/20 px-6 py-4 text-center">
-                <span className="block font-display text-5xl md:text-6xl text-foreground">{date}</span>
+                <span className="block font-display text-6xl text-foreground">{date}</span>
                 <span className="block text-lg font-semibold uppercase tracking-wide text-accent">
                   {month}
                 </span>
                 <span className="block text-sm text-muted-foreground">{year}</span>
               </div>
 
-              {/* Event Info */}
               <div className="flex-1 space-y-3">
                 <div className="flex items-center gap-3 text-foreground">
                   <Calendar className="h-5 w-5 flex-shrink-0 text-accent" />
                   <span className="text-lg font-medium">{dayOfWeek}</span>
                 </div>
-
                 <div className="flex items-center gap-3 text-foreground">
                   <Clock className="h-5 w-5 flex-shrink-0 text-accent" />
                   <span className="text-lg">{time}</span>
                 </div>
-
                 {earlyBirdTime && (
                   <div className="flex items-center gap-3 text-accent">
                     <Clock className="h-5 w-5 flex-shrink-0" />
                     <span className="text-lg font-semibold">Early Bird: {earlyBirdTime}</span>
                   </div>
                 )}
-
                 <div className="flex items-center gap-3 text-foreground">
                   <MapPin className="h-5 w-5 flex-shrink-0 text-accent" />
                   <span className="text-lg">{venue}</span>
@@ -95,15 +90,57 @@ const EventCard = ({
               </div>
             </div>
 
-            {/* Right: CTA Button */}
             <div className="flex items-center gap-4">
               <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground transition-all duration-300 group-hover:scale-110 group-hover:glow-gold">
                 <Ticket className="h-6 w-6" />
               </div>
-              <div className="hidden md:block">
+              <div>
                 <p className="font-display text-lg text-foreground">Get Tickets</p>
                 <p className="text-sm text-muted-foreground">Click for details</p>
               </div>
+            </div>
+          </div>
+
+          {/* Mobile Layout - Stacked Rows */}
+          <div className="flex flex-col gap-4 md:hidden">
+            {/* Row 1: Date Block */}
+            <div className="rounded-xl bg-accent/20 px-4 py-3">
+              <div className="flex items-center justify-center gap-3">
+                <span className="font-display text-4xl text-foreground">{date}</span>
+                <span className="text-base font-semibold uppercase tracking-wide text-accent">
+                  {month} {year}
+                </span>
+              </div>
+            </div>
+
+            {/* Row 2: Event Details */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-3 text-foreground">
+                <Calendar className="h-4 w-4 flex-shrink-0 text-accent" />
+                <span className="text-base">{dayOfWeek}</span>
+              </div>
+              <div className="flex items-center gap-3 text-foreground">
+                <Clock className="h-4 w-4 flex-shrink-0 text-accent" />
+                <span className="text-base">{time}</span>
+              </div>
+              {earlyBirdTime && (
+                <div className="flex items-center gap-3 text-accent">
+                  <Clock className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-base font-semibold">Early Bird: {earlyBirdTime}</span>
+                </div>
+              )}
+              <div className="flex items-center gap-3 text-foreground">
+                <MapPin className="h-4 w-4 flex-shrink-0 text-accent" />
+                <span className="text-base">{venue}</span>
+              </div>
+            </div>
+
+            {/* Row 3: CTA */}
+            <div className="flex items-center justify-center gap-3 rounded-xl bg-accent/10 py-3">
+              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                <Ticket className="h-5 w-5" />
+              </div>
+              <span className="text-base font-semibold text-accent">Get Tickets Now</span>
             </div>
           </div>
         </div>
