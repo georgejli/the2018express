@@ -12,6 +12,7 @@ interface VendorApplication {
   name: string;
   email: string;
   phone: string;
+  instagramHandle?: string;
   eventId: string;
   tableTier: string;
   tableTierLabel: string;
@@ -86,6 +87,11 @@ function validateApplication(application: VendorApplication): { valid: boolean; 
   }
   if (application.merchandiseDescription.length > 1000) {
     return { valid: false, error: "Merchandise description must be less than 1000 characters" };
+  }
+
+  // Instagram handle validation (optional)
+  if (application.instagramHandle && application.instagramHandle.length > 30) {
+    return { valid: false, error: "Instagram handle must be less than 30 characters" };
   }
 
   // Special requests validation (optional but limited)
@@ -191,6 +197,7 @@ Deno.serve(async (req) => {
         name: application.name.trim(),
         email: application.email.trim().toLowerCase(),
         phone: application.phone.trim(),
+        instagram_handle: application.instagramHandle?.trim() || null,
         table_tier: application.tableTier,
         table_tier_label: application.tableTierLabel,
         table_quantity: application.tableQuantity,
@@ -222,6 +229,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         name: application.name.trim(),
         email: application.email.trim().toLowerCase(),
+        instagramHandle: application.instagramHandle?.trim() || null,
         eventDate: application.eventDate,
         tableTier: application.tableTier,
         tableTierLabel: application.tableTierLabel,

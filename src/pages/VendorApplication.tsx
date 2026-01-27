@@ -51,6 +51,7 @@ const vendorFormSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
   phone: z.string().regex(/^\d{10}$/, "Phone number must be exactly 10 digits"),
+  instagramHandle: z.string().max(30, "Instagram handle must be less than 30 characters").optional(),
   eventId: z.string().min(1, "Please select an event date"),
   tableTier: z.enum(["main_ballroom", "crystal_room", "2nd_floor"], {
     required_error: "Please select a table tier",
@@ -90,6 +91,7 @@ const VendorApplication = () => {
       name: "",
       email: "",
       phone: "",
+      instagramHandle: "",
       eventId: preselectedEventId,
       tableTier: preselectedTier || undefined,
       tableQuantity: 1,
@@ -114,6 +116,7 @@ const VendorApplication = () => {
       "Invalid email": "email",
       "Email must be": "email",
       "Invalid phone": "phone",
+      "Instagram handle": "instagramHandle",
       "Invalid table tier": "tableTier",
       "Table quantity": "tableQuantity",
       "Vendor count": "vendorCount",
@@ -146,6 +149,7 @@ const VendorApplication = () => {
           name: data.name,
           email: data.email,
           phone: data.phone,
+          instagramHandle: data.instagramHandle,
           eventId: data.eventId,
           tableTier: data.tableTier,
           tableTierLabel: tierLabels[data.tableTier].name,
@@ -322,6 +326,25 @@ const VendorApplication = () => {
                           type="tel"
                           placeholder="2015278332"
                           maxLength={10}
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Instagram Handle */}
+                <FormField
+                  control={form.control}
+                  name="instagramHandle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Instagram Handle (Optional)</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="@yourcardshop"
+                          maxLength={30}
                           {...field}
                         />
                       </FormControl>

@@ -209,6 +209,7 @@ export type Database = {
           event_id: string
           has_paid: boolean
           id: string
+          instagram_handle: string | null
           merchandise_description: string
           name: string
           payment_notes: string | null
@@ -232,6 +233,7 @@ export type Database = {
           event_id: string
           has_paid?: boolean
           id?: string
+          instagram_handle?: string | null
           merchandise_description: string
           name: string
           payment_notes?: string | null
@@ -255,6 +257,7 @@ export type Database = {
           event_id?: string
           has_paid?: boolean
           id?: string
+          instagram_handle?: string | null
           merchandise_description?: string
           name?: string
           payment_notes?: string | null
