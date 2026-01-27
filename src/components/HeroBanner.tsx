@@ -40,7 +40,7 @@ const HeroBanner = () => {
           {nextEvent && (
             <Link
               to={`/event/${nextEvent.id}`}
-              className="mt-8 inline-flex items-center gap-3 rounded-full bg-primary px-8 py-4 text-lg font-semibold text-primary-foreground transition-all duration-300 hover:scale-105 hover:glow-blue"
+              className="mt-8 inline-flex items-center gap-3 rounded-full bg-accent px-8 py-4 text-lg font-semibold text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold"
             >
               <Ticket className="h-5 w-5" />
               Get Tickets Now
