@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Ticket } from "lucide-react";
 import nycSkyline from "@/assets/nyc-skyline.avif";
@@ -8,13 +9,26 @@ const HeroBanner = () => {
   const { events } = useEvents();
   const upcomingEvents = getUpcomingEvents(events);
   const nextEvent = upcomingEvents[0];
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <section className="relative h-[85vh] min-h-[600px] overflow-hidden">
-      {/* Background Image with Blur */}
+      {/* Background Image with Blur and Parallax */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-[2px] scale-105"
-        style={{ backgroundImage: `url(${nycSkyline})` }}
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-[2px] scale-110"
+        style={{ 
+          backgroundImage: `url(${nycSkyline})`,
+          transform: `scale(1.1) translateY(${scrollY * 0.3}px)`
+        }}
       />
       
       {/* Dark Gradient Overlay */}
