@@ -26,7 +26,7 @@ const EventGuestsSection = ({ eventId }: EventGuestsSectionProps) => {
             <div className="mb-10 flex items-center justify-center gap-3">
               <Star className="h-6 w-6 text-accent" />
               <h2 className="font-display text-3xl text-foreground md:text-4xl">
-                Celebrities at the Show
+                Celebrity Guests
               </h2>
               <Star className="h-6 w-6 text-accent" />
             </div>
