@@ -15,7 +15,7 @@
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 245 23% 30%;
+    --primary: 204 100% 36%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 14%;
@@ -24,7 +24,7 @@
     --muted: 0 0% 14%;
     --muted-foreground: 0 0% 64%;
 
-    --accent: 40 45% 49%;
+    --accent: 14 92% 55%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
@@ -32,21 +32,21 @@
 
     --border: 0 0% 20%;
     --input: 0 0% 20%;
-    --ring: 245 23% 30%;
+    --ring: 204 100% 36%;
 
     --radius: 0.75rem;
 
-    --gold: 40 45% 49%;
+    --gold: 14 92% 55%;
     --gold-foreground: 0 0% 100%;
-    --gold-light: 40 50% 58%;
+    --gold-light: 14 95% 62%;
     
-    --gradient-gold: linear-gradient(135deg, hsl(40 45% 49%), hsl(40 50% 58%));
-    --gradient-blue: linear-gradient(135deg, hsl(245 23% 30%), hsl(245 25% 40%));
+    --gradient-gold: linear-gradient(135deg, hsl(14 92% 55%), hsl(14 95% 62%));
+    --gradient-blue: linear-gradient(135deg, hsl(204 100% 36%), hsl(204 100% 46%));
     --gradient-card: linear-gradient(180deg, hsl(0 0% 12%) 0%, hsl(0 0% 6%) 100%);
     --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(0 0% 4% / 0.8) 60%, hsl(0 0% 4%) 100%);
     
-    --shadow-glow-blue: 0 0 30px hsl(245 23% 30% / 0.3);
-    --shadow-glow-gold: 0 0 30px hsl(40 45% 49% / 0.3);
+    --shadow-glow-blue: 0 0 30px hsl(204 100% 36% / 0.3);
+    --shadow-glow-gold: 0 0 30px hsl(14 92% 55% / 0.3);
   }
 
   .dark {
@@ -74,12 +74,12 @@
 @layer utilities {
   .text-gradient-gold {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(40 45% 49%), hsl(40 50% 58%));
+    background-image: linear-gradient(135deg, hsl(14 92% 55%), hsl(14 95% 62%));
   }
   
   .text-gradient-blue {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(245 23% 30%), hsl(245 25% 40%));
+    background-image: linear-gradient(135deg, hsl(204 100% 36%), hsl(204 100% 46%));
   }
   
   .card-shine {
@@ -108,10 +108,10 @@
   }
   
   .glow-blue {
-    box-shadow: 0 0 30px hsl(245 23% 30% / 0.3);
+    box-shadow: 0 0 30px hsl(204 100% 36% / 0.3);
   }
   
   .glow-gold {
-    box-shadow: 0 0 30px hsl(40 45% 49% / 0.3);
+    box-shadow: 0 0 30px hsl(14 92% 55% / 0.3);
   }
 }
