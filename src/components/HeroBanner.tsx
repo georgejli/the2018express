@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Ticket } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents } from "@/lib/eventUtils";
 
@@ -10,10 +11,10 @@ const HeroBanner = () => {
   return (
     <section className="relative min-h-[85vh] bg-background overflow-hidden">
       {/* Content */}
-      <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-24 pb-16 text-center">
+      <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-32 md:pt-40 pb-16 text-center">
         <div className="max-w-4xl">
           {/* Main Heading - Brutalist Style */}
-          <h1 className="font-display brutalist-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl" style={{ lineHeight: "0.8", letterSpacing: "-0.05em" }}>
             <span className="text-foreground opacity-0 animate-fade-in block" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
               NEW YORK CITY'S
             </span>
@@ -32,10 +33,10 @@ const HeroBanner = () => {
           
           {/* Presented By */}
           <div className="mt-10 md:mt-12 opacity-0 animate-fade-in" style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}>
-            <p className="text-sm tracking-widest text-muted-foreground uppercase mb-2">
+            <p className="text-sm tracking-widest text-muted-foreground uppercase mb-1">
               Presented By
             </p>
-            <div className="font-display text-lg md:text-xl tracking-tight text-foreground leading-tight">
+            <div className="font-display text-lg md:text-xl tracking-tight text-foreground" style={{ lineHeight: "1.1" }}>
               <span className="block">LAZ NYC</span>
               <span className="block">MIKE CARBONARO</span>
               <span className="block">CORY ZILLA</span>
@@ -46,9 +47,10 @@ const HeroBanner = () => {
           {nextEvent && (
             <Link
               to={`/event/${nextEvent.id}`}
-              className="mt-10 md:mt-12 inline-flex items-center justify-center rounded-full bg-accent px-10 py-4 md:px-12 md:py-5 text-lg md:text-xl font-display tracking-tight text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold opacity-0 animate-fade-in"
+              className="mt-10 md:mt-12 inline-flex items-center justify-center gap-3 rounded-full bg-accent px-10 py-4 md:px-12 md:py-5 text-lg md:text-xl font-display tracking-tight text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold opacity-0 animate-fade-in"
               style={{ animationDelay: "1.1s", animationFillMode: "forwards" }}
             >
+              <Ticket className="h-5 w-5 md:h-6 md:w-6" />
               GET TICKETS NOW
             </Link>
           )}
