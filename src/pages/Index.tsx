@@ -72,6 +72,7 @@ const Index = () => {
                   venue={event.venue}
                   poster={event.poster}
                   isFeatured={index === 0}
+                  isSingleEvent={upcomingEvents.length === 1}
                 />
               ))}
             </div>
