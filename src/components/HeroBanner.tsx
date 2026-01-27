@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Ticket } from "lucide-react";
-import heroBanner from "@/assets/hero-banner.jpg";
+import nycSkyline from "@/assets/nyc-skyline.avif";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents } from "@/lib/eventUtils";
 
@@ -11,14 +11,14 @@ const HeroBanner = () => {
 
   return (
     <section className="relative h-[85vh] min-h-[600px] overflow-hidden">
-      {/* Background Image */}
+      {/* Background Image with Blur */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBanner})` }}
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat blur-[2px] scale-105"
+        style={{ backgroundImage: `url(${nycSkyline})` }}
       />
       
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/40 via-background/60 to-background" />
+      {/* Dark Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/80 to-background" />
       
       {/* Content */}
       <div className="relative z-10 flex h-full flex-col items-center justify-center px-4 text-center">
