@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +9,12 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { FeaturedCelebrity } from "@/hooks/useFeaturedCelebrities";
+import { supabase } from "@/integrations/supabase/client";
+import { Loader2, Upload, X } from "lucide-react";
+import { toast } from "sonner";
 
 interface FeaturedCelebrityFormProps {
   isOpen: boolean;
@@ -22,23 +26,61 @@ interface FeaturedCelebrityFormProps {
 const FeaturedCelebrityForm = ({ isOpen, onClose, existingCelebrity, onSave }: FeaturedCelebrityFormProps) => {
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
-  const [photoUrl, setPhotoUrl] = useState("");
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [website, setWebsite] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (existingCelebrity) {
       setName(existingCelebrity.name);
       setBio(existingCelebrity.bio);
-      setPhotoUrl(existingCelebrity.photo_url || "");
+      setPhotoUrl(existingCelebrity.photo_url);
       setWebsite(existingCelebrity.website || "");
     } else {
       setName("");
       setBio("");
-      setPhotoUrl("");
+      setPhotoUrl(null);
       setWebsite("");
     }
   }, [existingCelebrity, isOpen]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File too large", { description: "Maximum file size is 5MB" });
+      return;
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Invalid file type", { description: "Please upload an image file" });
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `featured-celebrities/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("event-media")
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from("event-media").getPublicUrl(fileName);
+      setPhotoUrl(data.publicUrl);
+      toast.success("Photo uploaded");
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload photo");
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +89,7 @@ const FeaturedCelebrityForm = ({ isOpen, onClose, existingCelebrity, onSave }: F
       await onSave({
         name: name.trim(),
         bio: bio.trim(),
-        photo_url: photoUrl.trim() || null,
+        photo_url: photoUrl,
         website: website.trim() || null,
       });
     } finally {
@@ -60,8 +102,65 @@ const FeaturedCelebrityForm = ({ isOpen, onClose, existingCelebrity, onSave }: F
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{existingCelebrity ? "Edit Celebrity" : "Add Celebrity"}</DialogTitle>
+          <DialogDescription>
+            Add or edit featured celebrity information.
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Photo Upload */}
+          <div className="space-y-2">
+            <Label>Photo</Label>
+            <div className="flex items-center gap-4">
+              <div className="relative h-20 w-20 overflow-hidden rounded-full border-2 border-border bg-secondary">
+                {photoUrl ? (
+                  <>
+                    <img
+                      src={photoUrl}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPhotoUrl(null)}
+                      className="absolute -right-1 -top-1 rounded-full bg-destructive p-1 text-destructive-foreground"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center">
+                    <Upload className="h-6 w-6 text-muted-foreground" />
+                  </div>
+                )}
+              </div>
+              <div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  {uploading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    "Upload Photo"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="name">Name *</Label>
             <Input
@@ -84,17 +183,7 @@ const FeaturedCelebrityForm = ({ isOpen, onClose, existingCelebrity, onSave }: F
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="photo">Photo URL</Label>
-            <Input
-              id="photo"
-              type="url"
-              value={photoUrl}
-              onChange={(e) => setPhotoUrl(e.target.value)}
-              placeholder="https://example.com/photo.jpg"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="website">Website</Label>
+            <Label htmlFor="website">Website (Optional)</Label>
             <Input
               id="website"
               type="url"
