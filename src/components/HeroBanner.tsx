@@ -50,21 +50,21 @@ const HeroBanner = () => {
             Buy, sell, and discover rare finds.
           </p>
           
+          <p className="mt-6 text-sm text-muted-foreground opacity-0 animate-fade-in" style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}>
+            Presented by <span className="text-foreground font-medium">Laz NYC</span> & <span className="text-foreground font-medium">Mike Carbonaro</span> & <span className="text-foreground font-medium">Cory Zilla</span>
+          </p>
+          
           {/* CTA Button */}
           {nextEvent && (
             <Link
               to={`/event/${nextEvent.id}`}
-              className="mt-8 inline-flex items-center gap-3 rounded-full bg-accent px-8 py-4 text-lg font-semibold text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold opacity-0 animate-fade-in"
-              style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}
+              className="mt-6 md:mt-8 inline-flex items-center gap-3 rounded-full bg-accent px-6 py-3 md:px-8 md:py-4 text-base md:text-lg font-semibold text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold opacity-0 animate-fade-in"
+              style={{ animationDelay: "1.1s", animationFillMode: "forwards" }}
             >
               <Ticket className="h-5 w-5" />
               Get Tickets Now
             </Link>
           )}
-          
-          <p className="mt-8 text-sm text-muted-foreground opacity-0 animate-fade-in" style={{ animationDelay: "1.1s", animationFillMode: "forwards" }}>
-            Presented by <span className="text-foreground font-medium">Laz NYC</span> & <span className="text-foreground font-medium">Mike Carbonaro</span> & <span className="text-foreground font-medium">Cory Zilla</span>
-          </p>
         </div>
         
         {/* Scroll Indicator - Hidden on mobile */}
