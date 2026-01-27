@@ -21,9 +21,6 @@ const PastGuestsSection = () => {
             </h2>
             <Star className="h-6 w-6 text-accent" />
           </div>
-          <p className="mt-4 text-muted-foreground">
-            We've hosted some amazing guests at our shows
-          </p>
         </div>
 
         {isLoading ? (
