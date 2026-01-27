@@ -99,7 +99,16 @@ const AdminDashboard = () => {
   };
 
   const handleConfirmDelete = async () => {
-    if (!deletingEvent?.dbId) return;
+    if (!deletingEvent?.dbId) {
+      toast({
+        title: "Cannot delete static event",
+        description: "This event is from static data and cannot be deleted. Create events in the admin dashboard to manage them.",
+        variant: "destructive",
+      });
+      setDeleteEventOpen(false);
+      setDeletingEvent(null);
+      return;
+    }
     
     setIsDeleting(true);
     const success = await deleteEvent(deletingEvent.dbId);
@@ -596,15 +605,27 @@ const AdminDashboard = () => {
                           >
                             <Copy className="h-4 w-4" />
                           </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteClick(event)}
-                            className="text-muted-foreground hover:text-destructive"
-                            title="Delete event"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                          {event.dbId ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteClick(event)}
+                              className="text-muted-foreground hover:text-destructive"
+                              title="Delete event"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          ) : (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled
+                              className="text-muted-foreground/30 cursor-not-allowed"
+                              title="Static event - cannot be deleted"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          )}
                         </div>
                       </div>
                       <CollapsibleContent>
