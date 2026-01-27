@@ -14,7 +14,7 @@ const HeroBanner = () => {
       <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-32 md:pt-40 pb-16 text-center">
         <div className="max-w-4xl">
           {/* Main Heading - Brutalist Style */}
-          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl" style={{ lineHeight: "0.8", letterSpacing: "-0.05em" }}>
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl" style={{ lineHeight: "0.9", letterSpacing: "-0.05em" }}>
             <span className="text-foreground opacity-0 animate-fade-in block" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
               NEW YORK CITY'S
             </span>
