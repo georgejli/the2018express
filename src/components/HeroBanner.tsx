@@ -10,7 +10,7 @@ const HeroBanner = () => {
   return (
     <section className="relative min-h-[85vh] bg-background overflow-hidden">
       {/* Content */}
-      <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 py-16 text-center">
+      <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-24 pb-16 text-center">
         <div className="max-w-4xl">
           {/* Main Heading - Brutalist Style */}
           <h1 className="font-display brutalist-heading text-5xl sm:text-6xl md:text-7xl lg:text-8xl">
@@ -26,10 +26,8 @@ const HeroBanner = () => {
           </h1>
           
           {/* Description */}
-          <p className="mt-10 md:mt-12 max-w-xl mx-auto text-base md:text-lg font-semibold text-foreground opacity-0 animate-fade-in leading-relaxed" style={{ animationDelay: "0.7s", animationFillMode: "forwards" }}>
-            The premier destination in<br className="hidden sm:block" />
-            Midtown NYC for collectors to<br className="hidden sm:block" />
-            buy, sell, and discover rare finds.
+          <p className="mt-10 md:mt-12 max-w-xl mx-auto text-base md:text-lg font-semibold text-foreground opacity-0 animate-fade-in" style={{ animationDelay: "0.7s", animationFillMode: "forwards" }}>
+            The premier destination in Midtown NYC for collectors to buy, sell, and discover rare finds.
           </p>
           
           {/* Presented By */}
