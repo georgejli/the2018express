@@ -11,12 +11,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2, Copy, Home, Store } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2, Copy, Home, Store, Star } from "lucide-react";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import EventForm from "@/components/EventForm";
 import VendorApplicationsManager from "@/components/VendorApplicationsManager";
+import EventGuestsManager from "@/components/admin/EventGuestsManager";
 import { useEvents } from "@/hooks/useEvents";
 import { Event } from "@/data/events";
 
@@ -71,6 +73,7 @@ const AdminDashboard = () => {
   const [deleteEventOpen, setDeleteEventOpen] = useState(false);
   const [deletingEvent, setDeletingEvent] = useState<(Event & { description?: string; dbId?: string }) | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { toast } = useToast();
   const { events: dbEvents, refetch: refetchEvents, deleteEvent } = useEvents();
@@ -542,55 +545,75 @@ const AdminDashboard = () => {
             ) : (
               <div className="space-y-3">
                 {dbEvents.map((event) => (
-                  <div
+                  <Collapsible
                     key={event.dbId || event.id}
-                    className="flex items-center justify-between rounded-lg border border-border bg-secondary/50 p-4"
+                    open={expandedEventId === event.id}
+                    onOpenChange={(open) => setExpandedEventId(open ? event.id : null)}
                   >
-                    <div className="flex-1">
-                      <div className="font-medium text-foreground">
-                        {event.month} {event.date}, {event.year}
+                    <div className="rounded-lg border border-border bg-secondary/50">
+                      <div className="flex items-center justify-between p-4">
+                        <div className="flex-1">
+                          <div className="font-medium text-foreground">
+                            {event.month} {event.date}, {event.year}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {event.venue} • {event.time}
+                          </div>
+                          <div className="mt-1 flex gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              GA: ${event.gaPrice}
+                            </Badge>
+                            <Badge variant="outline" className="text-xs">
+                              VIP: ${event.vipPrice}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-muted-foreground hover:text-accent"
+                              title="Manage celebrities & sponsors"
+                            >
+                              <Star className="h-4 w-4" />
+                            </Button>
+                          </CollapsibleTrigger>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleEditEvent(event)}
+                            className="text-muted-foreground hover:text-foreground"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDuplicateEvent(event)}
+                            className="text-muted-foreground hover:text-foreground"
+                            title="Duplicate event"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDeleteClick(event)}
+                            className="text-muted-foreground hover:text-destructive"
+                            title="Delete event"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="text-sm text-muted-foreground">
-                        {event.venue} • {event.time}
-                      </div>
-                      <div className="mt-1 flex gap-2">
-                        <Badge variant="outline" className="text-xs">
-                          GA: ${event.gaPrice}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          VIP: ${event.vipPrice}
-                        </Badge>
-                      </div>
+                      <CollapsibleContent>
+                        <div className="border-t border-border p-4">
+                          <EventGuestsManager eventId={event.id} />
+                        </div>
+                      </CollapsibleContent>
                     </div>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleEditEvent(event)}
-                        className="text-muted-foreground hover:text-foreground"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDuplicateEvent(event)}
-                        className="text-muted-foreground hover:text-foreground"
-                        title="Duplicate event"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDeleteClick(event)}
-                        className="text-muted-foreground hover:text-destructive"
-                        title="Delete event"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  </Collapsible>
                 ))}
               </div>
             )}
