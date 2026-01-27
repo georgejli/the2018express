@@ -128,71 +128,120 @@ const EventCard = ({
       )}
       
       <div className="p-4 md:p-6">
-        {/* Mobile Layout: Poster row, Date row, Details row, CTA row */}
-        {/* Desktop Layout: All in a row */}
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
-          {/* Poster - full width on mobile, inline on desktop */}
+        {/* Mobile: Stacked rows - Poster, Date, Details, CTA */}
+        {/* Desktop: Single row with all elements */}
+        
+        {/* Desktop Layout */}
+        <div className="hidden md:flex md:items-center md:gap-6">
           {poster && (
-            <div className="flex-shrink-0 md:block" onClick={(e) => e.preventDefault()}>
+            <div className="flex-shrink-0" onClick={(e) => e.preventDefault()}>
               <EventPoster
                 poster={poster}
                 eventName={`${month} ${date} ${year} Card Show`}
-                className="h-24 w-full object-cover rounded-lg md:h-32 md:w-24"
+                className="h-32 w-24"
               />
             </div>
           )}
           
-          {/* Date Block - separate row on mobile */}
-          <div className={`flex-shrink-0 rounded-lg px-4 py-3 text-center md:px-4 md:py-3 ${
+          <div className={`flex-shrink-0 rounded-lg px-4 py-3 text-center ${
             isFeatured ? "bg-accent/20" : "bg-secondary"
           }`}>
-            <div className="flex items-center justify-center gap-3 md:flex-col md:gap-0">
-              <span className="font-display text-3xl md:text-4xl text-foreground">{date}</span>
-              <span className="text-sm font-semibold uppercase tracking-wide text-accent md:text-xs">
-                {month} {year}
-              </span>
-            </div>
+            <span className="block font-display text-4xl text-foreground">{date}</span>
+            <span className="block text-xs font-semibold uppercase tracking-wide text-accent">{month}</span>
+            <span className="block text-xs text-muted-foreground">{year}</span>
           </div>
           
-          {/* Event Details - stacked */}
-          <div className="flex-1 space-y-1 md:space-y-2">
+          <div className="flex-1 space-y-2">
             <div className="flex items-center gap-2 text-muted-foreground">
               <Calendar className="h-4 w-4 flex-shrink-0" />
               <span className="text-sm">{dayOfWeek}</span>
             </div>
-            
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4 flex-shrink-0" />
               <span className="text-sm">{time}</span>
             </div>
-            
             {earlyBirdTime && (
               <div className="flex items-center gap-2 text-accent">
                 <Clock className="h-4 w-4 flex-shrink-0" />
                 <span className="text-sm font-semibold">Early Bird: {earlyBirdTime}</span>
               </div>
             )}
-            
             <div className="flex items-center gap-2 text-muted-foreground">
               <MapPin className="h-4 w-4 flex-shrink-0" />
               <span className="text-sm">{venue}</span>
             </div>
           </div>
           
-          {/* CTA - with text on mobile, icon only on desktop */}
-          <div className={`flex items-center gap-3 md:gap-0 ${
+          <div className={`flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full transition-all duration-300 group-hover:scale-110 ${
             isFeatured 
-              ? "text-accent" 
-              : "text-primary"
+              ? "bg-accent text-accent-foreground group-hover:glow-gold" 
+              : "bg-primary text-primary-foreground group-hover:glow-blue"
           }`}>
-            <div className={`flex h-10 w-10 md:h-12 md:w-12 flex-shrink-0 items-center justify-center rounded-full transition-all duration-300 group-hover:scale-110 ${
-              isFeatured 
-                ? "bg-accent text-accent-foreground group-hover:glow-gold" 
-                : "bg-primary text-primary-foreground group-hover:glow-blue"
-            }`}>
-              <Ticket className="h-5 w-5" />
+            <Ticket className="h-5 w-5" />
+          </div>
+        </div>
+
+        {/* Mobile Layout - Stacked Rows */}
+        <div className="flex flex-col gap-3 md:hidden">
+          {/* Row 1: Poster */}
+          {poster && (
+            <div onClick={(e) => e.preventDefault()}>
+              <EventPoster
+                poster={poster}
+                eventName={`${month} ${date} ${year} Card Show`}
+                className="h-32 w-full object-cover rounded-lg"
+              />
             </div>
-            <span className="text-sm font-semibold md:hidden">Get Tickets Now</span>
+          )}
+          
+          {/* Row 2: Date Block */}
+          <div className={`rounded-lg px-4 py-3 ${
+            isFeatured ? "bg-accent/20" : "bg-secondary"
+          }`}>
+            <div className="flex items-center justify-center gap-3">
+              <span className="font-display text-3xl text-foreground">{date}</span>
+              <span className="text-sm font-semibold uppercase tracking-wide text-accent">
+                {month} {year}
+              </span>
+            </div>
+          </div>
+          
+          {/* Row 3: Event Details */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Calendar className="h-4 w-4 flex-shrink-0" />
+              <span className="text-sm">{dayOfWeek}</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock className="h-4 w-4 flex-shrink-0" />
+              <span className="text-sm">{time}</span>
+            </div>
+            {earlyBirdTime && (
+              <div className="flex items-center gap-2 text-accent">
+                <Clock className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm font-semibold">Early Bird: {earlyBirdTime}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="h-4 w-4 flex-shrink-0" />
+              <span className="text-sm">{venue}</span>
+            </div>
+          </div>
+          
+          {/* Row 4: CTA */}
+          <div className={`flex items-center justify-center gap-3 rounded-lg py-2 ${
+            isFeatured ? "bg-accent/10" : "bg-primary/10"
+          }`}>
+            <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${
+              isFeatured 
+                ? "bg-accent text-accent-foreground" 
+                : "bg-primary text-primary-foreground"
+            }`}>
+              <Ticket className="h-4 w-4" />
+            </div>
+            <span className={`text-sm font-semibold ${
+              isFeatured ? "text-accent" : "text-primary"
+            }`}>Get Tickets Now</span>
           </div>
         </div>
       </div>
