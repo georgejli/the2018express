@@ -28,7 +28,7 @@ const HeroBanner = () => {
             Buy, sell, and discover rare finds.
           </p>
           <p className="mt-8 text-sm text-muted-foreground">
-            Presented by <span className="text-foreground font-medium">Laz NYC</span> & <span className="text-foreground font-medium">Mike Carbonaro</span>
+            Presented by <span className="text-foreground font-medium">Laz NYC</span> & <span className="text-foreground font-medium">Mike Carbonaro</span> & <span className="text-foreground font-medium">Cory Zilla</span>
           </p>
         </div>
         
