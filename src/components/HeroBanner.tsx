@@ -1,6 +1,14 @@
+import { Link } from "react-router-dom";
+import { Ticket } from "lucide-react";
 import heroBanner from "@/assets/hero-banner.jpg";
+import { useEvents } from "@/hooks/useEvents";
+import { getUpcomingEvents } from "@/lib/eventUtils";
 
 const HeroBanner = () => {
+  const { events } = useEvents();
+  const upcomingEvents = getUpcomingEvents(events);
+  const nextEvent = upcomingEvents[0];
+
   return (
     <section className="relative h-[85vh] min-h-[600px] overflow-hidden">
       {/* Background Image */}
@@ -27,6 +35,18 @@ const HeroBanner = () => {
             The ultimate destination for collectors, traders, and sports card enthusiasts. 
             Buy, sell, and discover rare finds.
           </p>
+          
+          {/* CTA Button */}
+          {nextEvent && (
+            <Link
+              to={`/event/${nextEvent.id}`}
+              className="mt-8 inline-flex items-center gap-3 rounded-full bg-accent px-8 py-4 text-lg font-semibold text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold"
+            >
+              <Ticket className="h-5 w-5" />
+              Get Tickets Now
+            </Link>
+          )}
+          
           <p className="mt-8 text-sm text-muted-foreground">
             Presented by <span className="text-foreground font-medium">Laz NYC</span> & <span className="text-foreground font-medium">Mike Carbonaro</span> & <span className="text-foreground font-medium">Cory Zilla</span>
           </p>
