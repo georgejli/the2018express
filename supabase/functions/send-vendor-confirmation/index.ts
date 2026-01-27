@@ -9,6 +9,7 @@ const corsHeaders = {
 interface VendorEmailData {
   name: string;
   email: string;
+  instagramHandle?: string;
   eventDate: string;
   tableTier: string;
   tableTierLabel: string;
@@ -98,6 +99,12 @@ Deno.serve(async (req) => {
                         <td style="padding: 8px 0; color: #999; font-size: 14px;">Vendor Badges:</td>
                         <td style="padding: 8px 0; color: #e0e0e0; font-size: 14px;">${data.vendorCount}</td>
                       </tr>
+                      ${data.instagramHandle ? `
+                      <tr>
+                        <td style="padding: 8px 0; color: #999; font-size: 14px;">Instagram:</td>
+                        <td style="padding: 8px 0; color: #e0e0e0; font-size: 14px;">${data.instagramHandle}</td>
+                      </tr>
+                      ` : ''}
                       <tr>
                         <td style="padding: 8px 0; color: #999; font-size: 14px;">Total Amount:</td>
                         <td style="padding: 8px 0; color: #daa520; font-size: 16px; font-weight: bold;">${formattedPrice}</td>
