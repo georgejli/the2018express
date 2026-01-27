@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -65,8 +65,8 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: Impact, 'Arial Black', sans-serif;
-    letter-spacing: -0.04em;
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
   }
 }
