@@ -18,7 +18,7 @@ const HeroBanner = () => {
       />
 
       {/* Dark Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/70 to-background" />
+      <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background" />
 
       {/* Content */}
       <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-32 md:pt-40 pb-16 text-center">
