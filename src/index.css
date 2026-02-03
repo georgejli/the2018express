@@ -133,4 +133,53 @@
   .glow-gold {
     box-shadow: 0 0 30px hsl(27 91% 55% / 0.3);
   }
+  
+  /* Hardwood Court Texture */
+  .hardwood-texture {
+    position: relative;
+  }
+  
+  .hardwood-texture::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.03;
+    pointer-events: none;
+    background: 
+      repeating-linear-gradient(
+        90deg,
+        hsl(27 40% 25%) 0px,
+        hsl(27 35% 20%) 2px,
+        hsl(27 45% 30%) 4px,
+        hsl(27 30% 18%) 6px,
+        hsl(27 40% 22%) 8px,
+        hsl(27 35% 28%) 10px,
+        hsl(27 40% 25%) 12px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 80px,
+        hsl(27 20% 15% / 0.5) 80px,
+        hsl(27 20% 15% / 0.5) 82px
+      );
+    z-index: 0;
+  }
+  
+  /* Court lines accent */
+  .court-line {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      transparent 10%,
+      hsl(27 91% 55% / 0.1) 10%,
+      hsl(27 91% 55% / 0.1) 10.5%,
+      transparent 10.5%,
+      transparent 89.5%,
+      hsl(27 91% 55% / 0.1) 89.5%,
+      hsl(27 91% 55% / 0.1) 90%,
+      transparent 90%,
+      transparent 100%
+    );
+  }
 }

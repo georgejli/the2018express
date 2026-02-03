@@ -38,14 +38,14 @@ const Index = () => {
         <ArenaDivider variant="double" />
 
         {/* Events Section */}
-        <section className="relative px-4 py-16 md:py-24 overflow-hidden" id="events">
+        <section className="relative px-4 py-16 md:py-24 overflow-hidden hardwood-texture" id="events">
           {/* Spotlight background effect */}
-          <div className="pointer-events-none absolute inset-0">
+          <div className="pointer-events-none absolute inset-0 z-[1]">
             <div className="absolute left-1/4 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]" />
             <div className="absolute right-1/4 top-1/3 h-[500px] w-[500px] translate-x-1/2 rounded-full bg-accent/15 blur-[120px]" />
             <div className="absolute left-1/2 bottom-0 h-[300px] w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-[100px]" />
           </div>
-          <div className="container relative z-10 mx-auto max-w-4xl">
+          <div className="container relative z-[2] mx-auto max-w-4xl">
             <div className="mb-10 text-center">
               <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
                 UPCOMING <span className="text-gradient-blue">EVENTS</span>
@@ -111,14 +111,14 @@ const Index = () => {
         <ArenaDivider variant="spotlight" />
 
         {/* About Section */}
-        <section className="relative bg-card px-4 py-16 md:py-24 overflow-hidden" id="about">
+        <section className="relative bg-card px-4 py-16 md:py-24 overflow-hidden hardwood-texture" id="about">
           {/* Spotlight background effect */}
-          <div className="pointer-events-none absolute inset-0">
+          <div className="pointer-events-none absolute inset-0 z-[1]">
             <div className="absolute left-0 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[100px]" />
             <div className="absolute right-0 bottom-0 h-[400px] w-[400px] translate-x-1/2 translate-y-1/2 rounded-full bg-accent/20 blur-[100px]" />
             <div className="absolute left-1/2 top-0 h-[300px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[80px]" />
           </div>
-          <div className="container relative z-10 mx-auto max-w-4xl">
+          <div className="container relative z-[2] mx-auto max-w-4xl">
             <div className="grid gap-12 md:grid-cols-2 md:items-center">
               <div>
                 <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
