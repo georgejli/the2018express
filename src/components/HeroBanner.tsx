@@ -11,7 +11,7 @@ const HeroBanner = () => {
   const nextEvent = upcomingEvents[0];
 
   return (
-    <section className="relative min-h-[85vh] bg-background overflow-hidden">
+    <section className="relative min-h-[70vh] md:min-h-[75vh] bg-background overflow-hidden">
       {/* Background Image */}
       <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-100"
@@ -22,19 +22,19 @@ const HeroBanner = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/50 to-background" />
 
       {/* Content */}
-      <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-24 md:pt-32 pb-16 text-center">
+      <div className="relative z-10 flex h-full min-h-[70vh] md:min-h-[75vh] flex-col items-center justify-center px-4 pt-20 md:pt-28 pb-10 text-center">
         <div className="max-w-4xl">
           {/* Hero Sign Image */}
           <img
             src={heroSigns}
             alt="The 34th St. Card Show - Street Signs"
-            className="mx-auto mb-6 md:mb-8 w-64 sm:w-80 md:w-96 lg:w-[28rem] h-auto opacity-0 animate-fade-in drop-shadow-2xl"
+            className="mx-auto mb-4 md:mb-6 w-48 sm:w-64 md:w-80 lg:w-96 h-auto opacity-0 animate-fade-in drop-shadow-2xl"
             style={{ animationDelay: "0s", animationFillMode: "forwards" }}
           />
 
           {/* Main Heading - Brutalist Style */}
           <h1
-            className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
+            className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
             style={{ lineHeight: "0.9", letterSpacing: "-0.05em" }}
           >
             <span
@@ -59,34 +59,18 @@ const HeroBanner = () => {
 
           {/* Description */}
           <p
-            className="mt-10 md:mt-12 max-w-xl mx-auto text-base md:text-lg font-semibold text-foreground opacity-0 animate-fade-in"
+            className="mt-6 md:mt-8 max-w-xl mx-auto text-sm md:text-base font-semibold text-foreground opacity-0 animate-fade-in"
             style={{ animationDelay: "0.7s", animationFillMode: "forwards" }}
           >
             The premier destination in Midtown NYC for collectors to buy, sell, and discover rare finds.
           </p>
 
-          {/* Presented By */}
-          <div
-            className="mt-10 md:mt-12 opacity-0 animate-fade-in"
-            style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}
-          >
-            <p className="text-sm tracking-widest text-muted-foreground uppercase mb-1">Presented By</p>
-            <div
-              className="font-display text-lg md:text-xl tracking-tight text-foreground"
-              style={{ lineHeight: "1.1" }}
-            >
-              <span className="block">LAZ NYC</span>
-              <span className="block">MIKE CARBONARO</span>
-              <span className="block">CORY ZILLA</span>
-            </div>
-          </div>
-
           {/* CTA Button */}
           {nextEvent && (
             <Link
               to={`/event/${nextEvent.id}`}
-              className="mt-10 md:mt-12 inline-flex items-center justify-center gap-3 rounded-full bg-accent px-10 py-4 md:px-12 md:py-5 text-lg md:text-xl font-display tracking-tight text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold opacity-0 animate-fade-in"
-              style={{ animationDelay: "1.1s", animationFillMode: "forwards" }}
+              className="mt-6 md:mt-8 inline-flex items-center justify-center gap-3 rounded-full bg-accent px-8 py-3 md:px-10 md:py-4 text-base md:text-lg font-display tracking-tight text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold opacity-0 animate-fade-in"
+              style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}
             >
               <Ticket className="h-5 w-5 md:h-6 md:w-6" />
               GET TICKETS NOW

@@ -108,6 +108,19 @@ const Index = () => {
                 </Link>
               )}
             </div>
+
+            {/* Presented By */}
+            <div className="mt-12 text-center">
+              <p className="text-sm tracking-widest text-muted-foreground uppercase mb-2">Presented By</p>
+              <div
+                className="font-display text-lg md:text-xl tracking-tight text-foreground"
+                style={{ lineHeight: "1.2" }}
+              >
+                <span className="block">LAZ NYC</span>
+                <span className="block">MIKE CARBONARO</span>
+                <span className="block">CORY ZILLA</span>
+              </div>
+            </div>
           </div>
         </section>
         
