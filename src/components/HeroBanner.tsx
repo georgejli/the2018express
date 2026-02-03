@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { Ticket } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents } from "@/lib/eventUtils";
-import heroBackdrop from "@/assets/hero-backdrop.avif";
+import heroBackdrop from "@/assets/nyc-skyline.png";
 
 const HeroBanner = () => {
   const { events } = useEvents();
@@ -13,7 +13,7 @@ const HeroBanner = () => {
     <section className="relative min-h-[85vh] bg-background overflow-hidden">
       {/* Background Image */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-10"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60"
         style={{ backgroundImage: `url(${heroBackdrop})` }}
       />
       
