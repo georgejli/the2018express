@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents, getEventDate } from "@/lib/eventUtils";
 
@@ -9,30 +9,72 @@ interface TimeLeft {
   seconds: number;
 }
 
-const ScoreboardDigit = ({ value, label }: { value: string; label: string }) => (
+const FlipDigit = ({ digit, prevDigit }: { digit: string; prevDigit: string }) => {
+  const isFlipping = digit !== prevDigit;
+  
+  return (
+    <div className="scoreboard-digit relative flex h-12 w-8 items-center justify-center overflow-hidden rounded-sm border border-primary/30 bg-background/90 sm:h-16 sm:w-11 md:h-20 md:w-14">
+      {/* LED Glow Effect */}
+      <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-primary/5" />
+      
+      {/* Scanline Effect */}
+      <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.1)_2px,rgba(0,0,0,0.1)_4px)]" />
+      
+      {/* Center Divider Line */}
+      <div className="absolute left-0 right-0 top-1/2 h-px bg-black/20 z-10" />
+      
+      {/* Static bottom half (shows current digit) */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <span className="font-display text-3xl text-primary drop-shadow-[0_0_10px_hsl(var(--primary))] sm:text-4xl md:text-5xl">
+          {digit}
+        </span>
+      </div>
+      
+      {/* Flip animation overlay */}
+      {isFlipping && (
+        <>
+          {/* Top half flipping down (shows previous digit) */}
+          <div 
+            className="absolute inset-x-0 top-0 h-1/2 overflow-hidden bg-background/90 origin-bottom animate-flip-top"
+            style={{ backfaceVisibility: 'hidden' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="font-display text-3xl text-primary drop-shadow-[0_0_10px_hsl(var(--primary))] sm:text-4xl md:text-5xl translate-y-1/2">
+                {prevDigit}
+              </span>
+            </div>
+          </div>
+          
+          {/* Bottom half flipping up (reveals current digit) */}
+          <div 
+            className="absolute inset-x-0 bottom-0 h-1/2 overflow-hidden bg-background/90 origin-top animate-flip-bottom"
+            style={{ backfaceVisibility: 'hidden' }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/5 via-transparent to-transparent" />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <span className="font-display text-3xl text-primary drop-shadow-[0_0_10px_hsl(var(--primary))] sm:text-4xl md:text-5xl -translate-y-1/2">
+                {digit}
+              </span>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
+const ScoreboardDigit = ({ value, prevValue, label }: { value: string; prevValue: string; label: string }) => (
   <div className="flex flex-col items-center">
     <div className="relative">
       {/* LED Display Container */}
       <div className="scoreboard-digit-container flex gap-0.5 sm:gap-1">
         {value.split("").map((digit, idx) => (
-          <div
-            key={idx}
-            className="scoreboard-digit relative flex h-12 w-8 items-center justify-center overflow-hidden rounded-sm border border-primary/30 bg-background/90 sm:h-16 sm:w-11 md:h-20 md:w-14"
-          >
-            {/* LED Glow Effect */}
-            <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-transparent to-primary/5" />
-            
-            {/* Scanline Effect */}
-            <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(0,0,0,0.1)_2px,rgba(0,0,0,0.1)_4px)]" />
-            
-            {/* Center Divider Line */}
-            <div className="absolute left-0 right-0 top-1/2 h-px bg-black/20" />
-            
-            {/* Digit */}
-            <span className="font-display text-3xl text-primary drop-shadow-[0_0_10px_hsl(var(--primary))] sm:text-4xl md:text-5xl">
-              {digit}
-            </span>
-          </div>
+          <FlipDigit 
+            key={idx} 
+            digit={digit} 
+            prevDigit={prevValue[idx] || digit} 
+          />
         ))}
       </div>
     </div>
@@ -53,6 +95,13 @@ const ScoreboardCountdown = () => {
     minutes: 0,
     seconds: 0,
   });
+  
+  const prevTimeRef = useRef<TimeLeft>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
   useEffect(() => {
     if (!nextEvent) return;
@@ -66,13 +115,18 @@ const ScoreboardCountdown = () => {
       const difference = eventDate.getTime() - now.getTime();
 
       if (difference > 0) {
-        setTimeLeft({
+        const newTime = {
           days: Math.floor(difference / (1000 * 60 * 60 * 24)),
           hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
           minutes: Math.floor((difference / 1000 / 60) % 60),
           seconds: Math.floor((difference / 1000) % 60),
-        });
+        };
+        
+        // Store previous value before updating
+        prevTimeRef.current = timeLeft;
+        setTimeLeft(newTime);
       } else {
+        prevTimeRef.current = timeLeft;
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
       }
     };
@@ -88,6 +142,8 @@ const ScoreboardCountdown = () => {
   const formatValue = (value: number, digits: number = 2) => {
     return value.toString().padStart(digits, "0");
   };
+
+  const prevTime = prevTimeRef.current;
 
   return (
     <section className="relative overflow-hidden bg-card py-8 md:py-12">
@@ -112,28 +168,44 @@ const ScoreboardCountdown = () => {
 
           {/* Countdown Display */}
           <div className="flex items-center justify-center gap-2 sm:gap-4 md:gap-6">
-            <ScoreboardDigit value={formatValue(timeLeft.days)} label="DAYS" />
+            <ScoreboardDigit 
+              value={formatValue(timeLeft.days)} 
+              prevValue={formatValue(prevTime.days)}
+              label="DAYS" 
+            />
             
             <div className="flex flex-col gap-2 pb-6">
               <div className="h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_hsl(var(--accent))] animate-pulse" />
               <div className="h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_hsl(var(--accent))] animate-pulse" />
             </div>
             
-            <ScoreboardDigit value={formatValue(timeLeft.hours)} label="HOURS" />
+            <ScoreboardDigit 
+              value={formatValue(timeLeft.hours)} 
+              prevValue={formatValue(prevTime.hours)}
+              label="HOURS" 
+            />
             
             <div className="flex flex-col gap-2 pb-6">
               <div className="h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_hsl(var(--accent))] animate-pulse" />
               <div className="h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_hsl(var(--accent))] animate-pulse" />
             </div>
             
-            <ScoreboardDigit value={formatValue(timeLeft.minutes)} label="MINS" />
+            <ScoreboardDigit 
+              value={formatValue(timeLeft.minutes)} 
+              prevValue={formatValue(prevTime.minutes)}
+              label="MINS" 
+            />
             
             <div className="flex flex-col gap-2 pb-6">
               <div className="h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_hsl(var(--accent))] animate-pulse" />
               <div className="h-2 w-2 rounded-full bg-accent shadow-[0_0_8px_hsl(var(--accent))] animate-pulse" />
             </div>
             
-            <ScoreboardDigit value={formatValue(timeLeft.seconds)} label="SECS" />
+            <ScoreboardDigit 
+              value={formatValue(timeLeft.seconds)} 
+              prevValue={formatValue(prevTime.seconds)}
+              label="SECS" 
+            />
           </div>
 
           {/* Event Info */}
