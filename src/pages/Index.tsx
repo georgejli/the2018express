@@ -38,34 +38,11 @@ const Index = () => {
         
         <ScoreboardCountdown />
         
-        <ArenaDivider variant="double" />
+        <ArenaDivider variant="lightbar" />
 
         {/* Events Section */}
-        <section className="relative px-4 py-16 md:py-24 overflow-hidden hardwood-texture" id="events">
-          {/* Spotlight background effect */}
-          <div className="pointer-events-none absolute inset-0 z-[1]">
-            <div className="absolute left-1/4 top-0 h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-primary/15 blur-[120px]" />
-            <div className="absolute right-1/4 top-1/3 h-[500px] w-[500px] translate-x-1/2 rounded-full bg-accent/15 blur-[120px]" />
-            <div className="absolute left-1/2 bottom-0 h-[300px] w-[600px] -translate-x-1/2 rounded-full bg-primary/10 blur-[100px]" />
-          </div>
+        <section className="relative px-4 py-10 md:py-16 overflow-hidden" id="events">
           <div className="container relative z-[2] mx-auto max-w-4xl">
-            <div className="mb-10 text-center">
-              <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
-                UPCOMING <span className="text-gradient-blue">EVENTS</span>
-              </h2>
-              <div className="mt-6 space-y-1">
-                <p className="font-display text-xl tracking-wide text-foreground">THE NEW YORKER HOTEL</p>
-                <a 
-                  href="https://www.google.com/maps/search/?api=1&query=481+8th+Ave+New+York+NY" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors underline underline-offset-2"
-                >
-                  481 8TH AVE, NEW YORK, NY
-                </a>
-                <p className="text-sm text-muted-foreground">ACROSS FROM MSG</p>
-              </div>
-            </div>
             
             <div className="space-y-6">
               {displayedEvents.map((event, index) => (
@@ -124,7 +101,7 @@ const Index = () => {
           </div>
         </section>
         
-        <ArenaDivider variant="spotlight" />
+        <ArenaDivider variant="lightbar" />
 
         {/* About Section */}
         <section className="relative bg-card px-4 py-16 md:py-24 overflow-hidden hardwood-texture" id="about">
@@ -171,11 +148,11 @@ const Index = () => {
           </div>
         </section>
 
-        <ArenaDivider variant="gradient" />
+        <ArenaDivider variant="lightbar" />
 
         <PastGuestsSection />
 
-        <ArenaDivider variant="double" />
+        <ArenaDivider variant="lightbar" />
 
         <NewsletterSignup />
       </main>
