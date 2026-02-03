@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import HeroBanner from "@/components/HeroBanner";
 import NextShowTicker from "@/components/NextShowTicker";
+import ScoreboardCountdown from "@/components/ScoreboardCountdown";
 import EventCard from "@/components/EventCard";
 import PastGuestsSection from "@/components/PastGuestsSection";
 import NewsletterSignup from "@/components/NewsletterSignup";
@@ -34,6 +35,8 @@ const Index = () => {
       <main className="flex-1">
         <HeroBanner />
         <NextShowTicker />
+        
+        <ScoreboardCountdown />
         
         <ArenaDivider variant="double" />
 
