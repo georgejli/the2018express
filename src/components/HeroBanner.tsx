@@ -94,12 +94,6 @@ const HeroBanner = () => {
           )}
         </div>
 
-        {/* Scroll Indicator - Hidden on mobile */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
-          <div className="h-14 w-8 rounded-full border-2 border-muted-foreground/40 p-1">
-            <div className="h-3 w-1 mx-auto rounded-full bg-accent animate-pulse" />
-          </div>
-        </div>
       </div>
     </section>
   );
