@@ -3,6 +3,7 @@ import { Ticket } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents } from "@/lib/eventUtils";
 import heroBackdrop from "@/assets/nyc-skyline.png";
+import heroSigns from "@/assets/hero-signs.png";
 
 const HeroBanner = () => {
   const { events } = useEvents();
@@ -21,8 +22,16 @@ const HeroBanner = () => {
       <div className="absolute inset-0 bg-gradient-to-b from-background/20 via-background/40 to-background" />
 
       {/* Content */}
-      <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-32 md:pt-40 pb-16 text-center">
+      <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-24 md:pt-32 pb-16 text-center">
         <div className="max-w-4xl">
+          {/* Hero Sign Image */}
+          <img 
+            src={heroSigns} 
+            alt="The 34th St. Card Show - Street Signs"
+            className="mx-auto mb-6 md:mb-8 w-64 sm:w-80 md:w-96 lg:w-[28rem] h-auto opacity-0 animate-fade-in drop-shadow-2xl"
+            style={{ animationDelay: "0s", animationFillMode: "forwards" }}
+          />
+          
           {/* Main Heading - Brutalist Style */}
           <h1
             className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
