@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Calendar, MapPin, Clock, ArrowRight, Ticket } from "lucide-react";
+import { Calendar, MapPin, Clock, Ticket } from "lucide-react";
 import EventPoster from "./EventPoster";
 
 interface EventCardProps {
@@ -29,15 +29,20 @@ const EventCard = ({
   isFeatured = false,
   isSingleEvent = false,
 }: EventCardProps) => {
-  // Single event: large hero-style card
+  // Single event: large hero-style card with ticket stub aesthetic
   if (isSingleEvent) {
     return (
       <Link
         to={`/event/${id}`}
-        className="group relative block overflow-hidden rounded-2xl border-2 border-accent/50 bg-gradient-to-br from-card via-card to-accent/10 transition-all duration-300 hover:-translate-y-1 card-shine"
+        className="group relative block overflow-hidden rounded-2xl border-2 border-accent/50 bg-gradient-to-br from-card via-card to-accent/10 transition-all duration-300 hover:-translate-y-1 card-shine ticket-stub"
       >
-        <div className="absolute right-0 top-0 z-10 bg-gradient-to-r from-accent to-gold-light px-6 py-2 text-sm font-bold uppercase tracking-wider text-accent-foreground">
-          Next Show
+        {/* Ticket Header Strip */}
+        <div className="relative bg-gradient-to-r from-accent via-gold-light to-accent py-2 px-6">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-accent-foreground/80">34th St Card Show</span>
+            <span className="text-xs font-bold uppercase tracking-wider text-accent-foreground">★ ADMIT ONE ★</span>
+            <span className="text-xs font-bold uppercase tracking-[0.2em] text-accent-foreground/80">VIP Access</span>
+          </div>
         </div>
 
         {/* Large Poster */}
@@ -60,12 +65,14 @@ const EventCard = ({
           {/* Desktop Layout */}
           <div className="hidden md:flex md:items-center md:justify-between">
             <div className="flex items-start gap-6">
-              <div className="flex-shrink-0 rounded-xl bg-accent/20 px-6 py-4 text-center">
-                <span className="block font-display text-6xl text-foreground">{date}</span>
-                <span className="block text-lg font-semibold uppercase tracking-wide text-accent">
+              {/* Jersey Number Date Block */}
+              <div className="flex-shrink-0 rounded-xl border-2 border-accent/30 bg-gradient-to-b from-accent/20 to-accent/5 px-6 py-4 text-center relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+                <span className="jersey-number relative block text-7xl text-foreground leading-none">{date}</span>
+                <span className="relative block text-lg font-bold uppercase tracking-wide text-accent mt-1">
                   {month}
                 </span>
-                <span className="block text-sm text-muted-foreground">{year}</span>
+                <span className="relative block text-sm text-muted-foreground">{year}</span>
               </div>
 
               <div className="flex-1 space-y-3">
@@ -103,13 +110,17 @@ const EventCard = ({
 
           {/* Mobile Layout - Stacked Rows */}
           <div className="flex flex-col gap-4 md:hidden">
-            {/* Row 1: Date Block */}
-            <div className="rounded-xl bg-accent/20 px-4 py-3">
-              <div className="flex items-center justify-center gap-3">
-                <span className="font-display text-4xl text-foreground">{date}</span>
-                <span className="text-base font-semibold uppercase tracking-wide text-accent">
-                  {month} {year}
-                </span>
+            {/* Row 1: Jersey Number Date Block */}
+            <div className="rounded-xl border-2 border-accent/30 bg-gradient-to-b from-accent/20 to-accent/5 px-4 py-3 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent" />
+              <div className="flex items-center justify-center gap-4 relative">
+                <span className="jersey-number text-5xl text-foreground leading-none">{date}</span>
+                <div className="text-left">
+                  <span className="block text-base font-bold uppercase tracking-wide text-accent">
+                    {month}
+                  </span>
+                  <span className="block text-sm text-muted-foreground">{year}</span>
+                </div>
               </div>
             </div>
 
@@ -136,7 +147,7 @@ const EventCard = ({
             </div>
 
             {/* Row 3: CTA */}
-            <div className="flex items-center justify-center gap-3 rounded-xl bg-accent/10 py-3">
+            <div className="flex items-center justify-center gap-3 rounded-xl bg-accent/10 py-3 border border-accent/20">
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
                 <Ticket className="h-5 w-5" />
               </div>
@@ -144,30 +155,45 @@ const EventCard = ({
             </div>
           </div>
         </div>
+
+        {/* Ticket Footer Strip */}
+        <div className="bg-gradient-to-r from-muted/50 via-muted to-muted/50 py-2 px-6">
+          <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
+            <span>NO. {date}{month.substring(0, 3).toUpperCase()}{year}</span>
+            <span className="ticket-perforation w-8 h-4" />
+            <span>SECTION: GA</span>
+            <span className="ticket-perforation w-8 h-4" />
+            <span>ROW: VIP</span>
+          </div>
+        </div>
       </Link>
     );
   }
 
-  // Default: regular event card
+  // Default: regular event card with ticket stub aesthetic
   return (
     <Link
       to={`/event/${id}`}
-      className={`group relative block overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1 ${
+      className={`group relative block overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1 ticket-stub ${
         isFeatured 
           ? "border-accent/50 bg-gradient-to-br from-card via-card to-accent/10" 
           : "border-border bg-card"
       } card-shine`}
     >
-      {isFeatured && (
-        <div className="absolute right-0 top-0 bg-gradient-to-r from-accent to-gold-light px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-accent-foreground">
-          Next Show
+      {/* Ticket Top Strip */}
+      <div className={`py-1.5 px-4 ${
+        isFeatured 
+          ? "bg-gradient-to-r from-accent via-gold-light to-accent" 
+          : "bg-gradient-to-r from-primary via-primary to-primary"
+      }`}>
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary-foreground/80">34th St</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-primary-foreground">★ ADMIT ONE ★</span>
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-primary-foreground/80">Card Show</span>
         </div>
-      )}
+      </div>
       
       <div className="p-4 md:p-6">
-        {/* Mobile: Stacked rows - Poster, Date, Details, CTA */}
-        {/* Desktop: Single row with all elements */}
-        
         {/* Desktop Layout */}
         <div className="hidden md:flex md:items-center md:gap-6">
           {poster && (
@@ -180,12 +206,14 @@ const EventCard = ({
             </div>
           )}
           
-          <div className={`flex-shrink-0 rounded-lg px-4 py-3 text-center ${
-            isFeatured ? "bg-accent/20" : "bg-secondary"
+          {/* Jersey Number Date Block */}
+          <div className={`flex-shrink-0 rounded-lg border px-4 py-3 text-center relative overflow-hidden ${
+            isFeatured ? "border-accent/30 bg-gradient-to-b from-accent/20 to-accent/5" : "border-border bg-secondary"
           }`}>
-            <span className="block font-display text-4xl text-foreground">{date}</span>
-            <span className="block text-xs font-semibold uppercase tracking-wide text-accent">{month}</span>
-            <span className="block text-xs text-muted-foreground">{year}</span>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
+            <span className="jersey-number relative block text-5xl text-foreground leading-none">{date}</span>
+            <span className="relative block text-xs font-bold uppercase tracking-wide text-accent mt-1">{month}</span>
+            <span className="relative block text-xs text-muted-foreground">{year}</span>
           </div>
           
           <div className="flex-1 space-y-2">
@@ -231,15 +259,19 @@ const EventCard = ({
             </div>
           )}
           
-          {/* Row 2: Date Block */}
-          <div className={`rounded-lg px-4 py-3 ${
-            isFeatured ? "bg-accent/20" : "bg-secondary"
+          {/* Row 2: Jersey Number Date Block */}
+          <div className={`rounded-lg border px-4 py-3 relative overflow-hidden ${
+            isFeatured ? "border-accent/30 bg-gradient-to-b from-accent/20 to-accent/5" : "border-border bg-secondary"
           }`}>
-            <div className="flex items-center justify-center gap-3">
-              <span className="font-display text-3xl text-foreground">{date}</span>
-              <span className="text-sm font-semibold uppercase tracking-wide text-accent">
-                {month} {year}
-              </span>
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent" />
+            <div className="flex items-center justify-center gap-3 relative">
+              <span className="jersey-number text-4xl text-foreground leading-none">{date}</span>
+              <div className="text-left">
+                <span className="block text-sm font-bold uppercase tracking-wide text-accent">
+                  {month}
+                </span>
+                <span className="block text-xs text-muted-foreground">{year}</span>
+              </div>
             </div>
           </div>
           
@@ -266,8 +298,8 @@ const EventCard = ({
           </div>
           
           {/* Row 4: CTA */}
-          <div className={`flex items-center justify-center gap-3 rounded-lg py-2 ${
-            isFeatured ? "bg-accent/10" : "bg-primary/10"
+          <div className={`flex items-center justify-center gap-3 rounded-lg py-2 border ${
+            isFeatured ? "bg-accent/10 border-accent/20" : "bg-primary/10 border-primary/20"
           }`}>
             <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${
               isFeatured 
@@ -280,6 +312,17 @@ const EventCard = ({
               isFeatured ? "text-accent" : "text-primary"
             }`}>Get Tickets Now</span>
           </div>
+        </div>
+      </div>
+
+      {/* Ticket Bottom Strip */}
+      <div className="bg-muted/30 py-1.5 px-4">
+        <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground">
+          <span>NO. {date}{month.substring(0, 3).toUpperCase()}</span>
+          <span>•</span>
+          <span>{isFeatured ? "NEXT SHOW" : "UPCOMING"}</span>
+          <span>•</span>
+          <span>NYC</span>
         </div>
       </div>
     </Link>
