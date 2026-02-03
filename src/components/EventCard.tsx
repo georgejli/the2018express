@@ -34,10 +34,10 @@ const EventCard = ({
     return (
       <Link
         to={`/event/${id}`}
-        className="group relative block overflow-hidden rounded-2xl border-2 border-accent/50 bg-gradient-to-br from-card via-card to-accent/10 transition-all duration-300 hover:-translate-y-1 card-shine ticket-stub"
+        className="group relative block w-full overflow-hidden rounded-2xl border-2 border-accent/50 bg-card transition-all duration-300 hover:-translate-y-1 card-shine ticket-stub"
       >
         {/* Ticket Header Strip */}
-        <div className="relative bg-gradient-to-r from-accent via-gold-light to-accent py-2 px-6">
+        <div className="relative w-full bg-gradient-to-r from-accent via-gold-light to-accent py-2 px-6">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold uppercase tracking-[0.2em] text-accent-foreground/80">34th St Card Show</span>
             <span className="text-xs font-bold uppercase tracking-wider text-accent-foreground">★ ADMIT ONE ★</span>
@@ -48,20 +48,20 @@ const EventCard = ({
         {/* Large Poster */}
         {poster && (
           <div 
-            className="relative aspect-[16/9] w-full overflow-hidden bg-secondary"
+            className="relative aspect-[16/9] w-full overflow-hidden bg-card"
             onClick={(e) => e.preventDefault()}
           >
             <img
               src={poster}
               alt={`${month} ${date} ${year} Card Show`}
-              className="h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+              className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent" />
           </div>
         )}
 
         {/* Event Details Below Poster */}
-        <div className="relative p-4 md:p-8">
+        <div className="relative w-full bg-gradient-to-br from-card via-card to-accent/10 p-4 md:p-8">
           {/* Desktop Layout */}
           <div className="hidden md:flex md:items-center md:justify-between">
             <div className="flex items-start gap-6">
@@ -157,7 +157,7 @@ const EventCard = ({
         </div>
 
         {/* Ticket Footer Strip */}
-        <div className="bg-gradient-to-r from-muted/50 via-muted to-muted/50 py-2 px-6">
+        <div className="w-full bg-gradient-to-r from-muted/50 via-muted to-muted/50 py-2 px-6">
           <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
             <span>NO. {date}{month.substring(0, 3).toUpperCase()}{year}</span>
             <span className="ticket-perforation w-8 h-4" />
