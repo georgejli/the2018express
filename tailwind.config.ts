@@ -87,14 +87,6 @@ export default {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(-50%)" },
         },
-        "flip-top": {
-          "0%": { transform: "rotateX(0deg)" },
-          "100%": { transform: "rotateX(-90deg)" },
-        },
-        "flip-bottom": {
-          "0%": { transform: "rotateX(90deg)" },
-          "100%": { transform: "rotateX(0deg)" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -103,8 +95,6 @@ export default {
         "scale-in": "scale-in 0.4s ease-out forwards",
         shimmer: "shimmer 3s linear infinite",
         scroll: "scroll 20s linear infinite",
-        "flip-top": "flip-top 0.3s ease-in forwards",
-        "flip-bottom": "flip-bottom 0.3s ease-out 0.15s forwards",
       },
     },
   },
