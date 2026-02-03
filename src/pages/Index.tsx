@@ -6,6 +6,7 @@ import NextShowTicker from "@/components/NextShowTicker";
 import EventCard from "@/components/EventCard";
 import PastGuestsSection from "@/components/PastGuestsSection";
 import NewsletterSignup from "@/components/NewsletterSignup";
+import ArenaDivider from "@/components/ArenaDivider";
 import Footer from "@/components/Footer";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents, getPastEvents } from "@/lib/eventUtils";
@@ -34,9 +35,16 @@ const Index = () => {
         <HeroBanner />
         <NextShowTicker />
         
+        <ArenaDivider variant="double" />
+
         {/* Events Section */}
-        <section className="px-4 py-16 md:py-24" id="events">
-          <div className="container mx-auto max-w-4xl">
+        <section className="relative px-4 py-16 md:py-24 overflow-hidden" id="events">
+          {/* Spotlight background effect */}
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-1/4 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
+            <div className="absolute right-1/4 top-1/3 h-96 w-96 translate-x-1/2 rounded-full bg-accent/5 blur-3xl" />
+          </div>
+          <div className="container relative z-10 mx-auto max-w-4xl">
             <div className="mb-10 text-center">
               <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
                 UPCOMING <span className="text-gradient-blue">EVENTS</span>
@@ -99,9 +107,16 @@ const Index = () => {
           </div>
         </section>
         
+        <ArenaDivider variant="spotlight" />
+
         {/* About Section */}
-        <section className="border-t border-border bg-card px-4 py-16 md:py-24" id="about">
-          <div className="container mx-auto max-w-4xl">
+        <section className="relative bg-card px-4 py-16 md:py-24 overflow-hidden" id="about">
+          {/* Spotlight background effect */}
+          <div className="pointer-events-none absolute inset-0">
+            <div className="absolute left-0 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
+            <div className="absolute right-0 bottom-0 h-64 w-64 translate-x-1/2 translate-y-1/2 rounded-full bg-accent/10 blur-3xl" />
+          </div>
+          <div className="container relative z-10 mx-auto max-w-4xl">
             <div className="grid gap-12 md:grid-cols-2 md:items-center">
               <div>
                 <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
@@ -138,7 +153,11 @@ const Index = () => {
           </div>
         </section>
 
+        <ArenaDivider variant="gradient" />
+
         <PastGuestsSection />
+
+        <ArenaDivider variant="double" />
 
         <NewsletterSignup />
       </main>
