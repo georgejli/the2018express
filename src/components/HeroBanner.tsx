@@ -12,47 +12,66 @@ const HeroBanner = () => {
   return (
     <section className="relative min-h-[85vh] bg-background overflow-hidden">
       {/* Background Image */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-60"
+      <div
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-90"
         style={{ backgroundImage: `url(${heroBackdrop})` }}
       />
-      
+
       {/* Dark Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-background/50 via-background/70 to-background" />
-      
+
       {/* Content */}
       <div className="relative z-10 flex h-full min-h-[85vh] flex-col items-center justify-center px-4 pt-32 md:pt-40 pb-16 text-center">
         <div className="max-w-4xl">
           {/* Main Heading - Brutalist Style */}
-          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl" style={{ lineHeight: "0.9", letterSpacing: "-0.05em" }}>
-            <span className="text-foreground opacity-0 animate-fade-in block" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
+          <h1
+            className="font-display text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
+            style={{ lineHeight: "0.9", letterSpacing: "-0.05em" }}
+          >
+            <span
+              className="text-foreground opacity-0 animate-fade-in block"
+              style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}
+            >
               NEW YORK CITY'S
             </span>
-            <span className="text-accent opacity-0 animate-fade-in block" style={{ animationDelay: "0.3s", animationFillMode: "forwards" }}>
+            <span
+              className="text-accent opacity-0 animate-fade-in block"
+              style={{ animationDelay: "0.3s", animationFillMode: "forwards" }}
+            >
               ULTIMATE
             </span>
-            <span className="text-foreground opacity-0 animate-fade-in block" style={{ animationDelay: "0.5s", animationFillMode: "forwards" }}>
+            <span
+              className="text-foreground opacity-0 animate-fade-in block"
+              style={{ animationDelay: "0.5s", animationFillMode: "forwards" }}
+            >
               CARD SHOW
             </span>
           </h1>
-          
+
           {/* Description */}
-          <p className="mt-10 md:mt-12 max-w-xl mx-auto text-base md:text-lg font-semibold text-foreground opacity-0 animate-fade-in" style={{ animationDelay: "0.7s", animationFillMode: "forwards" }}>
+          <p
+            className="mt-10 md:mt-12 max-w-xl mx-auto text-base md:text-lg font-semibold text-foreground opacity-0 animate-fade-in"
+            style={{ animationDelay: "0.7s", animationFillMode: "forwards" }}
+          >
             The premier destination in Midtown NYC for collectors to buy, sell, and discover rare finds.
           </p>
-          
+
           {/* Presented By */}
-          <div className="mt-10 md:mt-12 opacity-0 animate-fade-in" style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}>
-            <p className="text-sm tracking-widest text-muted-foreground uppercase mb-1">
-              Presented By
-            </p>
-            <div className="font-display text-lg md:text-xl tracking-tight text-foreground" style={{ lineHeight: "1.1" }}>
+          <div
+            className="mt-10 md:mt-12 opacity-0 animate-fade-in"
+            style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}
+          >
+            <p className="text-sm tracking-widest text-muted-foreground uppercase mb-1">Presented By</p>
+            <div
+              className="font-display text-lg md:text-xl tracking-tight text-foreground"
+              style={{ lineHeight: "1.1" }}
+            >
               <span className="block">LAZ NYC</span>
               <span className="block">MIKE CARBONARO</span>
               <span className="block">CORY ZILLA</span>
             </div>
           </div>
-          
+
           {/* CTA Button */}
           {nextEvent && (
             <Link
@@ -65,7 +84,7 @@ const HeroBanner = () => {
             </Link>
           )}
         </div>
-        
+
         {/* Scroll Indicator - Hidden on mobile */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce hidden md:block">
           <div className="h-14 w-8 rounded-full border-2 border-muted-foreground/40 p-1">
