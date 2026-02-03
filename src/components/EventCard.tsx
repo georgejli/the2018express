@@ -34,21 +34,12 @@ const EventCard = ({
     return (
       <Link
         to={`/event/${id}`}
-        className="group relative block overflow-hidden rounded-2xl border-2 border-accent/50 bg-gradient-to-br from-card via-card to-accent/10 transition-all duration-300 hover:-translate-y-1 card-shine ticket-stub"
+        className="group relative block overflow-hidden rounded-2xl border-2 border-accent/50 bg-card transition-all duration-300 hover:-translate-y-1 card-shine"
       >
-        {/* Ticket Header Strip */}
-        <div className="relative bg-gradient-to-r from-accent via-gold-light to-accent py-2 px-6">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-accent-foreground/80">34th St Card Show</span>
-            <span className="text-xs font-bold uppercase tracking-wider text-accent-foreground">★ ADMIT ONE ★</span>
-            <span className="text-xs font-bold uppercase tracking-[0.2em] text-accent-foreground/80">VIP Access</span>
-          </div>
-        </div>
-
-        {/* Large Poster */}
+        {/* Large Poster - Full Width */}
         {poster && (
           <div 
-            className="relative aspect-[16/9] w-full overflow-hidden bg-secondary"
+            className="relative aspect-[16/9] w-full overflow-hidden bg-card"
             onClick={(e) => e.preventDefault()}
           >
             <img
@@ -153,17 +144,6 @@ const EventCard = ({
               </div>
               <span className="text-base font-semibold text-accent">Get Tickets Now</span>
             </div>
-          </div>
-        </div>
-
-        {/* Ticket Footer Strip */}
-        <div className="bg-gradient-to-r from-muted/50 via-muted to-muted/50 py-2 px-6">
-          <div className="flex items-center justify-center gap-6 text-xs text-muted-foreground">
-            <span>NO. {date}{month.substring(0, 3).toUpperCase()}{year}</span>
-            <span className="ticket-perforation w-8 h-4" />
-            <span>SECTION: GA</span>
-            <span className="ticket-perforation w-8 h-4" />
-            <span>ROW: VIP</span>
           </div>
         </div>
       </Link>
