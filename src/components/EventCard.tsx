@@ -34,7 +34,7 @@ const EventCard = ({
     return (
       <Link
         to={`/event/${id}`}
-        className="group relative block w-full overflow-hidden rounded-2xl border-2 border-accent/50 bg-card transition-all duration-300 hover:-translate-y-1 card-shine ticket-stub"
+        className="group relative block w-full overflow-hidden rounded-2xl border-2 border-accent/50 bg-card transition-all duration-300 hover:-translate-y-1 card-shine"
       >
         {/* Ticket Header Strip */}
         <div className="relative w-full bg-gradient-to-r from-accent via-gold-light to-accent py-2 px-6">
@@ -174,9 +174,9 @@ const EventCard = ({
   return (
     <Link
       to={`/event/${id}`}
-      className={`group relative block overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1 ticket-stub ${
+      className={`group relative block w-full overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1 ${
         isFeatured 
-          ? "border-accent/50 bg-gradient-to-br from-card via-card to-accent/10" 
+          ? "border-accent/50 bg-card" 
           : "border-border bg-card"
       } card-shine`}
     >
