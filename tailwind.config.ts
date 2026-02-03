@@ -87,6 +87,10 @@ export default {
           from: { transform: "translateX(0)" },
           to: { transform: "translateX(-50%)" },
         },
+        "pulse-glow": {
+          "0%, 100%": { opacity: "1", boxShadow: "0 0 8px hsl(27 91% 55% / 0.8)" },
+          "50%": { opacity: "0.6", boxShadow: "0 0 4px hsl(27 91% 55% / 0.4)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -95,6 +99,7 @@ export default {
         "scale-in": "scale-in 0.4s ease-out forwards",
         shimmer: "shimmer 3s linear infinite",
         scroll: "scroll 20s linear infinite",
+        "pulse-glow": "pulse-glow 2s ease-in-out infinite",
       },
     },
   },
