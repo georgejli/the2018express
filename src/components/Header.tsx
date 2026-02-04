@@ -1,12 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { events } from "@/data/events";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   
   // Get the first upcoming event for the vendor application link
   const firstEvent = events[0];
@@ -14,41 +12,10 @@ const Header = () => {
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      
-      // Always show header at the top of the page
-      if (currentScrollY < 50) {
-        setIsVisible(true);
-        setLastScrollY(currentScrollY);
-        return;
-      }
-      
-      // Scrolling up - show header
-      if (currentScrollY < lastScrollY) {
-        setIsVisible(true);
-      } 
-      // Scrolling down - hide header
-      else if (currentScrollY > lastScrollY) {
-        setIsVisible(false);
-        // Close mobile menu when hiding
-        setIsMobileMenuOpen(false);
-      }
-      
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
-
   return (
     <>
       <header 
-        className={`fixed left-0 right-0 top-0 z-50 scoreboard-nav transition-transform duration-300 ${
-          isVisible ? "translate-y-0" : "-translate-y-full"
-        }`}
+        className="fixed left-4 right-4 top-4 z-50 scoreboard-nav-floating rounded-2xl transition-all duration-300"
       >
         {/* Corner Rivets */}
         <div className="nav-rivet top-2 left-2" />
@@ -105,7 +72,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         <div
-          className={`relative z-10 overflow-hidden border-t border-primary-foreground/10 bg-gradient-to-b from-primary to-primary/95 transition-all duration-300 ease-in-out md:hidden ${
+          className={`relative z-10 overflow-hidden border-t border-primary-foreground/10 bg-primary/95 backdrop-blur-md transition-all duration-300 ease-in-out md:hidden ${
             isMobileMenuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
@@ -138,11 +105,6 @@ const Header = () => {
           </nav>
         </div>
 
-        {/* Enhanced Arena Divider */}
-        <div className="relative z-10">
-          <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
-        </div>
       </header>
     </>
   );
