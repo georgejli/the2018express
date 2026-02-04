@@ -1,8 +1,22 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, User, Eye, EyeOff } from "lucide-react";
+import { Plus, User } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,9 +32,11 @@ import {
   useAddCelebrity,
   useUpdateCelebrity,
   useDeleteCelebrity,
+  useReorderCelebrities,
   Celebrity,
 } from "@/hooks/useCelebrities";
 import CelebrityFormDialog from "./CelebrityFormDialog";
+import SortableGuestItem from "./SortableGuestItem";
 
 const FeaturedCelebritiesManager = () => {
   const { data: allCelebrities = [], isLoading } = useCelebrities();
@@ -28,10 +44,18 @@ const FeaturedCelebritiesManager = () => {
   const addCelebrity = useAddCelebrity();
   const updateCelebrity = useUpdateCelebrity();
   const deleteCelebrity = useDeleteCelebrity();
+  const reorderCelebrities = useReorderCelebrities();
 
   const [formOpen, setFormOpen] = useState(false);
   const [editingCelebrity, setEditingCelebrity] = useState<Celebrity | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Celebrity | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const openAddForm = () => {
     setEditingCelebrity(null);
@@ -87,12 +111,34 @@ const FeaturedCelebritiesManager = () => {
     }
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = allCelebrities.findIndex((c) => c.id === active.id);
+      const newIndex = allCelebrities.findIndex((c) => c.id === over.id);
+
+      const reordered = arrayMove(allCelebrities, oldIndex, newIndex);
+      const updates = reordered.map((c, index) => ({
+        id: c.id,
+        featured_order: index,
+      }));
+
+      try {
+        await reorderCelebrities.mutateAsync(updates);
+        toast.success("Order updated");
+      } catch (error) {
+        toast.error("Failed to update order");
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Actions */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <p className="text-sm text-muted-foreground">
-          Manage all celebrities. Toggle visibility to show on homepage "Past Celebrity Guests" section.
+          Manage all celebrities. Drag to reorder. Toggle visibility to show on homepage.
         </p>
         <Button size="sm" onClick={openAddForm}>
           <Plus className="mr-2 h-4 w-4" />
@@ -113,50 +159,33 @@ const FeaturedCelebritiesManager = () => {
           <p className="text-sm text-muted-foreground">Add celebrities to manage them across events</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {allCelebrities.map((celebrity) => (
-            <div
-              key={celebrity.id}
-              className={`flex items-center gap-3 rounded-lg border border-border bg-card p-3 ${
-                !celebrity.is_featured ? "opacity-70" : ""
-              }`}
-            >
-              <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border bg-secondary">
-                {celebrity.photo_url ? (
-                  <img src={celebrity.photo_url} alt={celebrity.name} className="h-full w-full object-cover" />
-                ) : (
-                  <div className="flex h-full w-full items-center justify-center">
-                    <User className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <p className="truncate font-medium text-foreground">{celebrity.name}</p>
-                  {celebrity.is_featured && (
-                    <span className="rounded bg-accent/20 px-1.5 py-0.5 text-xs text-accent">Featured</span>
-                  )}
-                </div>
-                <p className="truncate text-sm text-muted-foreground">{celebrity.bio}</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2" title={celebrity.is_featured ? "Featured on homepage" : "Not featured"}>
-                  {celebrity.is_featured ? <Eye className="h-4 w-4 text-muted-foreground" /> : <EyeOff className="h-4 w-4 text-muted-foreground" />}
-                  <Switch
-                    checked={celebrity.is_featured}
-                    onCheckedChange={() => handleToggleFeatured(celebrity)}
-                  />
-                </div>
-                <Button variant="ghost" size="icon" onClick={() => openEditForm(celebrity)}>
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" onClick={() => setDeleteTarget(celebrity)}>
-                  <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-              </div>
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={allCelebrities.map((c) => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {allCelebrities.map((celebrity) => (
+                <SortableGuestItem
+                  key={celebrity.id}
+                  id={celebrity.id}
+                  name={celebrity.name}
+                  bio={celebrity.bio}
+                  photoUrl={celebrity.photo_url}
+                  isFeatured={celebrity.is_featured}
+                  showFeaturedToggle={true}
+                  onEdit={() => openEditForm(celebrity)}
+                  onDelete={() => setDeleteTarget(celebrity)}
+                  onToggleFeatured={() => handleToggleFeatured(celebrity)}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
 
       {/* Add/Edit Form Dialog */}

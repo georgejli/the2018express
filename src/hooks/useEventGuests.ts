@@ -158,3 +158,22 @@ export const useDeleteSponsor = () => {
     },
   });
 };
+
+// Reorder sponsors within an event
+export const useReorderSponsors = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ eventId, updates }: { eventId: string; updates: { id: string; display_order: number }[] }) => {
+      const promises = updates.map(({ id, display_order }) =>
+        supabase.from("event_sponsors").update({ display_order }).eq("id", id)
+      );
+      const results = await Promise.all(promises);
+      const error = results.find((r) => r.error)?.error;
+      if (error) throw error;
+      return eventId;
+    },
+    onSuccess: (eventId) => {
+      queryClient.invalidateQueries({ queryKey: ["event-sponsors", eventId] });
+    },
+  });
+};

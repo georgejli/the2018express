@@ -1,6 +1,21 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Star, Award, User, Link } from "lucide-react";
+import { Plus, Star, Award, User, Link } from "lucide-react";
 import { toast } from "sonner";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -14,11 +29,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   useEventCelebrities,
-  useCelebrities,
   useAddCelebrity,
   useUpdateCelebrity,
   useLinkCelebrityToEvent,
   useUnlinkCelebrityFromEvent,
+  useReorderEventCelebrities,
   Celebrity,
   EventCelebrityLink,
 } from "@/hooks/useCelebrities";
@@ -27,11 +42,13 @@ import {
   useAddSponsor,
   useUpdateSponsor,
   useDeleteSponsor,
+  useReorderSponsors,
   EventSponsor,
 } from "@/hooks/useEventGuests";
 import CelebrityFormDialog from "./CelebrityFormDialog";
 import CelebrityImportDialog from "./CelebrityImportDialog";
 import GuestFormDialog from "./GuestFormDialog";
+import SortableGuestItem from "./SortableGuestItem";
 
 interface EventGuestsManagerProps {
   eventId: string;
@@ -45,10 +62,12 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
   const updateCelebrity = useUpdateCelebrity();
   const linkCelebrity = useLinkCelebrityToEvent();
   const unlinkCelebrity = useUnlinkCelebrityFromEvent();
+  const reorderEventCelebrities = useReorderEventCelebrities();
 
   const addSponsor = useAddSponsor();
   const updateSponsor = useUpdateSponsor();
   const deleteSponsor = useDeleteSponsor();
+  const reorderSponsors = useReorderSponsors();
 
   const [celebrityFormOpen, setCelebrityFormOpen] = useState(false);
   const [importDialogOpen, setImportDialogOpen] = useState(false);
@@ -59,6 +78,13 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
   const [editingSponsor, setEditingSponsor] = useState<EventSponsor | null>(null);
 
   const linkedCelebrityIds = celebrityLinks.map((l) => l.celebrity_id);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const handleAddNewCelebrity = () => {
     setEditingCelebrity(null);
@@ -114,6 +140,28 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
     setDeleteTarget(null);
   };
 
+  const handleCelebrityDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = celebrityLinks.findIndex((l) => l.id === active.id);
+      const newIndex = celebrityLinks.findIndex((l) => l.id === over.id);
+
+      const reordered = arrayMove(celebrityLinks, oldIndex, newIndex);
+      const updates = reordered.map((l, index) => ({
+        id: l.id,
+        display_order: index,
+      }));
+
+      try {
+        await reorderEventCelebrities.mutateAsync({ eventId, updates });
+        toast.success("Order updated");
+      } catch (error) {
+        toast.error("Failed to update order");
+      }
+    }
+  };
+
   // Sponsor handlers
   const handleAddSponsor = () => {
     setEditingSponsor(null);
@@ -149,6 +197,28 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
       toast.error("Failed to delete sponsor");
     }
     setDeleteTarget(null);
+  };
+
+  const handleSponsorDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = sponsors.findIndex((s) => s.id === active.id);
+      const newIndex = sponsors.findIndex((s) => s.id === over.id);
+
+      const reordered = arrayMove(sponsors, oldIndex, newIndex);
+      const updates = reordered.map((s, index) => ({
+        id: s.id,
+        display_order: index,
+      }));
+
+      try {
+        await reorderSponsors.mutateAsync({ eventId, updates });
+        toast.success("Order updated");
+      } catch (error) {
+        toast.error("Failed to update order");
+      }
+    }
   };
 
   const handleDelete = () => {
@@ -191,41 +261,34 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
             No celebrities added yet. Import from database or create new.
           </p>
         ) : (
-          <div className="space-y-2">
-            {celebrityLinks.map((link) => {
-              const celebrity = link.celebrity;
-              if (!celebrity) return null;
-              return (
-                <div key={link.id} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
-                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border bg-secondary">
-                    {celebrity.photo_url ? (
-                      <img src={celebrity.photo_url} alt={celebrity.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <User className="h-5 w-5 text-muted-foreground" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex-1 truncate">
-                    <p className="truncate font-medium text-foreground">{celebrity.name}</p>
-                    <p className="truncate text-sm text-muted-foreground">{celebrity.bio}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" onClick={() => handleEditCelebrity(celebrity)}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteTarget({ id: celebrity.id, type: "celebrity", name: celebrity.name })}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleCelebrityDragEnd}
+          >
+            <SortableContext
+              items={celebrityLinks.map((l) => l.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-2">
+                {celebrityLinks.map((link) => {
+                  const celebrity = link.celebrity;
+                  if (!celebrity) return null;
+                  return (
+                    <SortableGuestItem
+                      key={link.id}
+                      id={link.id}
+                      name={celebrity.name}
+                      bio={celebrity.bio}
+                      photoUrl={celebrity.photo_url}
+                      onEdit={() => handleEditCelebrity(celebrity)}
+                      onDelete={() => setDeleteTarget({ id: celebrity.id, type: "celebrity", name: celebrity.name })}
+                    />
+                  );
+                })}
+              </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
@@ -252,37 +315,30 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
             No sponsors added yet
           </p>
         ) : (
-          <div className="space-y-2">
-            {sponsors.map((sponsor) => (
-              <div key={sponsor.id} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
-                <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border bg-secondary">
-                  {sponsor.photo_url ? (
-                    <img src={sponsor.photo_url} alt={sponsor.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <User className="h-5 w-5 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-                <div className="flex-1 truncate">
-                  <p className="truncate font-medium text-foreground">{sponsor.name}</p>
-                  <p className="truncate text-sm text-muted-foreground">{sponsor.bio}</p>
-                </div>
-                <div className="flex gap-1">
-                  <Button variant="ghost" size="icon" onClick={() => handleEditSponsor(sponsor)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setDeleteTarget({ id: sponsor.id, type: "sponsor", name: sponsor.name })}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleSponsorDragEnd}
+          >
+            <SortableContext
+              items={sponsors.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-2">
+                {sponsors.map((sponsor) => (
+                  <SortableGuestItem
+                    key={sponsor.id}
+                    id={sponsor.id}
+                    name={sponsor.name}
+                    bio={sponsor.bio}
+                    photoUrl={sponsor.photo_url}
+                    onEdit={() => handleEditSponsor(sponsor)}
+                    onDelete={() => setDeleteTarget({ id: sponsor.id, type: "sponsor", name: sponsor.name })}
+                  />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
         )}
       </div>
 
