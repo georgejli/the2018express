@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,18 +61,30 @@ const GuestFormDialog = ({
   onSave,
 }: GuestFormDialogProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [photoUrl, setPhotoUrl] = useState<string | null>(existingGuest?.photo_url || null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<GuestFormValues>({
     resolver: zodResolver(guestFormSchema),
     defaultValues: {
-      name: existingGuest?.name || "",
-      bio: existingGuest?.bio || "",
-      website: existingGuest?.website || "",
+      name: "",
+      bio: "",
+      website: "",
     },
   });
+
+  // Reset form when dialog opens or existingGuest changes
+  useEffect(() => {
+    if (isOpen) {
+      form.reset({
+        name: existingGuest?.name || "",
+        bio: existingGuest?.bio || "",
+        website: existingGuest?.website || "",
+      });
+      setPhotoUrl(existingGuest?.photo_url || null);
+    }
+  }, [isOpen, existingGuest, form]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
