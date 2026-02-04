@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { events } from "@/data/events";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
   
   // Get the first upcoming event for the vendor application link
   const firstEvent = events[0];
@@ -12,10 +14,41 @@ const Header = () => {
 
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      // Always show header at the top of the page
+      if (currentScrollY < 50) {
+        setIsVisible(true);
+        setLastScrollY(currentScrollY);
+        return;
+      }
+      
+      // Scrolling up - show header
+      if (currentScrollY < lastScrollY) {
+        setIsVisible(true);
+      } 
+      // Scrolling down - hide header
+      else if (currentScrollY > lastScrollY) {
+        setIsVisible(false);
+        // Close mobile menu when hiding
+        setIsMobileMenuOpen(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   return (
     <>
       <header 
-        className="fixed left-4 right-4 top-4 z-50 scoreboard-nav-floating rounded-2xl transition-all duration-300"
+        className={`fixed left-2 right-2 top-2 z-50 scoreboard-nav-floating rounded-2xl transition-all duration-300 sm:left-4 sm:right-4 sm:top-4 ${
+          isVisible ? "translate-y-0 opacity-100" : "-translate-y-[calc(100%+1rem)] opacity-0"
+        }`}
       >
         {/* Corner Rivets */}
         <div className="nav-rivet top-2 left-2" />
@@ -23,12 +56,12 @@ const Header = () => {
         <div className="nav-rivet bottom-2 left-2" />
         <div className="nav-rivet bottom-2 right-2" />
         
-        <div className="container relative z-10 mx-auto flex h-16 items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-3" onClick={closeMobileMenu}>
+        <div className="relative z-10 flex h-14 items-center justify-between px-3 sm:h-16 sm:px-4">
+          <Link to="/" className="flex items-center gap-2 sm:gap-3" onClick={closeMobileMenu}>
             {/* Live Indicator */}
             <div className="live-indicator hidden sm:block" />
             
-            <span className="font-display text-2xl tracking-tight nav-logo-glow">
+            <span className="font-display text-lg tracking-tight nav-logo-glow sm:text-2xl">
               <span className="text-accent drop-shadow-[0_0_10px_hsl(27_91%_55%/0.5)]">34TH ST</span>
               <span className="text-primary-foreground"> CARD SHOW</span>
             </span>
@@ -72,7 +105,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         <div
-          className={`relative z-10 overflow-hidden border-t border-primary-foreground/10 bg-primary/95 backdrop-blur-md transition-all duration-300 ease-in-out md:hidden ${
+          className={`relative z-10 overflow-hidden border-t border-primary-foreground/10 rounded-b-2xl bg-primary/95 backdrop-blur-md transition-all duration-300 ease-in-out md:hidden ${
             isMobileMenuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
@@ -80,7 +113,7 @@ const Header = () => {
           <div className="nav-rivet bottom-2 left-2" />
           <div className="nav-rivet bottom-2 right-2" />
           
-          <nav className="container mx-auto flex flex-col gap-2 px-4 py-4">
+          <nav className="flex flex-col gap-2 px-3 py-4 sm:px-4">
             <Link 
               to="/" 
               onClick={closeMobileMenu}
