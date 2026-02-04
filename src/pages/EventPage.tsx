@@ -87,9 +87,9 @@ const EventPage = () => {
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
       
-      <main className="flex-1 pt-[68px]">
+      <main className="flex-1">
         {/* Hero Section with spotlight effects */}
-        <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-card via-card to-background px-4 pb-8 pt-4 md:pb-16 md:pt-6">
+        <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-card via-card to-background px-4 pb-8 pt-20 md:pb-16 md:pt-24">
           {/* Animated floating orb background effects */}
           <div className="pointer-events-none absolute inset-0 z-0">
             <div className="floating-orb-1 absolute -left-20 top-0 h-[300px] w-[300px] rounded-full bg-primary/20 blur-[100px]" />
