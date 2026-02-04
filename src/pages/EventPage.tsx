@@ -7,6 +7,7 @@ import TicketOption from "@/components/TicketOption";
 import TicketCheckoutForm from "@/components/TicketCheckoutForm";
 import EventPoster from "@/components/EventPoster";
 import EventGuestsSection from "@/components/EventGuestsSection";
+import ArenaDivider from "@/components/ArenaDivider";
 import { useEvent } from "@/hooks/useEvents";
 
 // Category images
@@ -83,16 +84,22 @@ const EventPage = () => {
   const selectedPrice = selectedTicketType === "VIP" ? event.vipPrice : event.gaPrice;
 
   return (
-    <div className="flex min-h-screen flex-col bg-card">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
       
       <main className="flex-1 pt-[72px]">
-        {/* Hero Section */}
-        <section className="border-b border-border bg-gradient-to-b from-card to-background px-4 pb-12 pt-6 md:pb-24 md:pt-10">
-          <div className="container mx-auto max-w-4xl">
+        {/* Hero Section with spotlight effects */}
+        <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-card via-card to-background px-4 pb-12 pt-6 md:pb-24 md:pt-10">
+          {/* Spotlight background effects */}
+          <div className="pointer-events-none absolute inset-0 z-0">
+            <div className="absolute -left-32 top-0 h-[400px] w-[400px] rounded-full bg-primary/15 blur-[120px]" />
+            <div className="absolute -right-32 top-1/3 h-[350px] w-[350px] rounded-full bg-accent/15 blur-[100px]" />
+          </div>
+          
+          <div className="container relative z-10 mx-auto max-w-4xl">
             <Link 
               to="/" 
-              className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-accent"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to All Events
@@ -100,7 +107,7 @@ const EventPage = () => {
             
             <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
               <div className="animate-fade-in flex-1">
-                <div className="mb-4 inline-block rounded-full bg-accent/20 px-4 py-1.5 text-sm font-medium text-accent">
+                <div className="mb-4 inline-block rounded-full bg-accent/20 px-4 py-1.5 text-sm font-medium text-accent shadow-[0_0_20px_hsl(27_91%_55%/0.2)]">
                   {event.dayOfWeek}, {event.month} {event.date}, {event.year}
                 </div>
                 
@@ -129,7 +136,7 @@ const EventPage = () => {
                         href={GOOGLE_MAPS_URL}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm text-foreground hover:underline"
+                        className="text-sm text-foreground hover:text-accent hover:underline"
                       >
                         {VENUE_ADDRESS}
                       </a>
@@ -151,7 +158,7 @@ const EventPage = () => {
                   <EventPoster
                     poster={event.poster}
                     eventName={`${event.month} ${event.date} ${event.year} Card Show`}
-                    className="h-64 w-48 md:h-80 md:w-56"
+                    className="h-64 w-48 shadow-[0_0_40px_hsl(27_91%_55%/0.2)] md:h-80 md:w-56"
                   />
                 </div>
               )}
@@ -159,10 +166,19 @@ const EventPage = () => {
           </div>
         </section>
 
+        <ArenaDivider variant="lightbar" />
+
         {/* Tickets Section */}
-        <section className="border-b border-border px-4 py-16 md:py-24">
-          <div className="container mx-auto max-w-4xl">
-            <h2 className="mb-2 font-display text-4xl text-foreground">Get Your Tickets</h2>
+        <section className="relative overflow-hidden px-4 py-16 md:py-24 hardwood-texture">
+          {/* Spotlight effect */}
+          <div className="pointer-events-none absolute inset-0 z-0">
+            <div className="absolute left-1/2 top-0 h-[300px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[100px]" />
+          </div>
+          
+          <div className="container relative z-10 mx-auto max-w-4xl">
+            <h2 className="mb-2 font-display text-4xl text-foreground">
+              <span className="text-gradient-gold">Get Your</span> Tickets
+            </h2>
             <p className="mb-10 text-muted-foreground">
               Choose your experience and secure your spot at the show.
             </p>
@@ -184,37 +200,57 @@ const EventPage = () => {
           </div>
         </section>
 
+        <ArenaDivider variant="lightbar" />
+
         {/* Celebrities & Sponsors */}
         <EventGuestsSection eventId={event.id} />
 
+        <ArenaDivider variant="lightbar" />
+
         {/* Merchandise Categories Section */}
-        <section className="border-b border-border bg-secondary/30 px-4 py-16">
-          <div className="container mx-auto max-w-4xl">
+        <section className="relative overflow-hidden bg-card px-4 py-16">
+          {/* Spotlight effects */}
+          <div className="pointer-events-none absolute inset-0 z-0">
+            <div className="absolute -right-20 top-1/2 h-[300px] w-[300px] -translate-y-1/2 rounded-full bg-primary/10 blur-[80px]" />
+            <div className="absolute -left-20 top-1/2 h-[300px] w-[300px] -translate-y-1/2 rounded-full bg-accent/10 blur-[80px]" />
+          </div>
+          
+          <div className="container relative z-10 mx-auto max-w-4xl">
             <h2 className="mb-12 text-center font-display text-3xl text-foreground md:text-4xl">
-              What You'll Find
+              What You'll <span className="text-gradient-gold">Find</span>
             </h2>
             <div className="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
               {merchandiseCategories.map((category) => (
-                <div key={category.title} className="flex flex-col items-center text-center">
-                  <h3 className="mb-4 font-display text-xl text-foreground md:text-2xl">
+                <div key={category.title} className="group flex flex-col items-center text-center">
+                  <h3 className="mb-4 font-display text-xl text-foreground transition-colors group-hover:text-accent md:text-2xl">
                     {category.title}
                   </h3>
                   <img
                     src={category.image}
                     alt={category.title}
-                    className="h-auto w-full max-w-[208px] object-contain transition-transform hover:scale-105"
+                    className="h-auto w-full max-w-[208px] object-contain transition-transform group-hover:scale-110"
                   />
                 </div>
               ))}
             </div>
           </div>
         </section>
+
+        <ArenaDivider variant="lightbar" />
         
         {/* Vendor Section */}
-        <section className="border-t border-border bg-card px-4 py-16 md:py-24">
-          <div className="container mx-auto max-w-4xl">
+        <section className="relative overflow-hidden bg-gradient-to-b from-background to-card px-4 py-16 md:py-24">
+          {/* Spotlight effects */}
+          <div className="pointer-events-none absolute inset-0 z-0">
+            <div className="absolute bottom-0 left-1/4 h-[400px] w-[400px] rounded-full bg-primary/10 blur-[120px]" />
+            <div className="absolute bottom-0 right-1/4 h-[400px] w-[400px] rounded-full bg-accent/10 blur-[120px]" />
+          </div>
+          
+          <div className="container relative z-10 mx-auto max-w-4xl">
             <div className="text-center">
-              <h2 className="mb-4 font-display text-4xl text-foreground">Interested in Vending?</h2>
+              <h2 className="mb-4 font-display text-4xl text-foreground">
+                Interested in <span className="text-gradient-gold">Vending?</span>
+              </h2>
               <p className="mx-auto mb-10 max-w-2xl text-muted-foreground">
                 Showcase your collection to hundreds of passionate collectors. 
                 Limited tables available—reserve yours today.
@@ -226,8 +262,8 @@ const EventPage = () => {
               <h3 className="mb-6 text-center font-display text-2xl text-foreground">6ft Vendor Tables</h3>
               <div className="grid gap-4 md:grid-cols-3">
                 <Link
-to={`/vendor-application?tier=main_ballroom&event=${event.id}`}
-                  className="group rounded-xl border border-accent/30 bg-gradient-to-br from-card to-accent/5 p-6 text-center transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-lg"
+                  to={`/vendor-application?tier=main_ballroom&event=${event.id}`}
+                  className="group rounded-xl border border-accent/30 bg-gradient-to-br from-card to-accent/10 p-6 text-center transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-[0_0_30px_hsl(27_91%_55%/0.2)]"
                 >
                   <h4 className="font-display text-lg text-accent">Main Ballroom</h4>
                   <p className="mt-1 text-sm text-muted-foreground">1st Floor</p>
@@ -239,7 +275,7 @@ to={`/vendor-application?tier=main_ballroom&event=${event.id}`}
                 
                 <Link
                   to={`/vendor-application?tier=crystal_room&event=${event.id}`}
-                  className="group rounded-xl border border-primary/30 bg-gradient-to-br from-card to-primary/5 p-6 text-center transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg"
+                  className="group rounded-xl border border-primary/30 bg-gradient-to-br from-card to-primary/10 p-6 text-center transition-all hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_0_30px_hsl(204_100%_36%/0.2)]"
                 >
                   <h4 className="font-display text-lg text-primary">Crystal Room</h4>
                   <p className="mt-1 text-sm text-muted-foreground">1st Floor</p>
@@ -251,7 +287,7 @@ to={`/vendor-application?tier=main_ballroom&event=${event.id}`}
                 
                 <Link
                   to={`/vendor-application?tier=2nd_floor&event=${event.id}`}
-                  className="group rounded-xl border border-border bg-secondary/50 p-6 text-center transition-all hover:-translate-y-1 hover:border-muted-foreground/50 hover:shadow-lg"
+                  className="group rounded-xl border border-border bg-gradient-to-br from-card to-secondary p-6 text-center transition-all hover:-translate-y-1 hover:border-muted-foreground/50 hover:shadow-lg"
                 >
                   <h4 className="font-display text-lg text-foreground">2nd Floor</h4>
                   <p className="mt-1 text-sm text-muted-foreground">Every Room</p>
@@ -266,7 +302,7 @@ to={`/vendor-application?tier=main_ballroom&event=${event.id}`}
             <div className="text-center">
               <Link
                 to={`/vendor-application?event=${event.id}`}
-                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-gold-light px-8 py-4 font-semibold text-accent-foreground transition-all hover:opacity-90 hover:glow-gold"
+                className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-gold-light px-8 py-4 font-semibold text-accent-foreground shadow-[0_0_30px_hsl(27_91%_55%/0.3)] transition-all hover:scale-105 hover:shadow-[0_0_40px_hsl(27_91%_55%/0.4)]"
               >
                 Apply for a Vendor Table
               </Link>
