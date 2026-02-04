@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      celebrities: {
+        Row: {
+          bio: string
+          created_at: string
+          featured_order: number | null
+          id: string
+          is_featured: boolean
+          name: string
+          photo_url: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          bio: string
+          created_at?: string
+          featured_order?: number | null
+          id?: string
+          is_featured?: boolean
+          name: string
+          photo_url?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          bio?: string
+          created_at?: string
+          featured_order?: number | null
+          id?: string
+          is_featured?: boolean
+          name?: string
+          photo_url?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       event_celebrities: {
         Row: {
           bio: string
@@ -49,6 +85,38 @@ export type Database = {
           website?: string | null
         }
         Relationships: []
+      }
+      event_celebrity_links: {
+        Row: {
+          celebrity_id: string
+          created_at: string
+          display_order: number | null
+          event_id: string
+          id: string
+        }
+        Insert: {
+          celebrity_id: string
+          created_at?: string
+          display_order?: number | null
+          event_id: string
+          id?: string
+        }
+        Update: {
+          celebrity_id?: string
+          created_at?: string
+          display_order?: number | null
+          event_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_celebrity_links_celebrity_id_fkey"
+            columns: ["celebrity_id"]
+            isOneToOne: false
+            referencedRelation: "celebrities"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_sponsors: {
         Row: {

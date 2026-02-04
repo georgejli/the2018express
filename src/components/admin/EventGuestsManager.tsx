@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Pencil, Trash2, Star, Award, User } from "lucide-react";
+import { Plus, Pencil, Trash2, Star, Award, User, Link } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,16 +14,23 @@ import {
 } from "@/components/ui/alert-dialog";
 import {
   useEventCelebrities,
-  useEventSponsors,
+  useCelebrities,
   useAddCelebrity,
   useUpdateCelebrity,
-  useDeleteCelebrity,
+  useLinkCelebrityToEvent,
+  useUnlinkCelebrityFromEvent,
+  Celebrity,
+  EventCelebrityLink,
+} from "@/hooks/useCelebrities";
+import {
+  useEventSponsors,
   useAddSponsor,
   useUpdateSponsor,
   useDeleteSponsor,
-  EventCelebrity,
   EventSponsor,
 } from "@/hooks/useEventGuests";
+import CelebrityFormDialog from "./CelebrityFormDialog";
+import CelebrityImportDialog from "./CelebrityImportDialog";
 import GuestFormDialog from "./GuestFormDialog";
 
 interface EventGuestsManagerProps {
@@ -31,113 +38,127 @@ interface EventGuestsManagerProps {
 }
 
 const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
-  const { data: celebrities = [], isLoading: loadingCelebrities } = useEventCelebrities(eventId);
+  const { data: celebrityLinks = [], isLoading: loadingCelebrities } = useEventCelebrities(eventId);
   const { data: sponsors = [], isLoading: loadingSponsors } = useEventSponsors(eventId);
 
   const addCelebrity = useAddCelebrity();
   const updateCelebrity = useUpdateCelebrity();
-  const deleteCelebrity = useDeleteCelebrity();
+  const linkCelebrity = useLinkCelebrityToEvent();
+  const unlinkCelebrity = useUnlinkCelebrityFromEvent();
+
   const addSponsor = useAddSponsor();
   const updateSponsor = useUpdateSponsor();
   const deleteSponsor = useDeleteSponsor();
 
-  const [formOpen, setFormOpen] = useState(false);
-  const [formType, setFormType] = useState<"celebrity" | "sponsor">("celebrity");
-  const [editingGuest, setEditingGuest] = useState<EventCelebrity | EventSponsor | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: "celebrity" | "sponsor" } | null>(null);
+  const [celebrityFormOpen, setCelebrityFormOpen] = useState(false);
+  const [importDialogOpen, setImportDialogOpen] = useState(false);
+  const [editingCelebrity, setEditingCelebrity] = useState<Celebrity | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; type: "celebrity" | "sponsor"; name: string } | null>(null);
 
-  const openAddForm = (type: "celebrity" | "sponsor") => {
-    setFormType(type);
-    setEditingGuest(null);
-    setFormOpen(true);
+  const [sponsorFormOpen, setSponsorFormOpen] = useState(false);
+  const [editingSponsor, setEditingSponsor] = useState<EventSponsor | null>(null);
+
+  const linkedCelebrityIds = celebrityLinks.map((l) => l.celebrity_id);
+
+  const handleAddNewCelebrity = () => {
+    setEditingCelebrity(null);
+    setCelebrityFormOpen(true);
   };
 
-  const openEditForm = (guest: EventCelebrity | EventSponsor, type: "celebrity" | "sponsor") => {
-    setFormType(type);
-    setEditingGuest(guest);
-    setFormOpen(true);
+  const handleEditCelebrity = (celebrity: Celebrity) => {
+    setEditingCelebrity(celebrity);
+    setCelebrityFormOpen(true);
   };
 
-  const handleSave = async (data: { name: string; bio: string; photo_url: string | null; website: string | null }) => {
-    if (formType === "celebrity") {
-      if (editingGuest) {
-        await updateCelebrity.mutateAsync({ id: editingGuest.id, ...data });
-      } else {
-        await addCelebrity.mutateAsync({
-          event_id: eventId,
-          name: data.name,
-          bio: data.bio,
-          photo_url: data.photo_url,
-          website: data.website,
-          display_order: celebrities.length,
-        });
-      }
+  const handleSaveCelebrity = async (data: { name: string; bio: string; photo_url: string | null; website: string | null }) => {
+    if (editingCelebrity) {
+      await updateCelebrity.mutateAsync({ id: editingCelebrity.id, ...data });
     } else {
-      if (editingGuest) {
-        await updateSponsor.mutateAsync({ id: editingGuest.id, ...data, website: data.website || "" });
-      } else {
-        await addSponsor.mutateAsync({
-          event_id: eventId,
-          name: data.name,
-          bio: data.bio,
-          photo_url: data.photo_url,
-          website: data.website || "",
-          display_order: sponsors.length,
-        });
-      }
+      const newCelebrity = await addCelebrity.mutateAsync({
+        ...data,
+        is_featured: false,
+        featured_order: 0,
+      });
+      await linkCelebrity.mutateAsync({
+        eventId,
+        celebrityId: newCelebrity.id,
+        displayOrder: celebrityLinks.length,
+      });
     }
   };
 
-  const handleDelete = async () => {
-    if (!deleteTarget) return;
+  const handleImportCelebrity = async (celebrity: Celebrity) => {
     try {
-      if (deleteTarget.type === "celebrity") {
-        await deleteCelebrity.mutateAsync({ id: deleteTarget.id, eventId });
-      } else {
-        await deleteSponsor.mutateAsync({ id: deleteTarget.id, eventId });
-      }
-      toast.success(`${deleteTarget.type === "celebrity" ? "Celebrity" : "Sponsor"} deleted`);
+      await linkCelebrity.mutateAsync({
+        eventId,
+        celebrityId: celebrity.id,
+        displayOrder: celebrityLinks.length,
+      });
+      toast.success(`Linked ${celebrity.name} to this event`);
     } catch (error) {
-      toast.error("Failed to delete");
+      toast.error("Failed to link celebrity");
+    }
+  };
+
+  const handleUnlinkCelebrity = async () => {
+    if (!deleteTarget || deleteTarget.type !== "celebrity") return;
+    const link = celebrityLinks.find((l) => l.celebrity_id === deleteTarget.id);
+    if (!link) return;
+
+    try {
+      await unlinkCelebrity.mutateAsync({ linkId: link.id, eventId });
+      toast.success("Celebrity unlinked from event");
+    } catch (error) {
+      toast.error("Failed to unlink celebrity");
     }
     setDeleteTarget(null);
   };
 
-  const GuestItem = ({
-    guest,
-    type,
-  }: {
-    guest: EventCelebrity | EventSponsor;
-    type: "celebrity" | "sponsor";
-  }) => (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
-      <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border bg-secondary">
-        {guest.photo_url ? (
-          <img src={guest.photo_url} alt={guest.name} className="h-full w-full object-cover" />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center">
-            <User className="h-5 w-5 text-muted-foreground" />
-          </div>
-        )}
-      </div>
-      <div className="flex-1 truncate">
-        <p className="truncate font-medium text-foreground">{guest.name}</p>
-        <p className="truncate text-sm text-muted-foreground">{guest.bio}</p>
-      </div>
-      <div className="flex gap-1">
-        <Button variant="ghost" size="icon" onClick={() => openEditForm(guest, type)}>
-          <Pencil className="h-4 w-4" />
-        </Button>
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setDeleteTarget({ id: guest.id, type })}
-        >
-          <Trash2 className="h-4 w-4 text-destructive" />
-        </Button>
-      </div>
-    </div>
-  );
+  // Sponsor handlers
+  const handleAddSponsor = () => {
+    setEditingSponsor(null);
+    setSponsorFormOpen(true);
+  };
+
+  const handleEditSponsor = (sponsor: EventSponsor) => {
+    setEditingSponsor(sponsor);
+    setSponsorFormOpen(true);
+  };
+
+  const handleSaveSponsor = async (data: { name: string; bio: string; photo_url: string | null; website: string | null }) => {
+    if (editingSponsor) {
+      await updateSponsor.mutateAsync({ id: editingSponsor.id, ...data, website: data.website || "" });
+    } else {
+      await addSponsor.mutateAsync({
+        event_id: eventId,
+        name: data.name,
+        bio: data.bio,
+        photo_url: data.photo_url,
+        website: data.website || "",
+        display_order: sponsors.length,
+      });
+    }
+  };
+
+  const handleDeleteSponsor = async () => {
+    if (!deleteTarget || deleteTarget.type !== "sponsor") return;
+    try {
+      await deleteSponsor.mutateAsync({ id: deleteTarget.id, eventId });
+      toast.success("Sponsor deleted");
+    } catch (error) {
+      toast.error("Failed to delete sponsor");
+    }
+    setDeleteTarget(null);
+  };
+
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+    if (deleteTarget.type === "celebrity") {
+      handleUnlinkCelebrity();
+    } else {
+      handleDeleteSponsor();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -148,10 +169,16 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
             <Star className="h-5 w-5 text-accent" />
             <h3 className="font-display text-lg text-foreground">Celebrities</h3>
           </div>
-          <Button size="sm" onClick={() => openAddForm("celebrity")}>
-            <Plus className="mr-1 h-4 w-4" />
-            Add
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => setImportDialogOpen(true)}>
+              <Link className="mr-1 h-4 w-4" />
+              Import
+            </Button>
+            <Button size="sm" onClick={handleAddNewCelebrity}>
+              <Plus className="mr-1 h-4 w-4" />
+              New
+            </Button>
+          </div>
         </div>
 
         {loadingCelebrities ? (
@@ -159,15 +186,45 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
             <div className="h-16 rounded-lg bg-secondary" />
             <div className="h-16 rounded-lg bg-secondary" />
           </div>
-        ) : celebrities.length === 0 ? (
+        ) : celebrityLinks.length === 0 ? (
           <p className="py-4 text-center text-sm text-muted-foreground">
-            No celebrities added yet
+            No celebrities added yet. Import from database or create new.
           </p>
         ) : (
           <div className="space-y-2">
-            {celebrities.map((celebrity) => (
-              <GuestItem key={celebrity.id} guest={celebrity} type="celebrity" />
-            ))}
+            {celebrityLinks.map((link) => {
+              const celebrity = link.celebrity;
+              if (!celebrity) return null;
+              return (
+                <div key={link.id} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+                  <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border bg-secondary">
+                    {celebrity.photo_url ? (
+                      <img src={celebrity.photo_url} alt={celebrity.name} className="h-full w-full object-cover" />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <User className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 truncate">
+                    <p className="truncate font-medium text-foreground">{celebrity.name}</p>
+                    <p className="truncate text-sm text-muted-foreground">{celebrity.bio}</p>
+                  </div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => handleEditCelebrity(celebrity)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeleteTarget({ id: celebrity.id, type: "celebrity", name: celebrity.name })}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -179,7 +236,7 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
             <Award className="h-5 w-5 text-primary" />
             <h3 className="font-display text-lg text-foreground">Sponsors</h3>
           </div>
-          <Button size="sm" onClick={() => openAddForm("sponsor")}>
+          <Button size="sm" onClick={handleAddSponsor}>
             <Plus className="mr-1 h-4 w-4" />
             Add
           </Button>
@@ -197,35 +254,87 @@ const EventGuestsManager = ({ eventId }: EventGuestsManagerProps) => {
         ) : (
           <div className="space-y-2">
             {sponsors.map((sponsor) => (
-              <GuestItem key={sponsor.id} guest={sponsor} type="sponsor" />
+              <div key={sponsor.id} className="flex items-center gap-3 rounded-lg border border-border bg-card p-3">
+                <div className="h-12 w-12 flex-shrink-0 overflow-hidden rounded-full border border-border bg-secondary">
+                  {sponsor.photo_url ? (
+                    <img src={sponsor.photo_url} alt={sponsor.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <User className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 truncate">
+                  <p className="truncate font-medium text-foreground">{sponsor.name}</p>
+                  <p className="truncate text-sm text-muted-foreground">{sponsor.bio}</p>
+                </div>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={() => handleEditSponsor(sponsor)}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setDeleteTarget({ id: sponsor.id, type: "sponsor", name: sponsor.name })}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </div>
+              </div>
             ))}
           </div>
         )}
       </div>
 
-      {/* Form Dialog */}
+      {/* Celebrity Form Dialog */}
+      <CelebrityFormDialog
+        isOpen={celebrityFormOpen}
+        onClose={() => {
+          setCelebrityFormOpen(false);
+          setEditingCelebrity(null);
+        }}
+        existingCelebrity={editingCelebrity || undefined}
+        onSave={handleSaveCelebrity}
+      />
+
+      {/* Import Celebrity Dialog */}
+      <CelebrityImportDialog
+        isOpen={importDialogOpen}
+        onClose={() => setImportDialogOpen(false)}
+        onImport={handleImportCelebrity}
+        excludeIds={linkedCelebrityIds}
+      />
+
+      {/* Sponsor Form Dialog */}
       <GuestFormDialog
-        isOpen={formOpen}
-        onClose={() => setFormOpen(false)}
+        isOpen={sponsorFormOpen}
+        onClose={() => {
+          setSponsorFormOpen(false);
+          setEditingSponsor(null);
+        }}
         eventId={eventId}
-        type={formType}
-        existingGuest={editingGuest || undefined}
-        onSave={handleSave}
+        type="sponsor"
+        existingGuest={editingSponsor || undefined}
+        onSave={handleSaveSponsor}
       />
 
       {/* Delete Confirmation */}
       <AlertDialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {deleteTarget?.type}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              {deleteTarget?.type === "celebrity" ? "Unlink celebrity?" : "Delete sponsor?"}
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone.
+              {deleteTarget?.type === "celebrity"
+                ? `This will remove ${deleteTarget?.name} from this event only. The celebrity will remain in the database and can be linked to other events.`
+                : "This action cannot be undone."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-              Delete
+              {deleteTarget?.type === "celebrity" ? "Unlink" : "Delete"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

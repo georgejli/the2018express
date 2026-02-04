@@ -1,9 +1,9 @@
-import { useFeaturedCelebrities } from "@/hooks/useFeaturedCelebrities";
+import { useCelebrities } from "@/hooks/useCelebrities";
 import GuestCard from "@/components/GuestCard";
 import { Star } from "lucide-react";
 
 const PastGuestsSection = () => {
-  const { data: celebrities = [], isLoading } = useFeaturedCelebrities(true);
+  const { data: celebrities = [], isLoading } = useCelebrities(true);
 
   // Don't render the section if there are no celebrities
   if (!isLoading && celebrities.length === 0) {
