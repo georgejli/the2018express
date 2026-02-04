@@ -83,7 +83,7 @@ const EventPage = () => {
   const selectedPrice = selectedTicketType === "VIP" ? event.vipPrice : event.gaPrice;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-card">
       <Header />
       
       <main className="flex-1 pt-[72px]">
