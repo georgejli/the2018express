@@ -1,119 +1,88 @@
 
+# Fix: Black Gap Under Navbar on Event Page
 
-# Navbar Styling Enhancement Plan
+## Problem Identified
 
-## Current State Analysis
+The black gap you're seeing is caused by a **structural issue** with how backgrounds are layered:
 
-The existing navbar is functional but lacks the visual excitement of other elements on the site (scoreboard countdown, event cards, arena dividers). It currently features:
-- Solid blue background with backdrop blur
-- Plain text links with basic hover states
-- Simple orange accent button for "Become a Vendor"
-- Orange/white gradient divider at bottom
+```text
+┌─────────────────────────────────────┐
+│          Fixed Header (68px)        │  ← Blue navbar (position: fixed)
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│   <main> with pt-[68px] padding     │  ← This padding area has bg-background (BLACK)
+│   ┌─────────────────────────────────│
+│   │                                 │
+│   │  Hero Section starts here       │  ← Hero has bg-gradient-to-b from-card (DARK GRAY)
+│   │  with its own pt-4 padding      │
+```
 
-## Recommended Improvements
+The `pt-[68px]` padding on `<main>` creates space to clear the fixed header, but that padding area shows the **black background** (`bg-background`) from the parent container, not the hero section's gradient.
 
-I'll present **three design direction options** that match the MSG/Knicks arena theme:
+## Why Homepage Works
 
----
+The homepage uses a full-viewport hero (`min-h-[70vh]`) that handles its own padding internally (`pt-20`). The header sits on top of the hero visually. There's no explicit top padding on `<main>`.
 
-### Option A: Arena Scoreboard Nav (Recommended)
+## Solution
 
-Transform the navbar into a scoreboard-inspired header with LED-style elements.
+Remove the top padding from `<main>` and instead have the hero section handle the header clearance internally, similar to how the homepage works:
 
-**Visual Features:**
-- Subtle scanline texture overlay (like the scoreboard digits)
-- Logo with LED glow effect on hover
-- Nav links styled as illuminated scoreboard buttons
-- Corner rivets like the countdown component
-- Pulsing "live" indicator dot near the logo
-- Gradient border treatment (orange/blue)
+### Changes to EventPage.tsx
 
-**Interaction:**
-- Links glow on hover with LED effect
-- Mobile menu slides in with scoreboard frame styling
+1. **Remove `pt-[68px]` from `<main>`** - This eliminates the black padding area
 
----
+2. **Add top padding directly to the hero section** - Change `pt-4` to `pt-20` (or approximately 68px + the desired content padding) so the content clears the fixed header
 
-### Option B: Ticket Banner Nav
+3. **Extend the hero background to the top** - The gradient background will now extend from the very top of the page, appearing behind the header
 
-Style the navbar like the top edge of an admission ticket.
+### Before vs After Structure
 
-**Visual Features:**
-- Perforated edge effect along the bottom
-- "ADMIT ONE" style decorative text
-- Serial number styling for branding
-- Torn/ripped paper texture
-- Vintage ticket typography
+**Before (broken):**
+```text
+<main pt-[68px] bg-inherited-black>   ← BLACK gap appears here
+  <section pt-4 bg-gradient>           ← Content starts too low
+```
 
----
+**After (fixed):**
+```text
+<main pt-0>
+  <section pt-[72px] bg-gradient>      ← Gradient extends to top, content clears header
+```
 
-### Option C: Arena Marquee Nav
-
-Classic sports arena marquee with chase lights effect.
-
-**Visual Features:**
-- Animated border lights (subtle dot pattern)
-- Bold neon-style text treatment
-- Metallic frame with corner brackets
-- Gradient glow behind the logo
+This matches how professional sites handle fixed headers with full-bleed hero sections.
 
 ---
 
-## Recommendation: Option A (Arena Scoreboard Nav)
+## Technical Implementation
 
-This option best matches the existing scoreboard countdown component and creates visual consistency throughout the page. It maintains the modern, premium feel while adding visual interest.
+### File: `src/pages/EventPage.tsx`
 
----
+**Line 90** - Remove padding from main:
+```tsx
+// Before
+<main className="flex-1 pt-[68px]">
 
-## Technical Implementation Details
+// After  
+<main className="flex-1">
+```
 
-### Files to Modify
+**Line 92** - Add header clearance padding to hero section:
+```tsx
+// Before
+<section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-card via-card to-background px-4 pb-8 pt-4 md:pb-16 md:pt-6">
 
-1. **`src/components/Header.tsx`**
-   - Add scoreboard-style container with rivets
-   - Implement LED glow effects on logo and links
-   - Add scanline texture overlay
-   - Enhanced mobile menu with matching styling
-   - Live indicator dot near logo
+// After
+<section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-card via-card to-background px-4 pb-8 pt-20 md:pb-16 md:pt-24">
+```
 
-2. **`src/index.css`**
-   - Add `.nav-link-scoreboard` class for LED-style links
-   - Add `.nav-glow` animation for hover effects
-   - Add `.scoreboard-nav` class for container styling
-
-3. **`tailwind.config.ts`**
-   - Add `pulse-glow` keyframe animation for live indicator
-
-### Specific Enhancements
-
-**Logo Treatment:**
-- Add text shadow/glow effect matching the scoreboard digits
-- "34TH ST" in orange with LED glow
-- "CARD SHOW" in white with subtle blue glow on hover
-
-**Navigation Links:**
-- Background pill shape with subtle border
-- LED-style glow on hover using `drop-shadow`
-- Transition from dimmed to "lit" state
-
-**Vendor Button:**
-- Keep prominent orange styling
-- Add pulsing glow animation
-- Corner accent marks
-
-**Header Container:**
-- Add corner rivets (small glowing dots)
-- Subtle inner shadow for depth
-- Gradient border at bottom with enhanced treatment
-
-**Mobile Menu:**
-- Frame with rivet corners
-- Links styled as scoreboard panels
-- Smooth slide-in animation
+The `pt-20` (80px) on mobile and `pt-24` (96px) on desktop provides enough space to clear the ~68px header plus comfortable breathing room for the content.
 
 ---
 
-## Expected Result
+## Summary
 
-The navbar will feel like an integrated part of the arena experience - as if you're looking at the top of a jumbotron scoreboard. It will be eye-catching without being distracting, and will create a cohesive visual connection with the countdown component below.
-
+This is a proper structural fix, not a band-aid:
+- Eliminates the black padding gap at its source
+- Hero section gradient extends seamlessly behind the header
+- Matches the homepage pattern that already works correctly
+- The fixed header naturally overlays the hero with its semi-transparent styling
