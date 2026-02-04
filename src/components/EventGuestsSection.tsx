@@ -1,4 +1,5 @@
-import { useEventCelebrities, useEventSponsors } from "@/hooks/useEventGuests";
+import { useEventCelebrities } from "@/hooks/useCelebrities";
+import { useEventSponsors } from "@/hooks/useEventGuests";
 import GuestCard from "./GuestCard";
 import { Star, Award } from "lucide-react";
 
@@ -7,10 +8,10 @@ interface EventGuestsSectionProps {
 }
 
 const EventGuestsSection = ({ eventId }: EventGuestsSectionProps) => {
-  const { data: celebrities = [], isLoading: loadingCelebrities } = useEventCelebrities(eventId);
+  const { data: celebrityLinks = [], isLoading: loadingCelebrities } = useEventCelebrities(eventId);
   const { data: sponsors = [], isLoading: loadingSponsors } = useEventSponsors(eventId);
 
-  const hasCelebrities = celebrities.length > 0;
+  const hasCelebrities = celebrityLinks.length > 0;
   const hasSponsors = sponsors.length > 0;
 
   if (!hasCelebrities && !hasSponsors && !loadingCelebrities && !loadingSponsors) {
@@ -43,15 +44,19 @@ const EventGuestsSection = ({ eventId }: EventGuestsSectionProps) => {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-                {celebrities.map((celebrity) => (
-                  <GuestCard
-                    key={celebrity.id}
-                    name={celebrity.name}
-                    bio={celebrity.bio}
-                    photoUrl={celebrity.photo_url}
-                    website={celebrity.website}
-                  />
-                ))}
+                {celebrityLinks.map((link) => {
+                  const celebrity = link.celebrity;
+                  if (!celebrity) return null;
+                  return (
+                    <GuestCard
+                      key={link.id}
+                      name={celebrity.name}
+                      bio={celebrity.bio}
+                      photoUrl={celebrity.photo_url}
+                      website={celebrity.website}
+                    />
+                  );
+                })}
               </div>
             )}
           </div>
