@@ -46,8 +46,8 @@ const Header = () => {
   return (
     <>
       <header 
-        className={`fixed left-2 right-2 top-2 z-50 scoreboard-nav-floating rounded-2xl transition-all duration-300 sm:left-4 sm:right-4 sm:top-4 ${
-          isVisible ? "translate-y-0 opacity-100" : "-translate-y-[calc(100%+1rem)] opacity-0"
+        className={`fixed left-0 right-0 top-0 z-50 scoreboard-nav transition-transform duration-300 ${
+          isVisible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
         {/* Corner Rivets */}
@@ -56,12 +56,12 @@ const Header = () => {
         <div className="nav-rivet bottom-2 left-2" />
         <div className="nav-rivet bottom-2 right-2" />
         
-        <div className="relative z-10 flex h-14 items-center justify-between px-3 sm:h-16 sm:px-4">
-          <Link to="/" className="flex items-center gap-2 sm:gap-3" onClick={closeMobileMenu}>
+        <div className="container relative z-10 mx-auto flex h-16 items-center justify-between px-4">
+          <Link to="/" className="flex items-center gap-3" onClick={closeMobileMenu}>
             {/* Live Indicator */}
             <div className="live-indicator hidden sm:block" />
             
-            <span className="font-display text-lg tracking-tight nav-logo-glow sm:text-2xl">
+            <span className="font-display text-2xl tracking-tight nav-logo-glow">
               <span className="text-accent drop-shadow-[0_0_10px_hsl(27_91%_55%/0.5)]">34TH ST</span>
               <span className="text-primary-foreground"> CARD SHOW</span>
             </span>
@@ -105,7 +105,7 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         <div
-          className={`relative z-10 overflow-hidden border-t border-primary-foreground/10 rounded-b-2xl bg-primary/95 backdrop-blur-md transition-all duration-300 ease-in-out md:hidden ${
+          className={`relative z-10 overflow-hidden border-t border-primary-foreground/10 bg-gradient-to-b from-primary to-primary/95 transition-all duration-300 ease-in-out md:hidden ${
             isMobileMenuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
@@ -113,7 +113,7 @@ const Header = () => {
           <div className="nav-rivet bottom-2 left-2" />
           <div className="nav-rivet bottom-2 right-2" />
           
-          <nav className="flex flex-col gap-2 px-3 py-4 sm:px-4">
+          <nav className="container mx-auto flex flex-col gap-2 px-4 py-4">
             <Link 
               to="/" 
               onClick={closeMobileMenu}
@@ -138,6 +138,11 @@ const Header = () => {
           </nav>
         </div>
 
+        {/* Enhanced Arena Divider */}
+        <div className="relative z-10">
+          <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+          <div className="h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
+        </div>
       </header>
     </>
   );
