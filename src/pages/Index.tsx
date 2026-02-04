@@ -86,16 +86,25 @@ const Index = () => {
               )}
             </div>
 
-            {/* Presented By */}
-            <div className="mt-12 text-center">
-              <p className="text-sm tracking-widest text-muted-foreground uppercase mb-2">Presented By</p>
-              <div
-                className="font-display text-lg md:text-xl tracking-tight text-foreground"
-                style={{ lineHeight: "1.2" }}
-              >
-                <span className="block">LAZ NYC</span>
-                <span className="block">MIKE CARBONARO</span>
-                <span className="block">CORY ZILLA</span>
+            {/* Presented By - Scoreboard Style */}
+            <div className="mt-12 flex justify-center">
+              <div className="relative inline-block rounded-lg border border-border/50 bg-gradient-to-b from-secondary to-card px-8 py-6 shadow-lg">
+                {/* Corner accents */}
+                <div className="absolute top-1.5 left-1.5 h-2 w-2 border-l-2 border-t-2 border-accent/60" />
+                <div className="absolute top-1.5 right-1.5 h-2 w-2 border-r-2 border-t-2 border-accent/60" />
+                <div className="absolute bottom-1.5 left-1.5 h-2 w-2 border-l-2 border-b-2 border-accent/60" />
+                <div className="absolute bottom-1.5 right-1.5 h-2 w-2 border-r-2 border-b-2 border-accent/60" />
+                
+                <p className="text-xs tracking-[0.3em] text-muted-foreground uppercase mb-3 text-center">
+                  Presented By
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+                  <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">LAZ NYC</span>
+                  <span className="text-accent text-xl">×</span>
+                  <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">MIKE CARBONARO</span>
+                  <span className="text-accent text-xl">×</span>
+                  <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">CORY ZILLA</span>
+                </div>
               </div>
             </div>
           </div>
