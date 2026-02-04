@@ -88,7 +88,7 @@ const EventPage = () => {
       
       <main className="flex-1 pt-[72px]">
         {/* Hero Section */}
-        <section className="border-b border-border bg-gradient-to-b from-card to-background px-4 py-12 md:py-24">
+        <section className="border-b border-border bg-gradient-to-b from-card to-background px-4 pb-12 pt-6 md:pb-24 md:pt-10">
           <div className="container mx-auto max-w-4xl">
             <Link 
               to="/" 
