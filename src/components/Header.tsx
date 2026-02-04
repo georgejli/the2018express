@@ -6,7 +6,6 @@ import { events } from "@/data/events";
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   
   // Get the first upcoming event for the vendor application link
   const firstEvent = events[0];
@@ -15,33 +14,35 @@ const Header = () => {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   useEffect(() => {
+    let lastScrollYRef = 0;
+    
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
       // Always show header at the top of the page
       if (currentScrollY < 50) {
         setIsVisible(true);
-        setLastScrollY(currentScrollY);
+        lastScrollYRef = currentScrollY;
         return;
       }
       
-      // Scrolling up - show header
-      if (currentScrollY < lastScrollY) {
+      // Scrolling up - show header (with small threshold to avoid flicker)
+      if (currentScrollY < lastScrollYRef - 5) {
         setIsVisible(true);
       } 
       // Scrolling down - hide header
-      else if (currentScrollY > lastScrollY) {
+      else if (currentScrollY > lastScrollYRef + 5) {
         setIsVisible(false);
         // Close mobile menu when hiding
         setIsMobileMenuOpen(false);
       }
       
-      setLastScrollY(currentScrollY);
+      lastScrollYRef = currentScrollY;
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
+  }, []);
 
   return (
     <>
