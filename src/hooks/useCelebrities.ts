@@ -167,3 +167,40 @@ export const useUnlinkCelebrityFromEvent = () => {
     },
   });
 };
+
+// Reorder celebrities (update featured_order for multiple celebrities)
+export const useReorderCelebrities = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (updates: { id: string; featured_order: number }[]) => {
+      const promises = updates.map(({ id, featured_order }) =>
+        supabase.from("celebrities").update({ featured_order }).eq("id", id)
+      );
+      const results = await Promise.all(promises);
+      const error = results.find((r) => r.error)?.error;
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["celebrities"] });
+    },
+  });
+};
+
+// Reorder event celebrity links
+export const useReorderEventCelebrities = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ eventId, updates }: { eventId: string; updates: { id: string; display_order: number }[] }) => {
+      const promises = updates.map(({ id, display_order }) =>
+        supabase.from("event_celebrity_links").update({ display_order }).eq("id", id)
+      );
+      const results = await Promise.all(promises);
+      const error = results.find((r) => r.error)?.error;
+      if (error) throw error;
+      return eventId;
+    },
+    onSuccess: (eventId) => {
+      queryClient.invalidateQueries({ queryKey: ["event-celebrities-unified", eventId] });
+    },
+  });
+};
