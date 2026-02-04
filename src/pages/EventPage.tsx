@@ -117,52 +117,53 @@ const EventPage = () => {
                 <span className="text-gradient-gold">34TH ST</span> CARD SHOW
               </h1>
               
-              {/* Poster - Now below title, above details */}
-              {event.poster && (
-                <div className="my-5 md:my-6">
+              {/* Poster + Details Container */}
+              <div className="mt-5 flex flex-col gap-6 md:mt-6 md:flex-row md:items-start md:gap-8">
+                {/* Poster */}
+                {event.poster && (
                   <EventPoster
                     poster={event.poster}
                     eventName={`${event.month} ${event.date} ${event.year} Card Show`}
-                    className="h-48 w-36 shadow-[0_0_40px_hsl(27_91%_55%/0.2)] md:h-64 md:w-48"
+                    className="h-48 w-36 shrink-0 shadow-[0_0_40px_hsl(27_91%_55%/0.2)] md:h-64 md:w-48"
                   />
-                </div>
-              )}
-              
-              {/* Time & Location */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <Clock className="h-5 w-5 text-primary" />
-                  <span>{event.time}</span>
-                </div>
-                
-                {event.earlyBirdTime && (
-                  <div className="flex items-center gap-3 text-accent">
-                    <Clock className="h-5 w-5" />
-                    <span className="font-semibold">Early Bird: {event.earlyBirdTime}</span>
-                  </div>
                 )}
                 
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <MapPin className="h-5 w-5 text-primary" />
-                  <div>
-                    <span className="block font-medium text-foreground">{VENUE_NAME}</span>
-                    <a 
-                      href={GOOGLE_MAPS_URL}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-foreground hover:text-accent hover:underline"
-                    >
-                      {VENUE_ADDRESS}
-                    </a>
+                {/* Time & Location */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <Clock className="h-5 w-5 text-primary" />
+                    <span>{event.time}</span>
                   </div>
-                </div>
+                  
+                  {event.earlyBirdTime && (
+                    <div className="flex items-center gap-3 text-accent">
+                      <Clock className="h-5 w-5" />
+                      <span className="font-semibold">Early Bird: {event.earlyBirdTime}</span>
+                    </div>
+                  )}
+                  
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <MapPin className="h-5 w-5 text-primary" />
+                    <div>
+                      <span className="block font-medium text-foreground">{VENUE_NAME}</span>
+                      <a 
+                        href={GOOGLE_MAPS_URL}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-foreground hover:text-accent hover:underline"
+                      >
+                        {VENUE_ADDRESS}
+                      </a>
+                    </div>
+                  </div>
 
-                {/* Event Description */}
-                {event.description && (
-                  <p className="pt-2 text-muted-foreground">
-                    {event.description}
-                  </p>
-                )}
+                  {/* Event Description */}
+                  {event.description && (
+                    <p className="pt-2 text-muted-foreground">
+                      {event.description}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
