@@ -87,9 +87,9 @@ const EventPage = () => {
     <div className="flex min-h-screen flex-col bg-background">
       <Header />
       
-      <main className="flex-1 pt-[72px]">
+      <main className="flex-1 pt-[68px]">
         {/* Hero Section with spotlight effects */}
-        <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-card via-card to-background px-4 pb-12 pt-6 md:pb-24 md:pt-10">
+        <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-card via-card to-background px-4 pb-8 pt-4 md:pb-16 md:pt-6">
           {/* Spotlight background effects */}
           <div className="pointer-events-none absolute inset-0 z-0">
             <div className="absolute -left-32 top-0 h-[400px] w-[400px] rounded-full bg-primary/15 blur-[120px]" />
@@ -99,69 +99,70 @@ const EventPage = () => {
           <div className="container relative z-10 mx-auto max-w-4xl">
             <Link 
               to="/" 
-              className="mb-8 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-accent"
+              className="mb-4 inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-accent"
             >
               <ArrowLeft className="h-4 w-4" />
               Back to All Events
             </Link>
             
-            <div className="flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between">
-              <div className="animate-fade-in flex-1">
-                <div className="mb-4 inline-block rounded-full bg-accent/20 px-4 py-1.5 text-sm font-medium text-accent shadow-[0_0_20px_hsl(27_91%_55%/0.2)]">
-                  {event.dayOfWeek}, {event.month} {event.date}, {event.year}
-                </div>
-                
-                <h1 className="font-display text-5xl tracking-tight text-foreground md:text-6xl">
-                  <span className="text-gradient-gold">34TH ST</span> CARD SHOW
-                </h1>
-                
-                <div className="mt-6 space-y-3">
-                  <div className="flex items-center gap-3 text-muted-foreground">
-                    <Clock className="h-5 w-5 text-primary" />
-                    <span>{event.time}</span>
-                  </div>
-                  
-                  {event.earlyBirdTime && (
-                    <div className="flex items-center gap-3 text-accent">
-                      <Clock className="h-5 w-5" />
-                      <span className="font-semibold">Early Bird: {event.earlyBirdTime}</span>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center gap-3 text-muted-foreground">
-                    <MapPin className="h-5 w-5 text-primary" />
-                    <div>
-                      <span className="block font-medium text-foreground">{VENUE_NAME}</span>
-                      <a 
-                        href={GOOGLE_MAPS_URL}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-sm text-foreground hover:text-accent hover:underline"
-                      >
-                        {VENUE_ADDRESS}
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Event Description */}
-                  {event.description && (
-                    <p className="mt-6 text-muted-foreground">
-                      {event.description}
-                    </p>
-                  )}
-                </div>
+            <div className="animate-fade-in">
+              {/* Date Badge */}
+              <div className="mb-3 inline-block rounded-full bg-accent/20 px-4 py-1.5 text-sm font-medium text-accent shadow-[0_0_20px_hsl(27_91%_55%/0.2)]">
+                {event.dayOfWeek}, {event.month} {event.date}, {event.year}
               </div>
               
-              {/* Event Poster */}
+              {/* Title */}
+              <h1 className="font-display text-4xl tracking-tight text-foreground md:text-6xl">
+                <span className="text-gradient-gold">34TH ST</span> CARD SHOW
+              </h1>
+              
+              {/* Poster - Now below title, above details */}
               {event.poster && (
-                <div className="flex-shrink-0">
+                <div className="my-5 md:my-6">
                   <EventPoster
                     poster={event.poster}
                     eventName={`${event.month} ${event.date} ${event.year} Card Show`}
-                    className="h-64 w-48 shadow-[0_0_40px_hsl(27_91%_55%/0.2)] md:h-80 md:w-56"
+                    className="h-48 w-36 shadow-[0_0_40px_hsl(27_91%_55%/0.2)] md:h-64 md:w-48"
                   />
                 </div>
               )}
+              
+              {/* Time & Location */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <Clock className="h-5 w-5 text-primary" />
+                  <span>{event.time}</span>
+                </div>
+                
+                {event.earlyBirdTime && (
+                  <div className="flex items-center gap-3 text-accent">
+                    <Clock className="h-5 w-5" />
+                    <span className="font-semibold">Early Bird: {event.earlyBirdTime}</span>
+                  </div>
+                )}
+                
+                <div className="flex items-center gap-3 text-muted-foreground">
+                  <MapPin className="h-5 w-5 text-primary" />
+                  <div>
+                    <span className="block font-medium text-foreground">{VENUE_NAME}</span>
+                    <a 
+                      href={GOOGLE_MAPS_URL}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-foreground hover:text-accent hover:underline"
+                    >
+                      {VENUE_ADDRESS}
+                    </a>
+                  </div>
+                </div>
+
+                {/* Event Description */}
+                {event.description && (
+                  <p className="pt-2 text-muted-foreground">
+                    {event.description}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
         </section>
