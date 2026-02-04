@@ -307,4 +307,52 @@
     @apply w-2 h-2 rounded-full bg-accent;
     animation: pulse-glow 2s ease-in-out infinite;
   }
+  
+  /* Floating orb animations for hero backgrounds */
+  @keyframes float-slow {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.15;
+    }
+    50% {
+      transform: translate(30px, -20px) scale(1.1);
+      opacity: 0.25;
+    }
+  }
+  
+  @keyframes float-slower {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.12;
+    }
+    50% {
+      transform: translate(-25px, 15px) scale(1.05);
+      opacity: 0.2;
+    }
+  }
+  
+  @keyframes float-slowest {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.1;
+    }
+    50% {
+      transform: translate(15px, 25px) scale(1.08);
+      opacity: 0.18;
+    }
+  }
+  
+  .floating-orb-1 {
+    animation: float-slow 8s ease-in-out infinite;
+  }
+  
+  .floating-orb-2 {
+    animation: float-slower 10s ease-in-out infinite;
+    animation-delay: -3s;
+  }
+  
+  .floating-orb-3 {
+    animation: float-slowest 12s ease-in-out infinite;
+    animation-delay: -6s;
+  }
 }
