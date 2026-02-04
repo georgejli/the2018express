@@ -90,10 +90,11 @@ const EventPage = () => {
       <main className="flex-1 pt-[68px]">
         {/* Hero Section with spotlight effects */}
         <section className="relative overflow-hidden border-b border-border bg-gradient-to-b from-card via-card to-background px-4 pb-8 pt-4 md:pb-16 md:pt-6">
-          {/* Spotlight background effects */}
+          {/* Animated floating orb background effects */}
           <div className="pointer-events-none absolute inset-0 z-0">
-            <div className="absolute -left-32 top-0 h-[400px] w-[400px] rounded-full bg-primary/15 blur-[120px]" />
-            <div className="absolute -right-32 top-1/3 h-[350px] w-[350px] rounded-full bg-accent/15 blur-[100px]" />
+            <div className="floating-orb-1 absolute -left-20 top-0 h-[300px] w-[300px] rounded-full bg-primary/20 blur-[100px]" />
+            <div className="floating-orb-2 absolute -right-20 top-1/4 h-[250px] w-[250px] rounded-full bg-accent/20 blur-[80px]" />
+            <div className="floating-orb-3 absolute left-1/3 -bottom-20 h-[200px] w-[200px] rounded-full bg-primary/15 blur-[90px]" />
           </div>
           
           <div className="container relative z-10 mx-auto max-w-4xl">
