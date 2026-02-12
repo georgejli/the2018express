@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Calendar, MapPin, Clock, Ticket } from "lucide-react";
 import EventPoster from "./EventPoster";
 
