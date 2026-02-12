@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Calendar, MapPin, Clock, Ticket } from "lucide-react";
 import EventPoster from "./EventPoster";
 
@@ -16,6 +16,9 @@ interface EventCardProps {
   isSingleEvent?: boolean;
 }
 
+// TEMPORARY: TicketLeap redirect. Revert by removing this constant and the onClick handlers below.
+const TICKETLEAP_URL = "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show";
+
 const EventCard = ({
   id,
   date,
@@ -32,8 +35,10 @@ const EventCard = ({
   // Single event: large hero-style card with ticket stub aesthetic
   if (isSingleEvent) {
     return (
-      <Link
-        to={`/event/${id}`}
+      <a
+        href={TICKETLEAP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className="group relative block w-full overflow-hidden rounded-2xl border-2 border-accent/50 bg-card transition-all duration-300 hover:-translate-y-1 card-shine"
       >
         {/* Ticket Header Strip */}
@@ -166,14 +171,16 @@ const EventCard = ({
             <span>ROW: VIP</span>
           </div>
         </div>
-      </Link>
+      </a>
     );
   }
 
   // Default: regular event card with ticket stub aesthetic
   return (
-    <Link
-      to={`/event/${id}`}
+    <a
+      href={TICKETLEAP_URL}
+      target="_blank"
+      rel="noopener noreferrer"
       className={`group relative block w-full overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1 ${
         isFeatured 
           ? "border-accent/50 bg-card" 
@@ -325,7 +332,7 @@ const EventCard = ({
           <span>NYC</span>
         </div>
       </div>
-    </Link>
+    </a>
   );
 };
 
