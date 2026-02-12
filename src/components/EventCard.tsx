@@ -16,6 +16,9 @@ interface EventCardProps {
   isSingleEvent?: boolean;
 }
 
+// TEMPORARY: TicketLeap redirect. Revert by removing this constant and the onClick handlers below.
+const TICKETLEAP_URL = "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show";
+
 const EventCard = ({
   id,
   date,
