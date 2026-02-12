@@ -35,8 +35,10 @@ const EventCard = ({
   // Single event: large hero-style card with ticket stub aesthetic
   if (isSingleEvent) {
     return (
-      <Link
-        to={`/event/${id}`}
+      <a
+        href={TICKETLEAP_URL}
+        target="_blank"
+        rel="noopener noreferrer"
         className="group relative block w-full overflow-hidden rounded-2xl border-2 border-accent/50 bg-card transition-all duration-300 hover:-translate-y-1 card-shine"
       >
         {/* Ticket Header Strip */}
@@ -169,14 +171,16 @@ const EventCard = ({
             <span>ROW: VIP</span>
           </div>
         </div>
-      </Link>
+      </a>
     );
   }
 
   // Default: regular event card with ticket stub aesthetic
   return (
-    <Link
-      to={`/event/${id}`}
+    <a
+      href={TICKETLEAP_URL}
+      target="_blank"
+      rel="noopener noreferrer"
       className={`group relative block w-full overflow-hidden rounded-xl border transition-all duration-300 hover:-translate-y-1 ${
         isFeatured 
           ? "border-accent/50 bg-card" 
@@ -328,7 +332,7 @@ const EventCard = ({
           <span>NYC</span>
         </div>
       </div>
-    </Link>
+    </a>
   );
 };
 
