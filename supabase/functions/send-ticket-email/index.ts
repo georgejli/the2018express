@@ -238,7 +238,7 @@ serve(async (req) => {
 
     // Send email
     const { data: emailData, error: emailError } = await resend.emails.send({
-      from: "34th St Card Show <onboarding@resend.dev>",
+      from: "34th St Card Show <tickets@the34thstcardshow.com>",
       to: [orderData.customer_email],
       subject: `Your Ticket Confirmation - ${orderData.event_name}`,
       html: emailHtml,
