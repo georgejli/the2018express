@@ -74,12 +74,9 @@ const EventPage = () => {
     );
   }
 
-  // TEMPORARY: Redirect to TicketLeap instead of opening checkout dialog
-  // To revert: restore the original handleTicketSelect that sets checkoutOpen to true
-  const TICKETLEAP_URL = "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show";
-  
-  const handleTicketSelect = (_type: "GA" | "VIP") => {
-    window.open(TICKETLEAP_URL, "_blank", "noopener,noreferrer");
+  const handleTicketSelect = (type: "GA" | "VIP") => {
+    setSelectedTicketType(type);
+    setCheckoutOpen(true);
   };
 
   const eventDate = `${event.dayOfWeek}, ${event.month} ${event.date}, ${event.year}`;

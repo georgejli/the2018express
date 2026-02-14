@@ -66,18 +66,15 @@ const HeroBanner = () => {
           </p>
 
           {/* CTA Button */}
-          {/* TEMPORARY: Link to TicketLeap instead of event page. Revert to <Link to={`/event/${nextEvent.id}`}> when ready. */}
           {nextEvent && (
-            <a
-              href="https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={`/event/${nextEvent.id}`}
               className="mt-6 md:mt-8 inline-flex items-center justify-center gap-3 rounded-full bg-accent px-8 py-3 md:px-10 md:py-4 text-base md:text-lg font-display tracking-tight text-accent-foreground transition-all duration-300 hover:scale-105 hover:glow-gold opacity-0 animate-fade-in"
               style={{ animationDelay: "0.9s", animationFillMode: "forwards" }}
             >
               <Ticket className="h-5 w-5 md:h-6 md:w-6" />
               GET TICKETS NOW
-            </a>
+            </Link>
           )}
         </div>
       </div>
