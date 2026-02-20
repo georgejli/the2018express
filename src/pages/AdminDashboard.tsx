@@ -21,6 +21,7 @@ import VendorApplicationsManager from "@/components/VendorApplicationsManager";
 import EventGuestsManager from "@/components/admin/EventGuestsManager";
 import FeaturedCelebritiesManager from "@/components/admin/FeaturedCelebritiesManager";
 import HeroBannerManager from "@/components/admin/HeroBannerManager";
+import BannerTextManager from "@/components/admin/BannerTextManager";
 import { useEvents } from "@/hooks/useEvents";
 import { Event } from "@/data/events";
 
@@ -799,7 +800,8 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
 
-          <TabsContent value="settings" className="mt-6">
+          <TabsContent value="settings" className="mt-6 space-y-6">
+            <BannerTextManager />
             <HeroBannerManager />
           </TabsContent>
         </Tabs>

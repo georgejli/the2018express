@@ -1,37 +1,24 @@
-import { events } from "@/data/events";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const NextShowTicker = () => {
-  const nextEvent = events[0];
-  
-  const monthNames: Record<string, string> = {
-    JAN: "JANUARY",
-    FEB: "FEBRUARY",
-    MAR: "MARCH",
-    APR: "APRIL",
-    MAY: "MAY",
-    JUN: "JUNE",
-    JUL: "JULY",
-    AUG: "AUGUST",
-    SEP: "SEPTEMBER",
-    OCT: "OCTOBER",
-    NOV: "NOVEMBER",
-    DEC: "DECEMBER",
-  };
+  const [tickerContent, setTickerContent] = useState("NEXT SHOW: SUN, MAY 31 2026");
 
-  const dayAbbreviations: Record<string, string> = {
-    Sunday: "SUN",
-    Monday: "MON",
-    Tuesday: "TUE",
-    Wednesday: "WED",
-    Thursday: "THU",
-    Friday: "FRI",
-    Saturday: "SAT",
-  };
+  useEffect(() => {
+    const fetchText = async () => {
+      const { data } = await supabase
+        .from("site_settings")
+        .select("value")
+        .eq("key", "ticker_text")
+        .single();
 
-  const formattedDate = `${dayAbbreviations[nextEvent.dayOfWeek]}, ${monthNames[nextEvent.month]} ${nextEvent.date} ${nextEvent.year}`;
-  
-  const tickerContent = `NEXT SHOW: ${formattedDate}`;
-  
+      if (data?.value) {
+        setTickerContent(data.value);
+      }
+    };
+    fetchText();
+  }, []);
+
   return (
     <div className="overflow-hidden bg-primary py-3">
       <div className="animate-scroll flex whitespace-nowrap">
