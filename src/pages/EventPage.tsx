@@ -191,13 +191,13 @@ const EventPage = () => {
                 type="GA"
                 price={event.gaPrice}
                 features={event.gaFeatures}
-                onSelect={() => window.open("https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show", "_blank")}
+                onSelect={() => handleTicketSelect("GA")}
               />
               <TicketOption
                 type="VIP"
                 price={event.vipPrice}
                 features={event.vipFeatures}
-                onSelect={() => window.open("https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show", "_blank")}
+                onSelect={() => handleTicketSelect("VIP")}
               />
             </div>
           </div>
