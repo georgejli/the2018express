@@ -17,7 +17,7 @@ const PastGuestsSection = () => {
           <div className="mb-4 flex items-center justify-center gap-2">
             <Star className="h-6 w-6 text-accent" />
             <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
-              PAST <span className="text-gradient-gold">CELEBRITY GUESTS</span>
+              <span className="text-gradient-gold">CELEBRITY GUESTS</span>
             </h2>
             <Star className="h-6 w-6 text-accent" />
           </div>
