@@ -1,14 +1,24 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Ticket } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents } from "@/lib/eventUtils";
 import heroBackdrop from "@/assets/nyc-skyline.png";
-import heroSigns from "@/assets/hero-signs.png";
+import heroSignsFallback from "@/assets/hero-signs.png";
+
+const STORAGE_SIGN_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/site-assets/hero-sign.png`;
 
 const HeroBanner = () => {
   const { events } = useEvents();
   const upcomingEvents = getUpcomingEvents(events);
   const nextEvent = upcomingEvents[0];
+  const [heroSigns, setHeroSigns] = useState(heroSignsFallback);
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.onload = () => setHeroSigns(STORAGE_SIGN_URL);
+    img.src = STORAGE_SIGN_URL;
+  }, []);
 
   return (
     <section className="relative min-h-[70vh] md:min-h-[75vh] bg-background overflow-hidden">
