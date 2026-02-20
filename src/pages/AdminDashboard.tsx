@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2, Copy, Home, Store, Star } from "lucide-react";
+import { LogOut, Search, RefreshCw, Mail, Ticket, DollarSign, Users, UserPlus, QrCode, UserCheck, TrendingUp, Menu, X, CalendarPlus, Pencil, Calendar, Trash2, Copy, Home, Store, Star, Settings } from "lucide-react";
 import { format } from "date-fns";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,6 +20,7 @@ import EventForm from "@/components/EventForm";
 import VendorApplicationsManager from "@/components/VendorApplicationsManager";
 import EventGuestsManager from "@/components/admin/EventGuestsManager";
 import FeaturedCelebritiesManager from "@/components/admin/FeaturedCelebritiesManager";
+import HeroBannerManager from "@/components/admin/HeroBannerManager";
 import { useEvents } from "@/hooks/useEvents";
 import { Event } from "@/data/events";
 
@@ -451,7 +452,7 @@ const AdminDashboard = () => {
       <main className="container mx-auto p-4 md:p-6">
         {/* Tab Navigation */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-          <TabsList className="grid w-full grid-cols-3 md:w-auto md:grid-cols-none md:inline-flex">
+          <TabsList className="grid w-full grid-cols-4 md:w-auto md:grid-cols-none md:inline-flex">
             <TabsTrigger value="tickets" className="flex items-center gap-2">
               <Ticket className="h-4 w-4" />
               <span className="hidden sm:inline">Tickets</span>
@@ -463,6 +464,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="celebrities" className="flex items-center gap-2">
               <Star className="h-4 w-4" />
               <span className="hidden sm:inline">Celebrities</span>
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              <span className="hidden sm:inline">Settings</span>
             </TabsTrigger>
           </TabsList>
 
@@ -792,6 +797,10 @@ const AdminDashboard = () => {
                 <FeaturedCelebritiesManager />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="settings" className="mt-6">
+            <HeroBannerManager />
           </TabsContent>
         </Tabs>
       </main>
