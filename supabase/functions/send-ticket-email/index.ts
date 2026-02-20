@@ -24,11 +24,11 @@ interface OrderData {
   created_at: string;
 }
 
-// Generate QR code as base64 PNG data URI (self-hosted, no external API)
-async function generateQRCodeDataUri(data: string): Promise<string> {
+// Generate QR code as SVG string (works in Deno without canvas)
+async function generateQRCodeSvg(data: string): Promise<string> {
   try {
-    // Generate QR code as data URL (base64 PNG)
-    const dataUri = await QRCode.toDataURL(data, {
+    const svgString = await QRCode.toString(data, {
+      type: 'svg',
       width: 200,
       margin: 2,
       errorCorrectionLevel: 'M',
@@ -37,7 +37,7 @@ async function generateQRCodeDataUri(data: string): Promise<string> {
         light: '#ffffff'
       }
     });
-    return dataUri;
+    return svgString;
   } catch (error) {
     console.error("[SEND-TICKET-EMAIL] QR code generation failed:", error);
     throw new Error("Failed to generate QR code");
@@ -145,10 +145,9 @@ serve(async (req) => {
     const orderData = order as OrderData;
     console.log("[SEND-TICKET-EMAIL] Order fetched successfully");
 
-    // Generate QR code as base64 data URI (self-hosted, no external API exposure)
-    const qrCodeDataUri = await generateQRCodeDataUri(orderData.qr_code);
+    // Generate QR code as inline SVG (works in Deno without canvas)
+    const qrCodeSvg = await generateQRCodeSvg(orderData.qr_code);
     console.log("[SEND-TICKET-EMAIL] QR code generated successfully");
-    // Note: Using embedded base64 PNG. Most modern email clients support this.
 
     // Create email HTML
     const emailHtml = `
@@ -195,9 +194,9 @@ serve(async (req) => {
         </div>
       </div>
 
-      <!-- QR Code - Self-hosted base64 PNG, no external API -->
+      <!-- QR Code - Inline SVG, no canvas needed -->
       <div style="text-align: center; margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px;">
-        <img src="${qrCodeDataUri}" alt="Ticket QR Code" style="width: 200px; height: 200px;" />
+        ${qrCodeSvg}
         <p style="margin: 10px 0 0; color: #333; font-size: 12px;">Scan at entry</p>
       </div>
     </div>
