@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Ticket } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { getUpcomingEvents } from "@/lib/eventUtils";
-import heroBackdrop from "@/assets/nyc-skyline.png";
+import heroBackdrop from "@/assets/nyc-skyline-night.jpg";
 import heroSignsFallback from "@/assets/hero-signs.png";
 
 const STORAGE_SIGN_URL = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/site-assets/hero-sign.png`;
