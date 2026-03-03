@@ -7,7 +7,6 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   
-  // Get the first upcoming event for the vendor application link
   const firstEvent = events[0];
   const vendorLink = firstEvent ? `/vendor-application?event=${firstEvent.id}` : "/vendor-application";
 
@@ -19,21 +18,16 @@ const Header = () => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
-      // Always show header at the top of the page
       if (currentScrollY < 50) {
         setIsVisible(true);
         lastScrollYRef = currentScrollY;
         return;
       }
       
-      // Scrolling up - show header (with small threshold to avoid flicker)
       if (currentScrollY < lastScrollYRef - 5) {
         setIsVisible(true);
-      } 
-      // Scrolling down - hide header
-      else if (currentScrollY > lastScrollYRef + 5) {
+      } else if (currentScrollY > lastScrollYRef + 5) {
         setIsVisible(false);
-        // Close mobile menu when hiding
         setIsMobileMenuOpen(false);
       }
       
@@ -47,103 +41,70 @@ const Header = () => {
   return (
     <>
       <header 
-        className={`fixed left-0 right-0 top-0 z-50 scoreboard-nav transition-transform duration-300 ${
+        className={`fixed left-0 right-0 top-0 z-50 bg-background transition-transform duration-300 ${
           isVisible ? "translate-y-0" : "-translate-y-full"
         }`}
       >
-        {/* Corner Rivets */}
-        <div className="nav-rivet top-2 left-2" />
-        <div className="nav-rivet top-2 right-2" />
-        <div className="nav-rivet bottom-2 left-2" />
-        <div className="nav-rivet bottom-2 right-2" />
-        
-        <div className="container relative z-10 mx-auto flex h-16 items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-3" onClick={closeMobileMenu}>
-            {/* Live Indicator */}
-            <div className="live-indicator hidden sm:block" />
-            
-            <span className="font-display text-2xl tracking-tight nav-logo-glow">
-              <span className="text-accent drop-shadow-[0_0_10px_hsl(27_91%_55%/0.5)]">34TH ST</span>
-              <span className="text-primary-foreground"> CARD SHOW</span>
+        <div className="container mx-auto flex h-14 items-center justify-between px-4">
+          <Link to="/" className="flex items-center gap-2" onClick={closeMobileMenu}>
+            <span className="font-display text-2xl tracking-wide">
+              <span className="text-accent">34TH ST</span>
+              <span className="text-foreground/90"> CARD</span>
+              <span className="font-bold italic text-foreground"> SHOW</span>
             </span>
           </Link>
           
           {/* Desktop Navigation */}
-          <nav className="hidden items-center gap-2 md:flex">
-            <Link 
-              to="/" 
-              className="nav-link-scoreboard"
-            >
+          <nav className="hidden items-center gap-6 md:flex">
+            <Link to="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               Events
             </Link>
-            <a 
-              href="#about" 
-              className="nav-link-scoreboard"
-            >
+            <a href="#about" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               About
             </a>
             <Link
               to={vendorLink}
-              className="group relative ml-2 overflow-hidden rounded-lg bg-accent px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-all duration-300 hover:shadow-[0_0_20px_hsl(27_91%_55%/0.5)]"
+              className="rounded-md bg-accent px-5 py-2 text-sm font-semibold text-accent-foreground transition-colors hover:bg-accent/90"
             >
-              {/* Button glow effect */}
-              <span className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 transition-opacity group-hover:opacity-100" 
-                style={{ transform: 'skewX(-20deg)' }} 
-              />
-              <span className="relative">Become a Vendor</span>
+              Become a Vendor
             </Link>
           </nav>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-primary-foreground transition-colors hover:bg-primary-foreground/10 md:hidden"
+            className="flex h-10 w-10 items-center justify-center rounded-md text-foreground transition-colors hover:bg-secondary md:hidden"
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
           >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
 
         {/* Mobile Navigation */}
         <div
-          className={`relative z-10 overflow-hidden border-t border-primary-foreground/10 bg-gradient-to-b from-primary to-primary/95 transition-all duration-300 ease-in-out md:hidden ${
+          className={`overflow-hidden border-t border-border bg-background transition-all duration-300 ease-in-out md:hidden ${
             isMobileMenuOpen ? "max-h-64 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          {/* Mobile menu rivets */}
-          <div className="nav-rivet bottom-2 left-2" />
-          <div className="nav-rivet bottom-2 right-2" />
-          
-          <nav className="container mx-auto flex flex-col gap-2 px-4 py-4">
-            <Link 
-              to="/" 
-              onClick={closeMobileMenu}
-              className="nav-link-scoreboard rounded-lg px-4 py-3"
-            >
+          <nav className="container mx-auto flex flex-col gap-1 px-4 py-3">
+            <Link to="/" onClick={closeMobileMenu} className="rounded-md px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground">
               Events
             </Link>
-            <a 
-              href="#about" 
-              onClick={closeMobileMenu}
-              className="nav-link-scoreboard rounded-lg px-4 py-3"
-            >
+            <a href="#about" onClick={closeMobileMenu} className="rounded-md px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground">
               About
             </a>
             <Link
               to={vendorLink}
               onClick={closeMobileMenu}
-              className="mt-2 rounded-lg bg-accent px-4 py-3 text-center text-sm font-semibold text-accent-foreground transition-all hover:shadow-[0_0_20px_hsl(27_91%_55%/0.5)]"
+              className="mt-1 rounded-md bg-accent px-4 py-3 text-center text-sm font-semibold text-accent-foreground"
             >
               Become a Vendor
             </Link>
           </nav>
         </div>
 
-        {/* Enhanced Arena Divider */}
-        <div className="relative z-10">
-          <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
-          <div className="h-px bg-gradient-to-r from-transparent via-accent/60 to-transparent" />
-        </div>
+        {/* Bottom accent line */}
+        <div className="h-[3px] bg-gradient-to-r from-primary via-accent to-primary" />
       </header>
     </>
   );

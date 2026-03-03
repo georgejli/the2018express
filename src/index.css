@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,13 +7,13 @@
 
 @layer base {
   :root {
-    --background: 0 0% 4%;
+    --background: 0 0% 7%;
     --foreground: 0 0% 98%;
 
-    --card: 0 0% 8%;
+    --card: 0 0% 10%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 8%;
+    --popover: 0 0% 10%;
     --popover-foreground: 0 0% 98%;
 
     --primary: 204 100% 36%;
@@ -22,7 +23,7 @@
     --secondary-foreground: 0 0% 98%;
 
     --muted: 0 0% 14%;
-    --muted-foreground: 0 0% 64%;
+    --muted-foreground: 0 0% 60%;
 
     --accent: 27 91% 55%;
     --accent-foreground: 0 0% 100%;
@@ -30,27 +31,21 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
+    --border: 0 0% 22%;
+    --input: 0 0% 22%;
     --ring: 204 100% 36%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
 
     --gold: 27 91% 55%;
     --gold-foreground: 0 0% 100%;
     --gold-light: 27 95% 62%;
     
-    --gradient-gold: linear-gradient(135deg, hsl(27 91% 55%), hsl(27 95% 62%));
-    --gradient-blue: linear-gradient(135deg, hsl(204 100% 36%), hsl(204 100% 46%));
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 12%) 0%, hsl(0 0% 6%) 100%);
-    --gradient-hero: linear-gradient(180deg, transparent 0%, hsl(0 0% 4% / 0.8) 60%, hsl(0 0% 4%) 100%);
-    
-    --shadow-glow-blue: 0 0 30px hsl(204 100% 36% / 0.3);
-    --shadow-glow-gold: 0 0 30px hsl(27 91% 55% / 0.3);
+    --frame: 0 0% 30%;
   }
 
   .dark {
-    --background: 0 0% 4%;
+    --background: 0 0% 7%;
     --foreground: 0 0% 98%;
   }
 }
@@ -65,8 +60,8 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: Impact, 'Arial Black', sans-serif;
-    letter-spacing: -0.04em;
+    font-family: 'Bebas Neue', Impact, 'Arial Black', sans-serif;
+    letter-spacing: 0.02em;
     text-transform: uppercase;
   }
 }
@@ -81,278 +76,37 @@
     @apply bg-clip-text text-transparent;
     background-image: linear-gradient(135deg, hsl(204 100% 36%), hsl(204 100% 46%));
   }
-  
-  /* Hollow/Outline Text Style */
-  .text-hollow {
-    color: transparent;
-    -webkit-text-stroke: 2px hsl(var(--foreground));
-    text-stroke: 2px hsl(var(--foreground));
+
+  /* Frame border utility - the white/light border from the mockup */
+  .frame-border {
+    border: 2px solid hsl(var(--frame));
+    border-radius: var(--radius);
   }
-  
-  .text-hollow-accent {
-    color: transparent;
-    -webkit-text-stroke: 2px hsl(var(--accent));
-    text-stroke: 2px hsl(var(--accent));
-  }
-  
-  /* Brutalist tight typography */
-  .brutalist-heading {
-    line-height: 0.85;
-    letter-spacing: -0.05em;
-  }
-  
-  .card-shine {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .card-shine::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 50%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      hsl(0 0% 100% / 0.08),
-      transparent
-    );
-    transition: left 0.6s ease;
-  }
-  
-  .card-shine:hover::before {
-    left: 100%;
-  }
-  
-  .glow-blue {
-    box-shadow: 0 0 30px hsl(204 100% 36% / 0.3);
-  }
-  
-  .glow-gold {
-    box-shadow: 0 0 30px hsl(27 91% 55% / 0.3);
-  }
-  
-  /* Hardwood Court Texture */
-  .hardwood-texture {
-    position: relative;
-  }
-  
-  .hardwood-texture::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0.03;
-    pointer-events: none;
-    background: 
-      repeating-linear-gradient(
-        90deg,
-        hsl(27 40% 25%) 0px,
-        hsl(27 35% 20%) 2px,
-        hsl(27 45% 30%) 4px,
-        hsl(27 30% 18%) 6px,
-        hsl(27 40% 22%) 8px,
-        hsl(27 35% 28%) 10px,
-        hsl(27 40% 25%) 12px
-      ),
-      repeating-linear-gradient(
-        0deg,
-        transparent 0px,
-        transparent 80px,
-        hsl(27 20% 15% / 0.5) 80px,
-        hsl(27 20% 15% / 0.5) 82px
-      );
-    z-index: 0;
-  }
-  
-  /* Court lines accent */
-  .court-line {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      transparent 10%,
-      hsl(27 91% 55% / 0.1) 10%,
-      hsl(27 91% 55% / 0.1) 10.5%,
-      transparent 10.5%,
-      transparent 89.5%,
-      hsl(27 91% 55% / 0.1) 89.5%,
-      hsl(27 91% 55% / 0.1) 90%,
-      transparent 90%,
-      transparent 100%
-    );
-  }
-  
-  /* Ticket Stub Aesthetic */
-  .ticket-stub {
-    position: relative;
-  }
-  
-  .ticket-stub::before,
-  .ticket-stub::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 12px;
-    background: 
-      radial-gradient(circle at 0 8px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 24px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 40px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 56px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 72px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 88px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 104px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 120px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 136px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 152px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 168px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 184px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 200px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 216px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 232px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 248px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 264px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 280px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 296px, transparent 5px, hsl(var(--card)) 5px),
-      radial-gradient(circle at 0 312px, transparent 5px, hsl(var(--card)) 5px);
-    background-size: 12px 16px;
-    z-index: 10;
-  }
-  
-  .ticket-stub::before {
-    left: -6px;
-  }
-  
-  .ticket-stub::after {
-    right: -6px;
-    transform: scaleX(-1);
-  }
-  
-  /* Jersey Number Style */
+
+  /* Jersey Number Style - simplified */
   .jersey-number {
-    font-family: Impact, 'Arial Black', sans-serif;
-    text-shadow: 
-      3px 3px 0 hsl(var(--accent) / 0.3),
-      -1px -1px 0 hsl(var(--foreground) / 0.1);
-    letter-spacing: -0.05em;
+    font-family: 'Bebas Neue', Impact, 'Arial Black', sans-serif;
+    letter-spacing: -0.02em;
   }
   
-  /* Ticket perforated line */
-  .ticket-perforation {
-    background-image: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 4px,
-      hsl(var(--border)) 4px,
-      hsl(var(--border)) 8px
-    );
+  /* Ticker scroll */
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
   }
   
-  /* Scoreboard Nav Styles */
-  .scoreboard-nav {
-    position: relative;
-    background: linear-gradient(180deg, hsl(204 100% 28%) 0%, hsl(204 100% 20%) 100%);
-    box-shadow: 
-      inset 0 1px 0 hsl(204 100% 50% / 0.2),
-      inset 0 -2px 4px hsl(0 0% 0% / 0.3),
-      0 4px 12px hsl(0 0% 0% / 0.4);
+  .animate-scroll {
+    animation: scroll 20s linear infinite;
   }
-  
-  .scoreboard-nav::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      transparent 2px,
-      hsl(0 0% 0% / 0.03) 2px,
-      hsl(0 0% 0% / 0.03) 4px
-    );
-    pointer-events: none;
-    z-index: 1;
+
+  /* Pulse glow for live indicator */
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
   }
-  
-  .nav-rivet {
-    @apply absolute w-2 h-2 rounded-full;
-    background: radial-gradient(circle at 30% 30%, hsl(0 0% 60%), hsl(0 0% 25%));
-    box-shadow: 
-      inset 0 1px 2px hsl(0 0% 80% / 0.5),
-      0 1px 2px hsl(0 0% 0% / 0.5);
-  }
-  
-  .nav-link-scoreboard {
-    @apply relative px-4 py-2 rounded-md text-sm font-medium transition-all duration-200;
-    color: hsl(var(--primary-foreground) / 0.7);
-    text-shadow: 0 0 8px transparent;
-  }
-  
-  .nav-link-scoreboard:hover {
-    color: hsl(var(--primary-foreground));
-    text-shadow: 0 0 12px hsl(var(--primary-foreground) / 0.5);
-    background: hsl(var(--primary-foreground) / 0.1);
-  }
-  
-  .nav-logo-glow {
-    text-shadow: 0 0 20px hsl(var(--accent) / 0.6);
-    transition: text-shadow 0.3s ease;
-  }
-  
-  .nav-logo-glow:hover {
-    text-shadow: 0 0 30px hsl(var(--accent) / 0.9), 0 0 60px hsl(var(--accent) / 0.4);
-  }
-  
+
   .live-indicator {
     @apply w-2 h-2 rounded-full bg-accent;
     animation: pulse-glow 2s ease-in-out infinite;
-  }
-  
-  /* Floating orb animations for hero backgrounds */
-  @keyframes float-slow {
-    0%, 100% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0.15;
-    }
-    50% {
-      transform: translate(30px, -20px) scale(1.1);
-      opacity: 0.25;
-    }
-  }
-  
-  @keyframes float-slower {
-    0%, 100% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0.12;
-    }
-    50% {
-      transform: translate(-25px, 15px) scale(1.05);
-      opacity: 0.2;
-    }
-  }
-  
-  @keyframes float-slowest {
-    0%, 100% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0.1;
-    }
-    50% {
-      transform: translate(15px, 25px) scale(1.08);
-      opacity: 0.18;
-    }
-  }
-  
-  .floating-orb-1 {
-    animation: float-slow 8s ease-in-out infinite;
-  }
-  
-  .floating-orb-2 {
-    animation: float-slower 10s ease-in-out infinite;
-    animation-delay: -3s;
-  }
-  
-  .floating-orb-3 {
-    animation: float-slowest 12s ease-in-out infinite;
-    animation-delay: -6s;
   }
 }
