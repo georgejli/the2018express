@@ -41,10 +41,10 @@ const Index = () => {
         <ArenaDivider variant="lightbar" />
 
         {/* Events Section */}
-        <section className="relative px-4 py-10 md:py-16 overflow-hidden" id="events">
-          <div className="container relative z-[2] mx-auto max-w-4xl">
+        <section className="px-4 py-10 md:py-16" id="events">
+          <div className="container mx-auto max-w-4xl">
             
-            <div className="space-y-6">
+            <div className="space-y-5">
               {displayedEvents.map((event, index) => (
                 <EventCard
                   key={event.id}
@@ -63,12 +63,12 @@ const Index = () => {
               ))}
             </div>
             
-            {/* More Events / Past Events Section */}
-            <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            {/* More Events / Past Events */}
+            <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               {hasMoreEvents && !showAllEvents && (
                 <button
                   onClick={() => setShowAllEvents(true)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary hover:bg-primary/10"
+                  className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-colors hover:border-primary hover:text-primary"
                 >
                   <ChevronDown className="h-4 w-4" />
                   More Events ({upcomingEvents.length - INITIAL_EVENTS_COUNT} more)
@@ -78,7 +78,7 @@ const Index = () => {
               {hasPastEvents && (
                 <Link
                   to="/past-events"
-                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-6 py-3 text-sm font-semibold text-muted-foreground transition-all hover:border-accent hover:bg-accent/10 hover:text-accent"
+                  className="inline-flex items-center gap-2 rounded-md border border-border bg-card px-5 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-accent hover:text-accent"
                 >
                   <History className="h-4 w-4" />
                   Past Events
@@ -86,24 +86,18 @@ const Index = () => {
               )}
             </div>
 
-            {/* Presented By - Scoreboard Style */}
-            <div className="mt-12 flex justify-center">
-              <div className="relative inline-block rounded-lg border border-border/50 bg-gradient-to-b from-secondary to-card px-8 py-6 shadow-lg">
-                {/* Corner accents */}
-                <div className="absolute top-1.5 left-1.5 h-2 w-2 border-l-2 border-t-2 border-accent/60" />
-                <div className="absolute top-1.5 right-1.5 h-2 w-2 border-r-2 border-t-2 border-accent/60" />
-                <div className="absolute bottom-1.5 left-1.5 h-2 w-2 border-l-2 border-b-2 border-accent/60" />
-                <div className="absolute bottom-1.5 right-1.5 h-2 w-2 border-r-2 border-b-2 border-accent/60" />
-                
-                <p className="text-xs tracking-[0.3em] text-muted-foreground uppercase mb-3 text-center">
+            {/* Presented By */}
+            <div className="mt-10 flex justify-center">
+              <div className="inline-block rounded-md border border-border bg-card px-6 py-5">
+                <p className="text-xs tracking-[0.2em] text-muted-foreground uppercase mb-3 text-center">
                   Presented By
                 </p>
-                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
-                  <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">LAZ NYC</span>
-                  <span className="text-accent text-xl">×</span>
-                  <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">MIKE CARBONARO</span>
-                  <span className="text-accent text-xl">×</span>
-                  <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">CORY ZILLA</span>
+                <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+                  <span className="font-display text-base md:text-lg text-foreground">LAZ NYC</span>
+                  <span className="text-accent">×</span>
+                  <span className="font-display text-base md:text-lg text-foreground">MIKE CARBONARO</span>
+                  <span className="text-accent">×</span>
+                  <span className="font-display text-base md:text-lg text-foreground">CORY ZILLA</span>
                 </div>
               </div>
             </div>
@@ -113,43 +107,37 @@ const Index = () => {
         <ArenaDivider variant="lightbar" />
 
         {/* About Section */}
-        <section className="relative bg-card px-4 py-16 md:py-24 overflow-hidden hardwood-texture" id="about">
-          {/* Spotlight background effect */}
-          <div className="pointer-events-none absolute inset-0 z-[1]">
-            <div className="absolute left-0 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[100px]" />
-            <div className="absolute right-0 bottom-0 h-[400px] w-[400px] translate-x-1/2 translate-y-1/2 rounded-full bg-accent/20 blur-[100px]" />
-            <div className="absolute left-1/2 top-0 h-[300px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-[80px]" />
-          </div>
-          <div className="container relative z-[2] mx-auto max-w-4xl">
-            <div className="grid gap-12 md:grid-cols-2 md:items-center">
+        <section className="bg-card px-4 py-14 md:py-20" id="about">
+          <div className="container mx-auto max-w-4xl">
+            <div className="grid gap-10 md:grid-cols-2 md:items-center">
               <div>
-                <h2 className="font-display text-4xl tracking-tight text-foreground md:text-5xl">
-                  ABOUT <span className="text-gradient-gold">THE SHOW</span>
+                <h2 className="font-display text-3xl tracking-wide text-foreground md:text-4xl">
+                  ABOUT <span className="text-accent">THE SHOW</span>
                 </h2>
-                <p className="mt-6 leading-relaxed text-muted-foreground">
+                <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
                   The 34th St Card Show brings together the best vendors, collectors, 
                   and enthusiasts from across the tri-state area. Whether you're hunting 
                   for vintage gems, modern hits, or looking to sell part of your collection, 
                   our shows offer something for everyone.
                 </p>
-                <p className="mt-4 leading-relaxed text-muted-foreground">
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                   With dozens of vendor tables featuring sports cards, trading cards, 
                   memorabilia, and more—you'll find the cards you've been searching for 
                   at prices you won't find anywhere else.
                 </p>
               </div>
               
-              <div className="space-y-6">
-                <div className="rounded-xl border border-border bg-secondary/50 p-6">
-                  <div className="font-display text-4xl text-primary">200+</div>
+              <div className="space-y-4">
+                <div className="rounded-md border border-border bg-background p-5">
+                  <div className="font-display text-3xl text-primary">200+</div>
                   <div className="text-sm text-muted-foreground">Vendors Each Show</div>
                 </div>
-                <div className="rounded-xl border border-border bg-secondary/50 p-6">
-                  <div className="font-display text-4xl text-accent">1000+</div>
+                <div className="rounded-md border border-border bg-background p-5">
+                  <div className="font-display text-3xl text-accent">1000+</div>
                   <div className="text-sm text-muted-foreground">Collectors Attending</div>
                 </div>
-                <div className="rounded-xl border border-border bg-secondary/50 p-6">
-                  <div className="font-display text-4xl text-foreground">∞</div>
+                <div className="rounded-md border border-border bg-background p-5">
+                  <div className="font-display text-3xl text-foreground">∞</div>
                   <div className="text-sm text-muted-foreground">Cards To Discover</div>
                 </div>
               </div>
