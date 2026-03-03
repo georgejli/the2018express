@@ -22,9 +22,9 @@ const GuestCard = ({ name, bio, photoUrl, website }: GuestCardProps) => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="group flex w-full flex-col items-center rounded-xl border border-border bg-card p-4 text-center transition-all hover:-translate-y-1 hover:border-accent/50 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
+        className="group flex w-full flex-col items-center rounded-lg border border-border bg-card p-4 text-center transition-all hover:-translate-y-0.5 hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
       >
-        <div className="mb-3 h-24 w-24 overflow-hidden rounded-full border-2 border-accent/30 bg-secondary transition-all group-hover:border-accent">
+        <div className="mb-3 h-24 w-24 overflow-hidden rounded-full border border-border bg-secondary transition-colors group-hover:border-accent/50">
           {photoUrl ? (
             <img
               src={photoUrl}
@@ -51,7 +51,7 @@ const GuestCard = ({ name, bio, photoUrl, website }: GuestCardProps) => {
             <DialogTitle className="sr-only">{name}</DialogTitle>
           </DialogHeader>
           <div className="flex flex-col items-center text-center">
-            <div className="mb-4 h-32 w-32 overflow-hidden rounded-full border-2 border-accent bg-secondary">
+            <div className="mb-4 h-32 w-32 overflow-hidden rounded-full border border-accent bg-secondary">
               {photoUrl ? (
                 <img
                   src={photoUrl}

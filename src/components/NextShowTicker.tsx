@@ -20,14 +20,15 @@ const NextShowTicker = () => {
   }, []);
 
   return (
-    <div className="overflow-hidden bg-primary py-3">
+    <div className="overflow-hidden bg-card border-y border-border py-3">
       <div className="animate-scroll flex whitespace-nowrap">
         {[...Array(10)].map((_, i) => (
           <span
             key={i}
-            className="mx-8 font-display text-lg tracking-tight text-primary-foreground md:text-xl"
+            className="mx-8 font-display text-lg tracking-wide md:text-xl"
           >
-            {tickerContent}
+            <span className="text-accent">NEXT SHOW:</span>{" "}
+            <span className="text-foreground">{tickerContent.replace("NEXT SHOW: ", "")}</span>
           </span>
         ))}
       </div>
