@@ -98,12 +98,10 @@ const Index = () => {
                 <p className="text-xs tracking-[0.3em] text-muted-foreground uppercase mb-3 text-center">
                   Presented By
                 </p>
-                <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
                   <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">LAZ NYC</span>
                   <span className="text-accent text-xl">×</span>
                   <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">MIKE CARBONARO</span>
-                  <span className="text-accent text-xl">×</span>
-                  <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">CORY ZILLA</span>
                 </div>
               </div>
             </div>
