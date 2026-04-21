@@ -1,4 +1,4 @@
-import { Check, Star } from "lucide-react";
+import { Check, Star, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface TicketOptionProps {
@@ -6,9 +6,10 @@ interface TicketOptionProps {
   price: number;
   features: string[];
   onSelect: () => void;
+  externalUrl?: string;
 }
 
-const TicketOption = ({ type, price, features, onSelect }: TicketOptionProps) => {
+const TicketOption = ({ type, price, features, onSelect, externalUrl }: TicketOptionProps) => {
   const isVIP = type === "VIP";
   
   return (
@@ -51,16 +52,32 @@ const TicketOption = ({ type, price, features, onSelect }: TicketOptionProps) =>
           ))}
         </ul>
         
-        <Button
-          onClick={onSelect}
-          className={`mt-8 w-full py-6 font-semibold ${
-            isVIP 
-              ? "bg-gradient-to-r from-accent to-gold-light text-accent-foreground hover:opacity-90" 
-              : "bg-primary text-primary-foreground hover:bg-primary/90"
-          }`}
-        >
-          Get {type} Tickets
-        </Button>
+        {externalUrl ? (
+          <a
+            href={externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`mt-8 flex w-full items-center justify-center gap-2 rounded-md py-6 font-semibold transition-opacity hover:opacity-90 ${
+              isVIP 
+                ? "bg-gradient-to-r from-accent to-gold-light text-accent-foreground" 
+                : "bg-primary text-primary-foreground"
+            }`}
+          >
+            Get {type} Tickets
+            <ExternalLink className="h-4 w-4" />
+          </a>
+        ) : (
+          <Button
+            onClick={onSelect}
+            className={`mt-8 w-full py-6 font-semibold ${
+              isVIP 
+                ? "bg-gradient-to-r from-accent to-gold-light text-accent-foreground hover:opacity-90" 
+                : "bg-primary text-primary-foreground hover:bg-primary/90"
+            }`}
+          >
+            Get {type} Tickets
+          </Button>
+        )}
       </div>
     </div>
   );

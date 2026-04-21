@@ -171,7 +171,7 @@ const EventPage = () => {
 
         <ArenaDivider variant="lightbar" />
 
-        {/* Tickets Section */}
+      {/* Tickets Section */}
         <section className="relative overflow-hidden px-4 py-16 md:py-24 hardwood-texture">
           {/* Spotlight effect */}
           <div className="pointer-events-none absolute inset-0 z-0">
@@ -192,12 +192,14 @@ const EventPage = () => {
                 price={event.gaPrice}
                 features={event.gaFeatures}
                 onSelect={() => handleTicketSelect("GA")}
+                externalUrl={eventId === "may-2026" ? "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1967386767" : undefined}
               />
               <TicketOption
                 type="VIP"
                 price={event.vipPrice}
                 features={event.vipFeatures}
                 onSelect={() => handleTicketSelect("VIP")}
+                externalUrl={eventId === "may-2026" ? "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1967386767" : undefined}
               />
             </div>
           </div>
