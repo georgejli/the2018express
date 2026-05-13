@@ -100,8 +100,6 @@ const Index = () => {
                 </p>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
                   <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">LAZ NYC</span>
-                  <span className="text-accent text-xl">×</span>
-                  <span className="font-display text-lg md:text-xl text-foreground nav-logo-glow">MIKE CARBONARO</span>
                 </div>
               </div>
             </div>
