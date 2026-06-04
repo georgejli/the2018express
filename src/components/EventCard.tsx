@@ -114,6 +114,22 @@ const EventCard = ({
                     <p className="text-sm text-muted-foreground">Opens in new tab</p>
                   </div>
                 </a>
+              ) : id === "aug-2026" ? (
+                <a
+                  href="https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1903672423"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center gap-4"
+                >
+                  <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground transition-all duration-300 hover:scale-110 hover:glow-gold">
+                    <Ticket className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="font-display text-lg text-foreground">Get Tickets</p>
+                    <p className="text-sm text-muted-foreground">Opens in new tab</p>
+                  </div>
+                </a>
               ) : (
                 <>
                   <div className="flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground transition-all duration-300 group-hover:scale-110 group-hover:glow-gold">
@@ -170,6 +186,19 @@ const EventCard = ({
             {id === "may-2026" ? (
               <a
                 href="https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1967386767"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="flex items-center justify-center gap-3 rounded-xl bg-accent/10 py-3 border border-accent/20"
+              >
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                  <Ticket className="h-5 w-5" />
+                </div>
+                <span className="text-base font-semibold text-accent">Get Tickets Now</span>
+              </a>
+            ) : id === "aug-2026" ? (
+              <a
+                href="https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1903672423"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
@@ -286,6 +315,15 @@ const EventCard = ({
               >
                 <Ticket className="h-5 w-5" />
               </a>
+            ) : id === "aug-2026" ? (
+              <a
+                href="https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1903672423"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Ticket className="h-5 w-5" />
+              </a>
             ) : (
               <Ticket className="h-5 w-5" />
             )}
@@ -347,6 +385,27 @@ const EventCard = ({
           {id === "may-2026" ? (
             <a
               href="https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1967386767"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={(e) => e.stopPropagation()}
+              className={`flex items-center justify-center gap-3 rounded-lg py-2 border ${
+                isFeatured ? "bg-accent/10 border-accent/20" : "bg-primary/10 border-primary/20"
+              }`}
+            >
+              <div className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full ${
+                isFeatured 
+                  ? "bg-accent text-accent-foreground" 
+                  : "bg-primary text-primary-foreground"
+              }`}>
+                <Ticket className="h-4 w-4" />
+              </div>
+              <span className={`text-sm font-semibold ${
+                isFeatured ? "text-accent" : "text-primary"
+              }`}>Get Tickets Now</span>
+            </a>
+          ) : id === "aug-2026" ? (
+            <a
+              href="https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1903672423"
               target="_blank"
               rel="noopener noreferrer"
               onClick={(e) => e.stopPropagation()}

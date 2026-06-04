@@ -192,14 +192,14 @@ const EventPage = () => {
                 price={event.gaPrice}
                 features={event.gaFeatures}
                 onSelect={() => handleTicketSelect("GA")}
-                externalUrl={eventId === "may-2026" ? "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1967386767" : undefined}
+                externalUrl={eventId === "may-2026" ? "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1967386767" : eventId === "aug-2026" ? "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1903672423" : undefined}
               />
               <TicketOption
                 type="VIP"
                 price={event.vipPrice}
                 features={event.vipFeatures}
                 onSelect={() => handleTicketSelect("VIP")}
-                externalUrl={eventId === "may-2026" ? "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1967386767" : undefined}
+                externalUrl={eventId === "may-2026" ? "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1967386767" : eventId === "aug-2026" ? "https://events.ticketleap.com/tickets/garden-state-trading-card-show25/the-34th-st-card-show-1903672423" : undefined}
               />
             </div>
           </div>
