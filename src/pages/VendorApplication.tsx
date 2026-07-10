@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { events } from "@/data/events";
+import { useEvents } from "@/hooks/useEvents";
+import { getUpcomingEvents } from "@/lib/eventUtils";
 
 // Helper to format event date as "February 15, 2026"
 const formatEventDate = (month: string, date: string, year: string): string => {
@@ -72,8 +73,13 @@ const tierLabels: Record<string, { name: string; price: number }> = {
 
 const VendorApplication = () => {
   const [searchParams] = useSearchParams();
+  const { events: allEvents, loading: eventsLoading } = useEvents();
+  const upcomingEvents = getUpcomingEvents(allEvents);
   const preselectedTier = searchParams.get("tier") as "main_ballroom" | "crystal_room" | "2nd_floor" | null;
-  const preselectedEventId = searchParams.get("event") || (events.length > 0 ? events[0].id : "");
+  const eventParam = searchParams.get("event") || "";
+  const preselectedEventId = upcomingEvents.some((e) => e.id === eventParam)
+    ? eventParam
+    : "";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
@@ -107,7 +113,14 @@ const VendorApplication = () => {
   const totalPrice = selectedTier ? tierLabels[selectedTier].price * tableQuantity : 0;
 
   // Get the selected event for the submission
-  const selectedEvent = events.find((e) => e.id === selectedEventId);
+  const selectedEvent = upcomingEvents.find((e) => e.id === selectedEventId);
+
+  // Once events load, if no event selected yet, default to first upcoming
+  useEffect(() => {
+    if (!selectedEventId && upcomingEvents.length > 0) {
+      form.setValue("eventId", preselectedEventId || upcomingEvents[0].id);
+    }
+  }, [upcomingEvents, selectedEventId, preselectedEventId, form]);
 
   // Map server error messages to form field names
   const mapErrorToField = (errorMessage: string): keyof VendorFormValues | null => {
@@ -134,7 +147,7 @@ const VendorApplication = () => {
   };
 
   const onSubmit = async (data: VendorFormValues) => {
-    const event = events.find((e) => e.id === data.eventId);
+    const event = upcomingEvents.find((e) => e.id === data.eventId);
     if (!event) {
       toast.error("Please select a valid event");
       return;
@@ -265,18 +278,22 @@ const VendorApplication = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Event Date</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select an event date" />
+                            <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event date"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {events.map((event) => (
-                            <SelectItem key={event.id} value={event.id}>
-                              {formatEventDate(event.month, event.date, event.year)} - {event.venue}
-                            </SelectItem>
-                          ))}
+                          {upcomingEvents.length === 0 && !eventsLoading ? (
+                            <div className="px-2 py-1.5 text-sm text-muted-foreground">No upcoming events</div>
+                          ) : (
+                            upcomingEvents.map((event) => (
+                              <SelectItem key={event.id} value={event.id}>
+                                {formatEventDate(event.month, event.date, event.year)} - {event.venue}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
