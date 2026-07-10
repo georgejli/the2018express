@@ -73,8 +73,13 @@ const tierLabels: Record<string, { name: string; price: number }> = {
 
 const VendorApplication = () => {
   const [searchParams] = useSearchParams();
+  const { events: allEvents, loading: eventsLoading } = useEvents();
+  const upcomingEvents = getUpcomingEvents(allEvents);
   const preselectedTier = searchParams.get("tier") as "main_ballroom" | "crystal_room" | "2nd_floor" | null;
-  const preselectedEventId = searchParams.get("event") || (events.length > 0 ? events[0].id : "");
+  const eventParam = searchParams.get("event") || "";
+  const preselectedEventId = upcomingEvents.some((e) => e.id === eventParam)
+    ? eventParam
+    : "";
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
 
