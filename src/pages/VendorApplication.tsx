@@ -278,18 +278,22 @@ const VendorApplication = () => {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Event Date</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select an event date" />
+                            <SelectValue placeholder={eventsLoading ? "Loading events..." : "Select an event date"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {events.map((event) => (
-                            <SelectItem key={event.id} value={event.id}>
-                              {formatEventDate(event.month, event.date, event.year)} - {event.venue}
-                            </SelectItem>
-                          ))}
+                          {upcomingEvents.length === 0 && !eventsLoading ? (
+                            <div className="px-2 py-1.5 text-sm text-muted-foreground">No upcoming events</div>
+                          ) : (
+                            upcomingEvents.map((event) => (
+                              <SelectItem key={event.id} value={event.id}>
+                                {formatEventDate(event.month, event.date, event.year)} - {event.venue}
+                              </SelectItem>
+                            ))
+                          )}
                         </SelectContent>
                       </Select>
                       <FormMessage />
