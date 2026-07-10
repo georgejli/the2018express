@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/form";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { events } from "@/data/events";
+import { useEvents } from "@/hooks/useEvents";
+import { getUpcomingEvents } from "@/lib/eventUtils";
 
 // Helper to format event date as "February 15, 2026"
 const formatEventDate = (month: string, date: string, year: string): string => {
