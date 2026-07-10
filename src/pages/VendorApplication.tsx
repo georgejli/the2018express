@@ -113,7 +113,14 @@ const VendorApplication = () => {
   const totalPrice = selectedTier ? tierLabels[selectedTier].price * tableQuantity : 0;
 
   // Get the selected event for the submission
-  const selectedEvent = events.find((e) => e.id === selectedEventId);
+  const selectedEvent = upcomingEvents.find((e) => e.id === selectedEventId);
+
+  // Once events load, if no event selected yet, default to first upcoming
+  useEffect(() => {
+    if (!selectedEventId && upcomingEvents.length > 0) {
+      form.setValue("eventId", preselectedEventId || upcomingEvents[0].id);
+    }
+  }, [upcomingEvents, selectedEventId, preselectedEventId, form]);
 
   // Map server error messages to form field names
   const mapErrorToField = (errorMessage: string): keyof VendorFormValues | null => {
