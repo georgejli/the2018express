@@ -147,7 +147,7 @@ const VendorApplication = () => {
   };
 
   const onSubmit = async (data: VendorFormValues) => {
-    const event = events.find((e) => e.id === data.eventId);
+    const event = upcomingEvents.find((e) => e.id === data.eventId);
     if (!event) {
       toast.error("Please select a valid event");
       return;
